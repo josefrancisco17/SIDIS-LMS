@@ -1,6 +1,7 @@
 package libraryapi.readerservice.services;
 
 import jakarta.transaction.Transactional;
+import libraryapi.readerservice.api.BookView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -39,13 +40,15 @@ public class ReaderServiceImpl implements ReaderService {
     private final EditReaderMapper editReaderMapper;
     private final FileStorageService fileStorageService;
     private final ReaderPhotoRepository readerPhotoRepository;
+    private final MessagerService messagerService;
 
     @Autowired
-    public ReaderServiceImpl(ReaderRepository readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService) {
+    public ReaderServiceImpl(ReaderRepository readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService, MessagerService messagerService) {
         this.readerRepository = readerRepository;
         this.editReaderMapper = editReaderMapper;
         this.fileStorageService = fileStorageService;
         this.readerPhotoRepository = readerPhotoRepository;
+        this.messagerService = messagerService;
     }
 
     public Page<Reader> getReadersByName(final String name, Pageable pageable) {
@@ -101,7 +104,9 @@ public class ReaderServiceImpl implements ReaderService {
         }
 
         //List<Book> suggestedBooks = bookRepository.findAll().stream().filter(book -> interests.contains(book.getGenre().getName())).toList();
+        //List<Book> suggestedBooks = messagerService.getAllBooks(). //filer
         List<Book> suggestedBooks = new ArrayList<>();
+
         return BookUtil.toPage(suggestedBooks, pageable);
     }
 

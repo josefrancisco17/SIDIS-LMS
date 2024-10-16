@@ -1,7 +1,7 @@
-package libraryapi.lendingservice.lendingManagement.services;
+package libraryapi.lendingservice.services;
 
 import org.mapstruct.Mapper;
-import libraryapi.lendingservice.lendingManagement.model.Lending;
+import libraryapi.lendingservice.model.Lending;
 
 @Mapper(componentModel = "spring")
 public abstract class EditLendingMapper {

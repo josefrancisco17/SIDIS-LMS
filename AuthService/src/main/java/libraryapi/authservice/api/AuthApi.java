@@ -1,4 +1,4 @@
-package libraryapi.authservice.authManagement.api;
+package libraryapi.authservice.api;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

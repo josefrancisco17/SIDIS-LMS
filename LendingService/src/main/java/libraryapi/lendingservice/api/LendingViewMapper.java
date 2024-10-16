@@ -1,7 +1,7 @@
-package libraryapi.lendingservice.lendingManagement.api;
+package libraryapi.lendingservice.api;
 
 import org.mapstruct.Mapper;
-import libraryapi.lendingservice.lendingManagement.model.Lending;
+import libraryapi.lendingservice.model.Lending;
 
 import java.util.ArrayList;
 

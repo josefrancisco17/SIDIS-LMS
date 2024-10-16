@@ -1,11 +1,11 @@
-package libraryapi.lendingservice.lendingManagement.services;
+package libraryapi.lendingservice.services;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import psoftg2.libraryapi.bookManagement.model.Genre;
-import libraryapi.lendingservice.lendingManagement.api.LendingAvgPerBookView;
-import libraryapi.lendingservice.lendingManagement.api.LendingAvgPerGenrePerMonthView;
-import libraryapi.lendingservice.lendingManagement.model.Lending;
+import libraryapi.lendingservice.model.Genre;
+import libraryapi.lendingservice.api.LendingAvgPerBookView;
+import libraryapi.lendingservice.api.LendingAvgPerGenrePerMonthView;
+import libraryapi.lendingservice.model.Lending;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,7 +19,7 @@ public interface LendingService {
     List<Lending> getLentBook(Long bookId);
     Page<Lending> getOverdueLendings(Pageable pageable);
     double getAverageLendingDuration();
-    double AveragePerGenreInMonth(LocalDate date, int numberOfGenres);
+    double AveragePerGenreInMonth(LocalDate date);
     Map<Integer, Long> numberOfLendingsPerMonthByGenre(Genre genre);
     Iterable<LendingAvgPerBookView> getAverageLendingDurationPerBook();
     Iterable<LendingAvgPerGenrePerMonthView> getAverageLendingDurationPerGenrePerMonth(LocalDate startDate, LocalDate endDate);

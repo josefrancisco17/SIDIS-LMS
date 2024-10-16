@@ -1,22 +1,20 @@
-package libraryapi.lendingservice.lendingManagement.services;
+package libraryapi.lendingservice.services;
 
+import libraryapi.lendingservice.api.LendingAvgPerBookView;
+import libraryapi.lendingservice.api.LendingAvgPerBookViewMapper;
+import libraryapi.lendingservice.api.LendingAvgPerGenrePerMonthView;
+import libraryapi.lendingservice.api.LendingAvgPerGenrePerMonthViewMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import psoftg2.libraryapi.bookManagement.model.Book;
-import psoftg2.libraryapi.bookManagement.model.Genre;
-import psoftg2.libraryapi.bookManagement.repositories.BookRepository;
+import libraryapi.lendingservice.model.Book;
+import libraryapi.lendingservice.model.Genre;
 import libraryapi.lendingservice.exceptions.NotFoundException;
-import libraryapi.lendingservice.lendingManagement.api.LendingAvgPerBookView;
-import libraryapi.lendingservice.lendingManagement.api.LendingAvgPerBookViewMapper;
-import libraryapi.lendingservice.lendingManagement.api.LendingAvgPerGenrePerMonthView;
-import libraryapi.lendingservice.lendingManagement.api.LendingAvgPerGenrePerMonthViewMapper;
-import libraryapi.lendingservice.lendingManagement.model.Lending;
-import libraryapi.lendingservice.lendingManagement.repositories.LendingRepository;
-import psoftg2.libraryapi.readerManagement.model.Reader;
-import psoftg2.libraryapi.readerManagement.repositories.ReaderRepository;
+import libraryapi.lendingservice.model.Lending;
+import libraryapi.lendingservice.repositories.LendingRepository;
+import libraryapi.lendingservice.model.Reader;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -29,8 +27,6 @@ import java.util.Optional;
 public class LendingServiceImpl implements LendingService {
 
     private final LendingRepository lendingRepository;
-    private final BookRepository bookRepository;
-    private final ReaderRepository readerRepository;
     private final LendingAvgPerBookViewMapper lendingAvgPerBookViewMapper;
     private final LendingAvgPerGenrePerMonthViewMapper lendingAvgPerGenrePerMonthViewMapper;
 
@@ -40,10 +36,8 @@ public class LendingServiceImpl implements LendingService {
     private float lateFee;
 
     @Autowired
-    public LendingServiceImpl(LendingRepository lendingRepository, BookRepository bookRepository, ReaderRepository readerRepository, LendingAvgPerBookViewMapper lendingAvgPerBookViewMapper, LendingAvgPerGenrePerMonthViewMapper lendingAvgPerGenrePerMonthViewMapper) {
+    public LendingServiceImpl(LendingRepository lendingRepository, LendingAvgPerBookViewMapper lendingAvgPerBookViewMapper, LendingAvgPerGenrePerMonthViewMapper lendingAvgPerGenrePerMonthViewMapper) {
         this.lendingRepository = lendingRepository;
-        this.bookRepository = bookRepository;
-        this.readerRepository = readerRepository;
         this.lendingAvgPerBookViewMapper = lendingAvgPerBookViewMapper;
         this.lendingAvgPerGenrePerMonthViewMapper = lendingAvgPerGenrePerMonthViewMapper;
 
@@ -84,7 +78,9 @@ public class LendingServiceImpl implements LendingService {
         return Double.parseDouble(String.format("%.1f", averageDuration));
     }
 
-    public double AveragePerGenreInMonth(LocalDate date, int numberOfGenres){
+    public double AveragePerGenreInMonth(LocalDate date) {
+        //int numberOfGenres = genreService.getGenres().size();
+        int numberOfGenres = 10;
         return lendingRepository.averagePerGenreInMonth(date, numberOfGenres);
     }
 
@@ -111,12 +107,14 @@ public class LendingServiceImpl implements LendingService {
 
 
     public Lending createLending(final CreateLendingRequest resource) {
+        /*
         Optional<Book> book = bookRepository.findById(resource.getBookId());
         if (book.isEmpty()) {
             throw new IllegalArgumentException("[ERROR] Book not found with ID: " + resource.getBookId());
         }
 
         Optional<Reader> reader = readerRepository.findById(resource.getReaderId());
+        Optional<Reader> reader = Optional.empty();
         if (reader.isEmpty()) {
             throw new IllegalArgumentException("[ERROR] Reader not found with ID: " + resource.getReaderId());
         }
@@ -149,6 +147,10 @@ public class LendingServiceImpl implements LendingService {
         lending.setBookTitle(book.get().getTitle());
 
         return lendingRepository.save(lending);
+
+         */
+
+        return new Lending("2024/10", (long) 10, (long) 10, "Atomic Habits", LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
     }
 
     public Lending returnBook(final EditLendingRequest resource) {

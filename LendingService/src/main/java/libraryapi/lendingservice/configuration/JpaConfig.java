@@ -22,3 +22,4 @@ public class JpaConfig {
 				.map(Authentication::getName).or(() -> Optional.of("SYSTEM"));
 	}
 }
+

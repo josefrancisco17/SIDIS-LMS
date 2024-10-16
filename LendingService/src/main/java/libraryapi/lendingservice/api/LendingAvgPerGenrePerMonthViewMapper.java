@@ -1,4 +1,4 @@
-package libraryapi.lendingservice.lendingManagement.api;
+package libraryapi.lendingservice.api;
 
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;

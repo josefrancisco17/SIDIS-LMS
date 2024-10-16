@@ -1,4 +1,4 @@
-package libraryapi.lendingservice.lendingManagement.services;
+package libraryapi.lendingservice.services;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

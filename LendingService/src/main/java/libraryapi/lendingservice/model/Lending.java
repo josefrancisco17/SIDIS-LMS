@@ -1,4 +1,4 @@
-package libraryapi.lendingservice.lendingManagement.model;
+package libraryapi.lendingservice.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

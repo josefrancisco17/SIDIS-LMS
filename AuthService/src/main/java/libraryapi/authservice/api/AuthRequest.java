@@ -1,4 +1,4 @@
-package libraryapi.authservice.authManagement.api;
+package libraryapi.authservice.api;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;

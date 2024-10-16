@@ -1,4 +1,4 @@
-package libraryapi.lendingservice.lendingManagement.api;
+package libraryapi.lendingservice.api;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
