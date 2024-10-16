@@ -19,8 +19,10 @@ public class SecurityConfig {
 				.csrf().disable()
 				.cors().and()
 				.authorizeHttpRequests(authz -> authz
-						.requestMatchers("/**").permitAll()
-				);
+						.requestMatchers("/h2-console/**").permitAll() // Allow H2 Console access
+						.requestMatchers("/**").permitAll() // Allow all other requests
+				)
+				.headers(headers -> headers.frameOptions().sameOrigin()); // Allow frames for H2 Console
 
 		return http.build();
 	}
