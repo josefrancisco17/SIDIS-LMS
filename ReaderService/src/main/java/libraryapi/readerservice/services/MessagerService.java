@@ -26,7 +26,7 @@ public class MessagerService {
         this.httpClient = HttpClient.newHttpClient();
     }
 
-    public Optional<BookGenreView> getGenreById(final Long id) {
+    public Optional<Genre> getGenreById(final Long id) {
         String url = "http://localhost:9010/books/genres/" + id;
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -38,7 +38,7 @@ public class MessagerService {
             System.out.println(response.body());
 
             if (response.statusCode() == 200) {
-                BookGenreView genre = parseGenreFromJson(response.body());
+                Genre genre = parseGenreFromJson(response.body());
                 return Optional.of(genre);
             } else {
                 return Optional.empty();
@@ -50,9 +50,9 @@ public class MessagerService {
         }
     }
 
-    private BookGenreView parseGenreFromJson(String json) throws Exception {
+    private Genre parseGenreFromJson(String json) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, BookGenreView.class);
+        return mapper.readValue(json, Genre.class);
     }
 
 

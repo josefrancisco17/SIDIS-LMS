@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import libraryapi.authservice.userManagement.model.Role;
-import libraryapi.authservice.userManagement.model.User;
-import libraryapi.authservice.userManagement.repositories.UserRepository;
+import libraryapi.authservice.model.Role;
+import libraryapi.authservice.model.User;
+import libraryapi.authservice.repositories.UserRepository;
 
 @Component
 @RequiredArgsConstructor

@@ -36,8 +36,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import libraryapi.authservice.userManagement.model.Role;
-import libraryapi.authservice.userManagement.repositories.UserRepository;
+import libraryapi.authservice.model.Role;
+import libraryapi.authservice.repositories.UserRepository;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;

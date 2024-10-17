@@ -18,11 +18,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import libraryapi.authservice.userManagement.api.UserView;
-import libraryapi.authservice.userManagement.api.UserViewMapper;
-import libraryapi.authservice.userManagement.model.User;
-import libraryapi.authservice.userManagement.services.CreateUserRequest;
-import libraryapi.authservice.userManagement.services.UserService;
+import libraryapi.authservice.model.User;
+import libraryapi.authservice.services.CreateUserRequest;
+import libraryapi.authservice.services.UserService;
 
 import java.time.Instant;
 
