@@ -29,6 +29,7 @@ public class ApiConfig {
 	/*
 	 * OpenAPI
 	 */
+	/*
 	@Bean
 	public OpenAPI openApi() {
 		return new OpenAPI().addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
@@ -41,5 +42,11 @@ public class ApiConfig {
 	private SecurityScheme createAPIKeyScheme() {
 		return new SecurityScheme().type(SecurityScheme.Type.HTTP).bearerFormat("JWT").scheme("bearer");
 	}
-
+*/
+	@Bean
+	public OpenAPI openApi() {
+		return new OpenAPI().info(new Info().title("Library API").description("Library API").version("v1.0")
+				.contact(new Contact().name("Jose Francisco").email("1220971@isep.ipp.pt")).termsOfService("TOC")
+				.license(new License().name("MIT").url("#")));
+	}
 }

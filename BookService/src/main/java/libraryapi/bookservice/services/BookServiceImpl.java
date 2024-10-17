@@ -72,11 +72,14 @@ public class BookServiceImpl implements BookService{
     }
 
     public Iterable<Book> getTopBooks() {
+        /*
         return lendingRepository.findTopBookIds().stream()
                 .map(record -> (Long) record[0])
                 .map(bookId -> bookRepository.findById(bookId).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+        */
+        return (Iterable<Book>) new Book();
     }
 
     public Page<Book> getBooksByGenre(final String genre, Pageable pageable) {

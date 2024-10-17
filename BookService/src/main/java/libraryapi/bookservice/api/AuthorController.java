@@ -29,6 +29,7 @@ import libraryapi.bookservice.services.AuthorServiceImpl;
 import libraryapi.bookservice.services.EditAuthorRequest;
 import libraryapi.bookservice.api.BookView;
 import libraryapi.bookservice.api.BookViewMapper;
+import libraryapi.bookservice.api.AuthorViewMapper;
 import libraryapi.bookservice.model.Book;
 import libraryapi.bookservice.model.BookAuthor;
 import libraryapi.bookservice.services.BookServiceImpl;
@@ -108,7 +109,7 @@ public class    AuthorController {
         Page<Book> booksPage = new PageImpl<>(paginatedBooks, pageable, booksList.size());
         return booksPage.map(bookViewMapper::toBookView).getContent();
     }
-
+/*
     @Operation(summary = "Gets the top-5 authors")
     @GetMapping("/top-authors")
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
@@ -134,7 +135,7 @@ public class    AuthorController {
         allAuthors.sort((a1, a2) -> Integer.compare(a2.getLents(), a1.getLents()));
         return authorLentsViewMapper.toAuthorLentsView(allAuthors.subList(0, Math.min(5, allAuthors.size())));
     }
-
+*/
     @Operation(summary = "Gets the books from a specific Author by its id")
     @GetMapping("/{authorId}/books")
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})

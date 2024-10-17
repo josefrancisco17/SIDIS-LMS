@@ -101,7 +101,7 @@ public class BookController {
 
         return genreViewMapper.toGenreView(bookService.getTopGenres(), bookService.getAllBooks());
     }
-
+/*
     @Operation(summary = "Gets top 5 Books lent")
     @GetMapping("/top-books")
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
@@ -110,7 +110,7 @@ public class BookController {
     public Iterable<LentBookView> getTopBooks() {
         return lentBookViewMapper.toLentBookView(bookService.getTopBooks(), lendingService.getAllLendings());
     }
-
+*/
     @Operation(summary = "Downloads a cover of a book by id")
     @GetMapping("/{bookId}/cover")
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
