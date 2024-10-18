@@ -88,13 +88,23 @@ public class ReaderController {
         return  readersPage.map(readerViewMapper::toReaderView).getContent();
     }
 
+    @Operation(summary = "Gets all Readers for other services")
+    @GetMapping("/internal")
+    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @ApiResponse(description = "Success", responseCode = "200", content = {
+            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Reader.class)))
+    })
+    public Iterable<Reader> getAllReaders() {
+        return readerService.getAllReaders();
+    }
+
     @Operation(summary = "Gets the Top 5 Readers")
     @GetMapping("/top-readers")
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     @ApiResponse(description = "Success", content = { @Content(mediaType = "application/json",
             array = @ArraySchema(schema = @Schema(implementation = ReaderView.class))) })
     public Iterable<ReaderView> getTopReaders() {
-        return readerViewMapper.toReaderView(readerService.getTopReaders(5));
+        return readerViewMapper.toReaderView(readerService.getTopReaders());
     }
 
     @Operation(summary = "Gets book suggestions based on reader's interest list")

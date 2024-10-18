@@ -35,20 +35,4 @@ public interface LendingRepository extends JpaRepository<Lending, Long> {
 
     @Query("SELECT l FROM Lending l WHERE l.bookId = :id")
     List<Lending> getLentBook(Long id);
-
-    @Query("SELECT CASE " +
-            "WHEN COUNT(l.id) = 0 THEN 0 " +
-            "ELSE COALESCE(COUNT(l.id) * 1.0 / :numberOfGenres, 0) " +
-            "END " +
-            "FROM Lending l " +
-            "JOIN Book b ON l.bookId = b.id " +
-            "WHERE MONTH(l.lendDate) = MONTH(:date) AND YEAR(l.lendDate) = YEAR(:date)")
-    double averagePerGenreInMonth(@Param("date") LocalDate date, int numberOfGenres);
-
-    @Query("SELECT l.bookId, COUNT(l.bookId) as lendCount " +
-            "FROM Lending l " +
-            "GROUP BY l.bookId " +
-            "ORDER BY lendCount DESC " +
-            "LIMIT 5")
-    List<Object[]> findTopBookIds();
 }

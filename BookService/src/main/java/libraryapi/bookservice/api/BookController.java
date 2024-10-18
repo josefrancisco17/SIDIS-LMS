@@ -46,6 +46,7 @@ public class BookController {
     private final GenreViewMapper genreViewMapper;
     private final LentBookViewMapper lentBookViewMapper;
     private final BookRepositoryHTTP bookRepositoryHTTP;
+    private final GenreServiceImpl genreService;
 
     @Operation(summary = "Gets a specific Book")
     @GetMapping("/{bookIsbn}")
@@ -95,6 +96,16 @@ public class BookController {
     })
     public Iterable<Book> getAllBooks() {
         return bookService.getAllBooks();
+    }
+
+    @Operation(summary = "Gets all Genres for other services")
+    @GetMapping("/internal/genres")
+    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @ApiResponse(description = "Success", responseCode = "200", content = {
+            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Genre.class)))
+    })
+    public Iterable<Genre> getAllGenres() {
+        return genreService.getAllGenres();
     }
 
 

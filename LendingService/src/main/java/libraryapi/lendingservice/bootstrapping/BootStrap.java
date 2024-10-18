@@ -4,7 +4,6 @@ import libraryapi.lendingservice.model.Lending;
 import libraryapi.lendingservice.repositories.LendingRepository;
 import libraryapi.lendingservice.model.Book;
 import libraryapi.lendingservice.model.Genre;
-import libraryapi.lendingservice.model.Reader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;

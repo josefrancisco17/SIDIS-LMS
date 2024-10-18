@@ -1,31 +1,29 @@
 package libraryapi.readerservice.services;
 
 import jakarta.transaction.Transactional;
+import libraryapi.readerservice.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import libraryapi.readerservice.model.Book;
-import libraryapi.readerservice.model.Genre;
 import libraryapi.readerservice.util.BookUtil;
 import libraryapi.readerservice.exceptions.NotFoundException;
 import libraryapi.readerservice.fileStorage.FileStorageService;
 import libraryapi.readerservice.fileStorage.UploadFileResponse;
-import libraryapi.readerservice.model.Reader;
-import libraryapi.readerservice.model.ReaderPhoto;
 import libraryapi.readerservice.repositories.ReaderPhotoRepository;
 import libraryapi.readerservice.repositories.ReaderRepositoryHTTP;
-import libraryapi.readerservice.repositories.ReaderRepositoryJPA;
+import libraryapi.readerservice.repositories.ReaderRepository;
 import libraryapi.readerservice.util.ReaderUtil;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -34,14 +32,14 @@ import static libraryapi.readerservice.util.ReaderUtil.isValidReaderPhoto;
 @Service
 public class ReaderServiceImpl implements ReaderService {
 
-    private final ReaderRepositoryJPA readerRepository;
+    private final ReaderRepository readerRepository;
     private final EditReaderMapper editReaderMapper;
     private final FileStorageService fileStorageService;
     private final ReaderPhotoRepository readerPhotoRepository;
     private final ReaderRepositoryHTTP readerRepositoryHTTP;
 
     @Autowired
-    public ReaderServiceImpl(ReaderRepositoryJPA readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService, ReaderRepositoryHTTP readerRepositoryHTTP) {
+    public ReaderServiceImpl(ReaderRepository readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService, ReaderRepositoryHTTP readerRepositoryHTTP) {
         this.readerRepository = readerRepository;
         this.editReaderMapper = editReaderMapper;
         this.fileStorageService = fileStorageService;
@@ -68,12 +66,25 @@ public class ReaderServiceImpl implements ReaderService {
         return readers;
     }
 
-    public Iterable<Reader> getTopReaders(int topN) {
-        LocalDate endDate = LocalDate.now();
-        LocalDate startDate = endDate.minusYears(1);
-        List<Reader> readers = readerRepository.findTopReaders(PageRequest.of(0, topN), startDate, endDate);
-        readers.forEach(this::updateAge);
-        return readers;
+    public Iterable<Reader> getTopReaders() {
+        List<Lending> lendings = readerRepositoryHTTP.getAllLendings();
+
+        Map<Long, Long> lendingCountMap = lendings.stream()
+                .collect(Collectors.groupingBy(
+                        Lending::getReaderId,
+                        Collectors.counting()
+                ));
+
+        List<Long> topReaderIds = lendingCountMap.entrySet().stream()
+                .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
+                .limit(6)
+                .map(Map.Entry::getKey)
+                .toList();
+
+        return topReaderIds.stream()
+                .map(readerId -> readerRepository.findById(readerId).orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public Optional<Reader> getReaderByIdWithQuote(Long id) {

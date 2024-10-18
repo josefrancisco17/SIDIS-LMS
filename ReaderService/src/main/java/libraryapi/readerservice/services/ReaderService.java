@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface ReaderService {
     Page<Reader> getReaders(Pageable pageable);
     Iterable<Reader> getAllReaders();
-    Iterable<Reader> getTopReaders(int topN);
+    Iterable<Reader> getTopReaders();
     Optional<Reader> getReaderByIdWithQuote(Long id);
     Page<Book> getSuggestedBooks(Long readerId, Pageable pageable);
     Page<Reader> getReadersByPhoneNumberAndEmail(final String phoneNumber, final String email, Pageable pageable);

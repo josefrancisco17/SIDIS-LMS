@@ -21,7 +21,7 @@ public class GenreServiceImpl implements GenreService{
         return genreRepository.findGenreById(id);
     }
 
-    public List<Genre> getGenres() {
+    public Iterable<Genre> getAllGenres() {
         return genreRepository.findAll();
     }
 
