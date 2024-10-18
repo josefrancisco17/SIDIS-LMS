@@ -1,6 +1,8 @@
 package libraryapi.bookservice.services;
 
 import jakarta.transaction.Transactional;
+import libraryapi.bookservice.model.*;
+import libraryapi.bookservice.repositories.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -8,26 +10,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import libraryapi.bookservice.model.Author;
-import libraryapi.bookservice.repositories.AuthorRepository;
-import libraryapi.bookservice.model.Book;
-import libraryapi.bookservice.model.BookAuthor;
-import libraryapi.bookservice.model.BookCover;
-import libraryapi.bookservice.model.Genre;
-import libraryapi.bookservice.repositories.BookAuthorRepository;
-import libraryapi.bookservice.repositories.BookCoverRepository;
-import libraryapi.bookservice.repositories.BookRepository;
-import libraryapi.bookservice.repositories.GenreRepository;
 import libraryapi.bookservice.util.BookUtil;
 import libraryapi.bookservice.exceptions.NotFoundException;
 import libraryapi.bookservice.fileStorage.FileStorageService;
 import libraryapi.bookservice.fileStorage.UploadFileResponse;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static libraryapi.bookservice.util.BookUtil.isValidBookCover;
@@ -38,6 +27,7 @@ public class BookServiceImpl implements BookService{
 
     private final BookRepository bookRepository;
     private final BookCoverRepository bookCoverRepository;
+    private final BookRepositoryHTTP bookRepositoryHTTP;
     private final AuthorRepository authorRepository;
     private final BookAuthorRepository bookAuthorRepository;
     private final GenreRepository genreRepository;
@@ -45,9 +35,10 @@ public class BookServiceImpl implements BookService{
     private final EditBookMapper editBookMapper;
 
     @Autowired
-    public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, AuthorRepository authorRepository, BookAuthorRepository bookAuthorRepository, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService) {
+    public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, BookRepositoryHTTP bookRepositoryHTTP, AuthorRepository authorRepository, BookAuthorRepository bookAuthorRepository, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService) {
         this.bookRepository = bookRepository;
         this.bookCoverRepository = bookCoverRepository;
+        this.bookRepositoryHTTP = bookRepositoryHTTP;
         this.authorRepository = authorRepository;
         this.bookAuthorRepository = bookAuthorRepository;
         this.editBookMapper = editBookMapper;
@@ -72,14 +63,24 @@ public class BookServiceImpl implements BookService{
     }
 
     public Iterable<Book> getTopBooks() {
-        /*
-        return lendingRepository.findTopBookIds().stream()
-                .map(record -> (Long) record[0])
+        List<Lending> lendings = bookRepositoryHTTP.getAllLendings();
+
+        Map<Long, Long> lendingCountMap = lendings.stream()
+                .collect(Collectors.groupingBy(
+                        Lending::getBookId,
+                        Collectors.counting()
+                ));
+
+        List<Long> topBookIds = lendingCountMap.entrySet().stream()
+                .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
+                .limit(5)
+                .map(Map.Entry::getKey)
+                .toList();
+
+        return topBookIds.stream()
                 .map(bookId -> bookRepository.findById(bookId).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        */
-        return (Iterable<Book>) new Book();
     }
 
     public Page<Book> getBooksByGenre(final String genre, Pageable pageable) {
