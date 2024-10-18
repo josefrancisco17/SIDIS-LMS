@@ -16,9 +16,7 @@ public interface ReaderService {
     Page<Reader> getReaders(Pageable pageable);
     Iterable<Reader> getAllReaders();
     Iterable<Reader> getTopReaders(int topN);
-    Iterable<Reader> getTopReadersperGenre(int topN, Genre genre, LocalDate startDate, LocalDate endDate);
     Optional<Reader> getReaderByIdWithQuote(Long id);
-    int getMonthlyLending(Long readerId, LocalDate startDate, LocalDate endDate);
     Page<Book> getSuggestedBooks(Long readerId, Pageable pageable);
     Page<Reader> getReadersByPhoneNumberAndEmail(final String phoneNumber, final String email, Pageable pageable);
     Page<Reader> getReadersByPhoneNumber(final String phoneNumber, Pageable pageable);

@@ -5,7 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import libraryapi.readerservice.model.Reader;
-import libraryapi.readerservice.repositories.ReaderRepository;
+import libraryapi.readerservice.repositories.ReaderRepositoryJPA;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -17,7 +17,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Profile("bootstrap")
 public class BootStrap implements CommandLineRunner {
-    private final ReaderRepository readerRepository;
+    private final ReaderRepositoryJPA readerRepository;
     public static final Map<Month, String> funnyQuotes = new HashMap<>();
 
     static {

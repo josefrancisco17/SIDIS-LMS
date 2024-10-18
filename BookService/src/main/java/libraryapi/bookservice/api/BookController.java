@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import libraryapi.bookservice.model.*;
+import libraryapi.bookservice.services.GenreServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -23,13 +25,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import libraryapi.bookservice.model.Author;
-import libraryapi.bookservice.model.BookAuthor;
-import libraryapi.bookservice.model.BookCover;
 import libraryapi.bookservice.repositories.BookRepository;
 import libraryapi.bookservice.services.BookServiceImpl;
 import libraryapi.bookservice.exceptions.NotFoundException;
-import libraryapi.bookservice.model.Book;
 import libraryapi.bookservice.services.CreateBookRequest;
 import libraryapi.bookservice.services.EditBookRequest;
 import libraryapi.bookservice.fileStorage.UploadFileResponse;
@@ -39,6 +37,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Tag(name = "Books", description = "Endpoints for managing Books")
 @RestController
@@ -50,7 +49,6 @@ public class BookController {
     private final BookServiceImpl bookService;
     private final BookViewMapper bookViewMapper;
     private final GenreViewMapper genreViewMapper;
-    private final LentBookViewMapper lentBookViewMapper;
 
     @Operation(summary = "Gets a specific Book")
     @GetMapping("/{bookIsbn}")
@@ -91,6 +89,17 @@ public class BookController {
 
         return booksPage.map(bookViewMapper::toBookView).getContent();
     }
+
+    @Operation(summary = "Gets all Books for other services")
+    @GetMapping("internal/all")
+    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @ApiResponse(description = "Success", responseCode = "200", content = {
+            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Book.class)))
+    })
+    public Iterable<Book> getBooks() {
+        return bookService.getAllBooks();
+    }
+
 
     @Operation(summary = "Gets top 5 Genres by book number")
     @GetMapping("/top-genres")

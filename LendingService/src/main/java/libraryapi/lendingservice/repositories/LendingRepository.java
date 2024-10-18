@@ -45,33 +45,10 @@ public interface LendingRepository extends JpaRepository<Lending, Long> {
             "WHERE MONTH(l.lendDate) = MONTH(:date) AND YEAR(l.lendDate) = YEAR(:date)")
     double averagePerGenreInMonth(@Param("date") LocalDate date, int numberOfGenres);
 
-    @Query("SELECT MONTH(l.lendDate) AS month, COUNT(l.id) AS count " +
-            "FROM Lending l " +
-            "JOIN Book b ON l.bookId = b.id " +
-            "WHERE b.genre = :genre AND l.lendDate >= DATEADD(MONTH, -11, CURRENT_DATE()) " +
-            "GROUP BY MONTH(l.lendDate) " +
-            "ORDER BY MONTH(l.lendDate)")
-    List<Object[]> numberOfLendingsPerMonthByGenre(@Param("genre") Genre genre);
-
-
-    @Query("SELECT l.bookId, AVG(TIMESTAMPDIFF(DAY, l.lendDate, l.returnedDate)) AS averageDuration " +
-            "FROM Lending l " +
-            "WHERE l.returned = TRUE " +
-            "GROUP BY l.bookId")
-    List<Object[]> findAverageLendingDurationPerBook();
-
     @Query("SELECT l.bookId, COUNT(l.bookId) as lendCount " +
             "FROM Lending l " +
             "GROUP BY l.bookId " +
             "ORDER BY lendCount DESC " +
             "LIMIT 5")
     List<Object[]> findTopBookIds();
-
-    @Query("SELECT b.genre.id, AVG(TIMESTAMPDIFF(DAY, l.lendDate, l.returnedDate)) AS averageDuration " +
-            "FROM Lending l " +
-            "JOIN Book b ON l.bookId = b.id " +
-            "WHERE l.returned = TRUE " +
-            "AND l.lendDate BETWEEN :startDate AND :endDate " +
-            "GROUP BY b.genre.id, MONTH(l.lendDate), YEAR(l.lendDate)")
-    List<Object[]> findAverageLendingDurationPerGenrePerMonth(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

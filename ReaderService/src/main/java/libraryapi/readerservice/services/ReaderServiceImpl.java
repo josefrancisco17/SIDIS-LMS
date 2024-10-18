@@ -1,7 +1,6 @@
 package libraryapi.readerservice.services;
 
 import jakarta.transaction.Transactional;
-import libraryapi.readerservice.api.BookView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -12,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import libraryapi.readerservice.model.Book;
 import libraryapi.readerservice.model.Genre;
-//import libraryapi.readerservice.bookManagement.services.BookServiceImpl;
 import libraryapi.readerservice.util.BookUtil;
 import libraryapi.readerservice.exceptions.NotFoundException;
 import libraryapi.readerservice.fileStorage.FileStorageService;
@@ -20,13 +18,13 @@ import libraryapi.readerservice.fileStorage.UploadFileResponse;
 import libraryapi.readerservice.model.Reader;
 import libraryapi.readerservice.model.ReaderPhoto;
 import libraryapi.readerservice.repositories.ReaderPhotoRepository;
-import libraryapi.readerservice.repositories.ReaderRepository;
+import libraryapi.readerservice.repositories.ReaderRepositoryHTTP;
+import libraryapi.readerservice.repositories.ReaderRepositoryJPA;
 import libraryapi.readerservice.util.ReaderUtil;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,19 +34,19 @@ import static libraryapi.readerservice.util.ReaderUtil.isValidReaderPhoto;
 @Service
 public class ReaderServiceImpl implements ReaderService {
 
-    private final ReaderRepository readerRepository;
+    private final ReaderRepositoryJPA readerRepository;
     private final EditReaderMapper editReaderMapper;
     private final FileStorageService fileStorageService;
     private final ReaderPhotoRepository readerPhotoRepository;
-    private final MessagerService messagerService;
+    private final ReaderRepositoryHTTP readerRepositoryHTTP;
 
     @Autowired
-    public ReaderServiceImpl(ReaderRepository readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService, MessagerService messagerService) {
+    public ReaderServiceImpl(ReaderRepositoryJPA readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService, ReaderRepositoryHTTP readerRepositoryHTTP) {
         this.readerRepository = readerRepository;
         this.editReaderMapper = editReaderMapper;
         this.fileStorageService = fileStorageService;
         this.readerPhotoRepository = readerPhotoRepository;
-        this.messagerService = messagerService;
+        this.readerRepositoryHTTP = readerRepositoryHTTP;
     }
 
     public Page<Reader> getReadersByName(final String name, Pageable pageable) {
@@ -77,10 +75,6 @@ public class ReaderServiceImpl implements ReaderService {
         readers.forEach(this::updateAge);
         return readers;
     }
-    public Iterable<Reader> getTopReadersperGenre(int topN, Genre genre, LocalDate startDate, LocalDate endDate) {
-        List<Reader> readers = readerRepository.findTopReadersPerGenre(PageRequest.of(0, topN), genre, startDate, endDate);
-        readers.forEach(this::updateAge);
-        return readers;    }
 
     public Optional<Reader> getReaderByIdWithQuote(Long id) {
         Optional<Reader> readerOpt = readerRepository.findReaderById(id);
@@ -91,10 +85,6 @@ public class ReaderServiceImpl implements ReaderService {
         return readerOpt;
     }
 
-    public int getMonthlyLending(Long readerId, LocalDate startDate, LocalDate endDate) {
-        return readerRepository.getMonthlyLending(readerId, startDate, endDate);
-    }
-
     public Page<Book> getSuggestedBooks(Long readerId, Pageable pageable) {
         Reader reader = readerRepository.findById(readerId).orElseThrow(() -> new NotFoundException("Reader not found with id: " + readerId));
         List<String> interests = reader.getInterests();
@@ -103,9 +93,7 @@ public class ReaderServiceImpl implements ReaderService {
             throw new IllegalArgumentException("[ERROR] Reader does not have any interests specified.");
         }
 
-        //List<Book> suggestedBooks = bookRepository.findAll().stream().filter(book -> interests.contains(book.getGenre().getName())).toList();
-        //List<Book> suggestedBooks = messagerService.getAllBooks(). //filer
-        List<Book> suggestedBooks = new ArrayList<>();
+        List<Book> suggestedBooks = readerRepositoryHTTP.getAllBooks().stream().filter(book -> interests.contains(book.getGenre().getName())).toList();
 
         return BookUtil.toPage(suggestedBooks, pageable);
     }

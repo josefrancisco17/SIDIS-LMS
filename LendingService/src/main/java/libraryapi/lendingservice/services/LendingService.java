@@ -20,9 +20,6 @@ public interface LendingService {
     Page<Lending> getOverdueLendings(Pageable pageable);
     double getAverageLendingDuration();
     double AveragePerGenreInMonth(LocalDate date);
-    Map<Integer, Long> numberOfLendingsPerMonthByGenre(Genre genre);
-    Iterable<LendingAvgPerBookView> getAverageLendingDurationPerBook();
-    Iterable<LendingAvgPerGenrePerMonthView> getAverageLendingDurationPerGenrePerMonth(LocalDate startDate, LocalDate endDate);
     Lending createLending(CreateLendingRequest resource);
     Lending returnBook(EditLendingRequest resource);
 }

@@ -29,7 +29,6 @@ import libraryapi.readerservice.model.Reader;
 import libraryapi.readerservice.model.ReaderPhoto;
 import libraryapi.readerservice.services.EditReaderRequest;
 import libraryapi.readerservice.services.ReaderServiceImpl;
-import libraryapi.readerservice.services.MessagerService;
 //import psoftg2.libraryapi.userManagement.model.Role;
 
 import java.net.URI;
@@ -44,7 +43,6 @@ public class ReaderController {
 
     private static final String IF_MATCH = "If-Match";
     private final ReaderServiceImpl readerService;
-    private final MessagerService messagerService;
     private final ReaderViewMapper readerViewMapper;
     private final ReaderProfileViewMapper readerProfileViewMapper ;
     private final BookViewMapper bookViewMapper;
@@ -107,32 +105,6 @@ public class ReaderController {
                                                 @RequestParam(defaultValue = "100", required = false) int size) {
         Pageable pageable = PageRequest.of(page, size);
         return bookViewMapper.toBookView(readerService.getSuggestedBooks(readerId, pageable));
-    }
-
-    @Operation(summary = "Gets the Top 5 Readers per genre of a certain period")
-    @GetMapping("/top-readers/{genreId}")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public Iterable<ReaderView> getTopReadersPerGenre(@PathVariable("genreId") Long genreId,
-                                                      @RequestParam("startDate") final LocalDate startDate,
-                                                      @RequestParam("endDate") final LocalDate endDate){
-
-        //final var genre = genreService.getGenreById(genreId).orElseThrow(() -> new NotFoundException(Reader.class, genreId));
-
-        final var genre = messagerService.getGenreById(genreId).orElseThrow(() -> new NotFoundException(Reader.class, genreId));
-
-        return readerViewMapper.toReaderView(readerService.getTopReadersperGenre(5, genre, startDate, endDate));
-    }
-
-    @Operation(summary = "Gets Monthly lending per reader of a certain period")
-    @GetMapping("/monthly-lending")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public Iterable<ReaderLentsView> getMonthlyLending(@RequestParam("startDate") final LocalDate startDate,
-                                                       @RequestParam("endDate") final LocalDate endDate){
-        Iterable<Reader> readers = readerService.getAllReaders();
-        for (Reader reader : readers) {
-            reader.setLents(readerService.getMonthlyLending(reader.getId(), startDate, endDate));
-        }
-        return readerLentsViewMapper.toReaderLentsView(readers);
     }
 
     @Operation(summary = "Downloads a cover of a reader by id")

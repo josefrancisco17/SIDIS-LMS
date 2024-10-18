@@ -76,35 +76,12 @@ public class LendingController {
     public double getAverageLendingDuration() {
         return lendingService.getAverageLendingDuration();
     }
-/*
-    @Operation(summary = "Gets the number of lendings per month for the last 12 months, broken down by genre")
-    @GetMapping("/lending-genre/{genreId}")
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public Map<Integer, Long> getAveragePerGenreInMonth(@PathVariable("genreId") Long genreId) {
-        final var genre = genreService.getGenreById(genreId).orElseThrow(() -> new NotFoundException(Author.class, genreId));
-        return lendingService.numberOfLendingsPerMonthByGenre(genre);
-    }
-*/
+
     @Operation(summary = "Gets the average number of lending per genre of a certain month\n")
     @GetMapping("/average-per-genre/{date}")
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     public double getAveragePerGenreInMonth(@PathVariable("date") LocalDate date) {
         return lendingService.AveragePerGenreInMonth(date);
-    }
-
-    @Operation(summary = "Gets average lending duration per book")
-    @GetMapping("/average-per-book")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public Iterable<LendingAvgPerBookView> getAverageLendingDurationPerBook() {
-        return lendingService.getAverageLendingDurationPerBook();
-    }
-
-    @Operation(summary = "Gets average lending duration per genre per month for a certain period")
-    @GetMapping("/average-duration-per-genre")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public Iterable<LendingAvgPerGenrePerMonthView> getAverageLendingDurationPerGenrePerMonth(
-            @RequestParam("startDate") LocalDate startDate, @RequestParam("endDate") LocalDate endDate) {
-        return lendingService.getAverageLendingDurationPerGenrePerMonth(startDate, endDate);
     }
 
     @Operation(summary = "Creates a new Lending")

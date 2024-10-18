@@ -84,28 +84,6 @@ public class LendingServiceImpl implements LendingService {
         return lendingRepository.averagePerGenreInMonth(date, numberOfGenres);
     }
 
-    public Map<Integer, Long> numberOfLendingsPerMonthByGenre(Genre genre) {
-        List<Object[]> results = lendingRepository.numberOfLendingsPerMonthByGenre(genre);
-        Map<Integer, Long> lendingsPerMonth = new HashMap<>();
-        for (Object[] result : results) {
-            Integer month = (Integer) result[0];
-            Long count = (Long) result[1];
-            lendingsPerMonth.put(month, count);
-        }
-        return lendingsPerMonth;
-    }
-
-    public Iterable<LendingAvgPerBookView> getAverageLendingDurationPerBook() {
-        List<Object[]> results = lendingRepository.findAverageLendingDurationPerBook();
-        return lendingAvgPerBookViewMapper.toLendingAvgPerBookViewList(results);
-    }
-
-    public Iterable<LendingAvgPerGenrePerMonthView> getAverageLendingDurationPerGenrePerMonth(LocalDate startDate, LocalDate endDate) {
-        List<Object[]> results = lendingRepository.findAverageLendingDurationPerGenrePerMonth(startDate, endDate);
-        return lendingAvgPerGenrePerMonthViewMapper.toLendingAvgPerGenrePerMonthViewList(results);
-    }
-
-
     public Lending createLending(final CreateLendingRequest resource) {
         /*
         Optional<Book> book = bookRepository.findById(resource.getBookId());
