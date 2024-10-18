@@ -40,7 +40,7 @@ public class LendingController {
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     @ApiResponse(description = "Success", responseCode = "200", content = {
             @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = LendingView.class)))})
-    public List<LendingView> getLendingsPage(
+    public List<LendingView> getLendings(
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "100", required = false) int size) {
 
@@ -48,6 +48,16 @@ public class LendingController {
         Page<Lending> lendingsPage = lendingService.getLendings(pageable);
         return lendingsPage.map(lendingViewMapper::toLendingView).getContent();
     }
+
+    @Operation(summary = "Gets all Lendings for other services")
+    @GetMapping("/internal")
+    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @ApiResponse(description = "Success", responseCode = "200", content = {
+            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Lending.class)))})
+    public Iterable<Lending> getAllLendings() {
+        return lendingService.getAllLendings();
+    }
+
 
     @Operation(summary = "Gets a specific Lending")
     @GetMapping("/{lendingId}")

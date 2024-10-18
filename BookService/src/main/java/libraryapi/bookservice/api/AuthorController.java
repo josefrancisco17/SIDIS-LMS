@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import libraryapi.bookservice.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -23,19 +25,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import libraryapi.bookservice.model.Author;
-import libraryapi.bookservice.model.AuthorPhoto;
 import libraryapi.bookservice.services.AuthorServiceImpl;
 import libraryapi.bookservice.services.EditAuthorRequest;
-import libraryapi.bookservice.api.BookView;
-import libraryapi.bookservice.api.BookViewMapper;
-import libraryapi.bookservice.api.AuthorViewMapper;
-import libraryapi.bookservice.model.Book;
-import libraryapi.bookservice.model.BookAuthor;
 import libraryapi.bookservice.services.BookServiceImpl;
 import libraryapi.bookservice.exceptions.NotFoundException;
 import libraryapi.bookservice.fileStorage.UploadFileResponse;
-import libraryapi.bookservice.model.Lending;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -73,7 +67,6 @@ public class    AuthorController {
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     public ResponseEntity<AuthorView> getAuthor(@PathVariable("authorId") Long id) {
         final var author = authorService.getAuthorsById(id).orElseThrow(() -> new NotFoundException(Author.class, id));
-
         return ResponseEntity.ok().eTag(Long.toString(author.getVersion())).body(authorViewMapper.toAuthorView(author));
     }
 
@@ -102,40 +95,21 @@ public class    AuthorController {
             }
         }
 
-        int start = Math.min((int) pageable.getOffset(), booksList.size());
-        int end = Math.min((start + pageable.getPageSize()), booksList.size());
-        List<Book> paginatedBooks = booksList.subList(start, end);
-
-        Page<Book> booksPage = new PageImpl<>(paginatedBooks, pageable, booksList.size());
-        return booksPage.map(bookViewMapper::toBookView).getContent();
+        return getBookViews(pageable, booksList);
     }
-/*
+
     @Operation(summary = "Gets the top-5 authors")
     @GetMapping("/top-authors")
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     @ApiResponse(description = "Success", responseCode = "200", content = { @Content(mediaType = "application/json",
             array = @ArraySchema(schema = @Schema(implementation = AuthorView.class))) })
     public Iterable<AuthorLentsView> getTop5Authors() {
-        List<Author> allAuthors = new ArrayList<>();
-        int totalPages = authorService.getTotalPages();
-        for (int i = 0; i < totalPages; i++) {
-            Pageable pageable = PageRequest.of(i, 5);
-            Page<Author> authorsPage = authorService.getAuthors(pageable);
-            allAuthors.addAll(authorsPage.getContent());
-        }
-        for (Author author : allAuthors) {
-            List<BookAuthor> bookAuthors = bookService.getBookAuthorsByAuthorId(author.getId());
-            int totalLents = 0;
-            for (BookAuthor bookAuthor : bookAuthors) {
-                List<Lending> lending = lendingService.getLentBook(bookAuthor.getId());
-                totalLents += lending.size();
-            }
-            author.setLents(totalLents);
-        }
-        allAuthors.sort((a1, a2) -> Integer.compare(a2.getLents(), a1.getLents()));
-        return authorLentsViewMapper.toAuthorLentsView(allAuthors.subList(0, Math.min(5, allAuthors.size())));
+
+        final var authorList = authorService.getTop5Authors();
+
+        return authorLentsViewMapper.toAuthorLentsView(authorList);
     }
-*/
+
     @Operation(summary = "Gets the books from a specific Author by its id")
     @GetMapping("/{authorId}/books")
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
@@ -144,20 +118,11 @@ public class    AuthorController {
             @RequestParam(defaultValue = "100", required = false) int size,
             @PathVariable("authorId") Long authorId) {
 
+
         Pageable pageable = PageRequest.of(page, size);
-        List<BookAuthor> bookAuthors = bookService.getBookAuthorsByAuthorId(authorId);
-        List<Book> booksList = new ArrayList<>();
+        List<Book> booksList = authorService.getAuthorBooks(authorId);
 
-        for (BookAuthor bookAuthor : bookAuthors) {
-            booksList.add(bookAuthor.getBook());
-        }
-
-        int start = Math.min((int) pageable.getOffset(), booksList.size());
-        int end = Math.min((start + pageable.getPageSize()), booksList.size());
-        List<Book> paginatedBooks = booksList.subList(start, end);
-
-        Page<Book> booksPage = new PageImpl<>(paginatedBooks, pageable, booksList.size());
-        return booksPage.map(bookViewMapper::toBookView).getContent();
+        return getBookViews(pageable, booksList);
     }
 
     @Operation(summary = "Downloads a photo of an author by id")
@@ -231,6 +196,16 @@ public class    AuthorController {
         }
         Author author = authorService.partialUpdateAuthor(id, resource, getVersionFromIfMatchHeader(ifMatchValue));
         return ResponseEntity.ok().eTag(Long.toString(author.getVersion())).body(authorViewMapper.toAuthorView(author));
+    }
+
+    @NotNull
+    private List<BookView> getBookViews(Pageable pageable, List<Book> booksList) {
+        int start = Math.min((int) pageable.getOffset(), booksList.size());
+        int end = Math.min((start + pageable.getPageSize()), booksList.size());
+        List<Book> paginatedBooks = booksList.subList(start, end);
+
+        Page<Book> booksPage = new PageImpl<>(paginatedBooks, pageable, booksList.size());
+        return booksPage.map(bookViewMapper::toBookView).getContent();
     }
 
     private Long getVersionFromIfMatchHeader(final String ifMatchHeader) {

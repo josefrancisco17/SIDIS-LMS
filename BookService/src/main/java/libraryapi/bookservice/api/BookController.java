@@ -91,12 +91,12 @@ public class BookController {
     }
 
     @Operation(summary = "Gets all Books for other services")
-    @GetMapping("internal/all")
+    @GetMapping("/internal")
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     @ApiResponse(description = "Success", responseCode = "200", content = {
             @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Book.class)))
     })
-    public Iterable<Book> getBooks() {
+    public Iterable<Book> getAllBooks() {
         return bookService.getAllBooks();
     }
 
