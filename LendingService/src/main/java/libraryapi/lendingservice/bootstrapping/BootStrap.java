@@ -1,0 +1,133 @@
+package libraryapi.lendingservice.bootstrapping;
+
+import libraryapi.lendingservice.model.Lending;
+import libraryapi.lendingservice.repositories.LendingRepository;
+import libraryapi.lendingservice.model.Book;
+import libraryapi.lendingservice.model.Genre;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+@Component
+@RequiredArgsConstructor
+@Profile("bootstrap")
+public class BootStrap implements CommandLineRunner {
+    private final LendingRepository lendingRepository;
+
+    public static final Map<Month, String> funnyQuotes = new HashMap<>();
+
+    static {
+        funnyQuotes.put(Month.JANUARY, "New year, new you!");
+        funnyQuotes.put(Month.FEBRUARY, "Love is in the air!");
+        funnyQuotes.put(Month.MARCH, "Spring into action!");
+        funnyQuotes.put(Month.APRIL, "April showers bring May flowers!");
+        funnyQuotes.put(Month.MAY, "May the force be with you!");
+        funnyQuotes.put(Month.JUNE, "Summer vibes!");
+        funnyQuotes.put(Month.JULY, "Fireworks and freedom!");
+        funnyQuotes.put(Month.AUGUST, "Endless summer!");
+        funnyQuotes.put(Month.SEPTEMBER, "Back to school!");
+        funnyQuotes.put(Month.OCTOBER, "Spooky season!");
+        funnyQuotes.put(Month.NOVEMBER, "Thankful and grateful!");
+        funnyQuotes.put(Month.DECEMBER, "Holly jolly holidays!");
+    }
+
+    @Override
+    public void run(String... args) {
+
+        // Genre Mock Data
+        Genre genre1 = new Genre("Self-Improvement");
+        Genre genre2 = new Genre("Science Fiction");
+        Genre genre3 = new Genre("Mystery");
+        Genre genre4 = new Genre("Romance");
+        Genre genre5 = new Genre("Fantasy");
+        Genre genre6 = new Genre("Non-Fiction");
+        Genre genre7 = new Genre("Thriller");
+        Genre genre8 = new Genre("Biography");
+        Genre genre9 = new Genre("History");
+        Genre genre10 = new Genre("Children's");
+
+        //Books Mock Data
+        Book book1 = new Book("9781982137274", "The 7 Habits of Highly Effective People", genre1, null, "Powerful lessons in personal change.");
+        Book book2 = new Book("9780735211292", "Atomic Habits", genre1, null, "Tiny Changes, Remarkable Results");
+        Book book3 = new Book("9780671027032", "How to Win Friends and Influence People", genre1, null, "Timeless advice on building successful relationships.");
+        Book book4 = new Book("9780345472328", "Mindset: The New Psychology of Success", genre2, null, "Discover the power of our mindset.");
+        Book book5 = new Book("9781577314806", "The Power of Now", genre3, null, "A guide to spiritual enlightenment.");
+        Book book6 = new Book("9781612681139", "Rich Dad Poor Dad", genre1, null, "What the Rich Teach Their Kids About Money That the Poor and Middle Class Do Not!");
+        Book book7 = new Book("9780743273565", "The Great Gatsby", genre5, null, "A novel of the Jazz Age.");
+        Book book8 = new Book("9780441172719", "Dune", genre4, null, "Science fiction novel about the son of a noble family.");
+        Book book9 = new Book("9780316769488", "The Catcher in the Rye", genre6, null, "A story about teenage rebellion.");
+        Book book10 = new Book("9780451524935", "1984", genre7, null, "A dystopian social science fiction novel.");
+        Book book11 = new Book("9781400032716", "The Road", genre8, null, "A post-apocalyptic novel.");
+        Book book12 = new Book("9780618640157", "The Hobbit", genre9, null, "A fantasy novel and children's book.");
+        Book book13 = new Book("9780061120084", "To Kill a Mockingbird", genre6, null, "A novel about racial injustice.");
+        Book book14 = new Book("9780439139595", "Harry Potter and the Goblet of Fire", genre9, null, "A young wizard's adventures.");
+        Book book15 = new Book("9780307277671", "The Kite Runner", genre10, null, "A novel about the unlikely friendship between a wealthy boy and the son of his father's servant.");
+        Book book16 = new Book("9780062316110", "Thinking, Fast and Slow", genre1, null, "A groundbreaking tour of the mind.");
+        Book book17 = new Book("9780307949486", "The Immortal Life of Henrietta Lacks", genre2, null, "The story of a woman whose cells were used to create an immortal cell line.");
+        Book book18 = new Book("9780385504201", "The Da Vinci Code", genre3, null, "A mystery thriller novel.");
+        Book book19 = new Book("9780316015844", "Twilight", genre10, null, "A young adult vampire-romance novel.");
+        Book book20 = new Book("9780140283334", "Siddhartha", genre3, null, "A novel about the spiritual journey of self-discovery.");
+
+        //Lending Mock data
+        Lending lending1 = new Lending("2024/1", 1L, 1L, book1.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 10), true, 0.0f, "");
+        Lending lending2 = new Lending("2024/2", 2L, 2L, book2.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 7), true, 0.0f, "");
+        Lending lending3 = new Lending("2024/3", 3L, 3L, book3.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending4 = new Lending("2024/4", 4L, 4L, book4.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending5 = new Lending("2024/5", 4L, 5L, book5.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending6 = new Lending("2024/6", 17L, 6L, book6.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending7 = new Lending("2024/7", 7L, 7L, book7.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending8 = new Lending("2024/8", 8L, 8L, book8.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending9 = new Lending("2024/9", 9L, 9L, book9.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending10 = new Lending("2024/10", 10L, 10L, book10.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending11 = new Lending("2024/11", 11L, 11L, book11.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending12 = new Lending("2024/12", 12L, 12L, book12.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending13 = new Lending("2024/13", 12L, 13L, book13.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending14 = new Lending("2024/14", 12L, 14L, book14.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending15 = new Lending("2024/15", 15L, 15L, book15.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending16 = new Lending("2024/16", 16L, 16L, book16.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending17 = new Lending("2024/17", 17L, 17L, book17.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending18 = new Lending("2024/18", 18L, 18L, book18.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending19 = new Lending("2024/19", 19L, 19L, book19.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 18), true, 0.0f, "");
+        Lending lending20 = new Lending("2024/20", 20L, 20L, book20.getTitle(), LocalDate.of(2024, 5, 17), LocalDate.of(2024, 6, 1), null, false, 0.0f, "");
+        Lending lending21 = new Lending("2024/21", 3L, 2L, book2.getTitle(), LocalDate.of(2024, 5, 9), LocalDate.of(2024, 5, 24), null, false, 0.0f, "");
+        Lending lending22 = new Lending("2024/22", 3L, 2L, book2.getTitle(), LocalDate.of(2024, 5, 8), LocalDate.of(2024, 5, 23), null, false, 0.0f, "");
+        Lending lending23 = new Lending("2024/23", 10L, 2L, book2.getTitle(), LocalDate.of(2024, 5, 7), LocalDate.of(2024, 5, 22), null, false, 0.0f, "");
+        Lending lending24 = new Lending("2024/24", 4L, 2L, book2.getTitle(), LocalDate.of(2024, 5, 6), LocalDate.of(2024, 5, 21), null, false, 0.0f, "");
+        Lending lending25 = new Lending("2024/25", 5L, 2L, book2.getTitle(), LocalDate.of(2024, 5, 5), LocalDate.of(2024, 5, 20), null, false, 0.0f, "");
+        Lending lending26 = new Lending("2024/26", 6L, 14L, book14.getTitle(), LocalDate.of(2024, 5, 4), LocalDate.of(2024, 5, 19), null, false, 0.0f, "");
+        Lending lending27 = new Lending("2024/27", 7L, 14L, book14.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), null, false, 0.0f, "");
+        Lending lending28 = new Lending("2024/28", 8L, 14L, book14.getTitle(), LocalDate.of(2024, 5, 2), LocalDate.of(2024, 5, 17), null, false, 0.0f, "");
+        Lending lending29 = new Lending("2024/29", 9L, 14L, book14.getTitle(), LocalDate.of(2024, 5, 1), LocalDate.of(2024, 5, 16), null, false, 0.0f, "");
+        Lending lending30 = new Lending("2024/30", 9L, 12L, book12.getTitle(), LocalDate.of(2024, 5, 10), LocalDate.of(2024, 6, 25), null, false, 0.0f, "");
+        Lending lending31 = new Lending("2024/31", 19L, 12L, book12.getTitle(), LocalDate.of(2024, 5, 10), LocalDate.of(2024, 5, 25), null, false, 0.0f, "");
+        Lending lending32 = new Lending("2024/32", 20L, 12L, book12.getTitle(), LocalDate.of(2024, 5, 4), LocalDate.of(2024, 5, 19), null, false, 0.0f, "");
+        Lending lending33 = new Lending("2024/33", 13L, 12L, book12.getTitle(), LocalDate.of(2024, 5, 5), LocalDate.of(2024, 5, 20), null, false, 0.0f, "");
+        Lending lending34 = new Lending("2024/34", 14L, 1L, book1.getTitle(), LocalDate.of(2024, 5, 17), LocalDate.of(2024, 6, 1), null, false, 0.0f, "");
+        Lending lending35 = new Lending("2024/35", 15L, 1L, book1.getTitle(), LocalDate.of(2024, 5, 17), LocalDate.of(2024, 6, 1), null, false, 0.0f, "");
+        Lending lending36 = new Lending("2024/36", 16L, 17L, book17.getTitle(), LocalDate.of(2024, 5, 10), LocalDate.of(2024, 5, 25), null, false, 0.0f, "");
+        Lending lending37 = new Lending("2024/37", 13L, 1L, book1.getTitle(), LocalDate.of(2024, 5, 11), LocalDate.of(2024, 5, 26), null, false, 0.0f, "");
+        Lending lending38 = new Lending("2024/38", 13L, 17L, book17.getTitle(), LocalDate.of(2024, 5, 10), LocalDate.of(2024, 5, 25), null, false, 0.0f, "");
+        Lending lending39 = new Lending("2024/39", 13L, 17L, book17.getTitle(), LocalDate.of(2024, 5, 16), LocalDate.of(2024, 5, 31), null, false, 0.0f, "");
+        Lending lending40 = new Lending("2024/40", 20L, 17L, book17.getTitle(), LocalDate.of(2024, 5, 19), LocalDate.of(2024, 6, 2), null, false, 0.0f, "");
+        Lending lending41 = new Lending("2024/41", 17L, 17L, book17.getTitle(), LocalDate.of(2024, 6, 2), LocalDate.of(2024, 6, 17), null, false, 0.0f, "");
+
+        lendingRepository.saveAll(Arrays.asList(
+                lending1, lending2, lending3, lending4, lending5,
+                lending6, lending7, lending8, lending9, lending10,
+                lending11, lending12, lending13, lending14, lending15,
+                lending16, lending17, lending18, lending19, lending20,
+                lending21, lending22, lending23, lending24, lending25,
+                lending26, lending27, lending28, lending29, lending30,
+                lending31, lending32, lending33, lending34, lending35,
+                lending36, lending37, lending38, lending39, lending40,
+                lending41
+        ));
+    }
+}
