@@ -18,13 +18,14 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 public class LendingRepositoryHTTP {
     private final HttpClient httpClient = HttpClient.newBuilder().build();
     private final Dotenv dotenv = Dotenv.load();
-    private final int BookServicePort1 = Integer.parseInt(dotenv.get("BOOK_PORT1"));
-    private final int ReaderServicePort1 = Integer.parseInt(dotenv.get("READER_PORT1"));
+    private final int BookServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_PORT1")));
+    private final int ReaderServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("READER_PORT1")));
 
     public List<Book> getAllBooks() {
         int targetPort = BookServicePort1;

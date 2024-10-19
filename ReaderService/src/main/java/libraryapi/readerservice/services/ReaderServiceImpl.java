@@ -14,17 +14,14 @@ import libraryapi.readerservice.exceptions.NotFoundException;
 import libraryapi.readerservice.fileStorage.FileStorageService;
 import libraryapi.readerservice.fileStorage.UploadFileResponse;
 import libraryapi.readerservice.repositories.ReaderPhotoRepository;
-import libraryapi.readerservice.repositories.ReaderRepositoryHTTP;
 import libraryapi.readerservice.repositories.ReaderRepository;
 import libraryapi.readerservice.util.ReaderUtil;
+import libraryapi.readerservice.repositories.ReaderRepositoryHTTP;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static libraryapi.readerservice.util.ReaderUtil.isValidReaderPhoto;
@@ -68,7 +65,6 @@ public class ReaderServiceImpl implements ReaderService {
 
     public Iterable<Reader> getTopReaders() {
         List<Lending> lendings = readerRepositoryHTTP.getAllLendings();
-
         Map<Long, Long> lendingCountMap = lendings.stream()
                 .collect(Collectors.groupingBy(
                         Lending::getReaderId,
@@ -105,7 +101,6 @@ public class ReaderServiceImpl implements ReaderService {
         }
 
         List<Book> suggestedBooks = readerRepositoryHTTP.getAllBooks().stream().filter(book -> interests.contains(book.getGenre().getName())).toList();
-
         return BookUtil.toPage(suggestedBooks, pageable);
     }
 

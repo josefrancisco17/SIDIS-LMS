@@ -1,15 +1,13 @@
 package libraryapi.readerservice.services;
 
+import libraryapi.readerservice.model.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
-import libraryapi.readerservice.model.Book;
-import libraryapi.readerservice.model.Genre;
 import libraryapi.readerservice.fileStorage.UploadFileResponse;
-import libraryapi.readerservice.model.Reader;
-import libraryapi.readerservice.model.ReaderPhoto;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface ReaderService {
