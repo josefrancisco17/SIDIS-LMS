@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.github.cdimascio.dotenv.Dotenv;
 import libraryapi.bookservice.model.Lending;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -18,13 +19,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Autowired;
+
 @Repository
 public class BookRepositoryHTTP {
+    @Autowired
+    private Environment env;
+
     private final HttpClient httpClient = HttpClient.newBuilder().build();
     private final Dotenv dotenv = Dotenv.load();
     private final int LendingServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT1")));
 
     public List<Lending> getAllLendings() {
+        int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
         int targetPort = LendingServicePort1;
         List<Lending> lendings = new ArrayList<>();
 

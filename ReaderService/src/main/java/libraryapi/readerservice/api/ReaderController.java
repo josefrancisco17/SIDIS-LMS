@@ -32,7 +32,6 @@ import libraryapi.readerservice.services.ReaderServiceImpl;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.LocalDate;
 
 @Tag(name = "Readers", description = "Endpoints for managing Readers")
 @RestController
@@ -45,7 +44,6 @@ public class ReaderController {
     private final ReaderViewMapper readerViewMapper;
     private final ReaderProfileViewMapper readerProfileViewMapper ;
     private final BookViewMapper bookViewMapper;
-    private final ReaderLentsViewMapper readerLentsViewMapper;
     //private final GenreServiceImpl genreService;
 
     @Operation(summary = "Gets a reader profile with a funny quote based on date of birth")
@@ -134,7 +132,7 @@ public class ReaderController {
     }
 
     @Operation(summary = "Creates a new Reader")
-    @PutMapping
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ReaderView> createReader(@Valid @RequestPart("reader") final EditReaderRequest resource,
                                                    @RequestPart(value = "photo", required = false) MultipartFile photo) {
@@ -147,13 +145,26 @@ public class ReaderController {
                 .body(readerViewMapper.toReaderView(reader));
     }
 
+    @Operation(summary = "Handles Creation, Update and Patch of Readers in another instances")
+    @PutMapping("/internal")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<ReaderView> createInternalReader(@Valid @RequestBody Reader reader) {
+        Reader newReader = readerService.createInternalReader(reader);
+
+        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(newReader.getId().toString())
+                .build().toUri();
+
+        return ResponseEntity.created(newbarUri).eTag(Long.toString(newReader.getVersion()))
+                .body(readerViewMapper.toReaderView(newReader));
+    }
+
     @Operation(summary = "Uploads a cover of a Reader")
     @PostMapping("/{readerId}/photo")
     @ResponseStatus(HttpStatus.CREATED)
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     public ResponseEntity<UploadFileResponse> uploadFile(@PathVariable("readerId") final String readerId,
                                                          @RequestParam("file") final MultipartFile file) throws URISyntaxException {
-        final UploadFileResponse up = readerService.doUploadFile(readerId, file);
+        final UploadFileResponse up = readerService.uploadReaderPhoto(readerId, file);
 
         return ResponseEntity.created(new URI(up.getFileDownloadUri())).body(up);
 

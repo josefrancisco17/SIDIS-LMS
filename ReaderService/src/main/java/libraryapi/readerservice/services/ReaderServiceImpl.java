@@ -158,6 +158,14 @@ public class ReaderServiceImpl implements ReaderService {
             doUploadFile(reader.getId().toString(), photo);
         }
 
+        //Gets new reader after with or without the photo for being sent to another instances
+        Reader newReader = readerRepository.getById(reader.getId());
+        readerRepositoryHTTP.manageInternalReader(newReader);
+
+        return readerRepository.save(reader);
+    }
+
+    public Reader createInternalReader(Reader reader) {
         return readerRepository.save(reader);
     }
 
@@ -165,6 +173,7 @@ public class ReaderServiceImpl implements ReaderService {
     public Reader updateReader(final Long id, final EditReaderRequest resource, final long desiredVersion) {
         final var reader = readerRepository.findById(id).orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
         reader.updateData(desiredVersion, resource.getName(), resource.getEmail(), resource.getDateOfBirth(), resource.getPhoneNumber(), resource.getGDBRConsent(), resource.getInterests());
+        readerRepositoryHTTP.manageInternalReader(reader);
         return readerRepository.save(reader);
     }
 
@@ -172,6 +181,7 @@ public class ReaderServiceImpl implements ReaderService {
         final var reader = readerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
         reader.applyPatch(desiredVersion, resource.getName(), resource.getEmail(), resource.getDateOfBirth(), resource.getPhoneNumber(), resource.getGDBRConsent(), resource.getInterests());
+        readerRepositoryHTTP.manageInternalReader(reader);
         return readerRepository.save(reader);
     }
 
@@ -212,6 +222,18 @@ public class ReaderServiceImpl implements ReaderService {
         }
     }
 
+    @Transactional
+    public UploadFileResponse uploadReaderPhoto(final String id, final MultipartFile file) {
+        UploadFileResponse up = doUploadFile(id, file);
+
+        Reader reader = readerRepository.findById(Long.valueOf(id))
+                .orElseThrow(() -> new NotFoundException("Reader not found"));
+
+        readerRepositoryHTTP.manageInternalReader(reader);
+
+        return up;
+    }
+
     public UploadFileResponse doUploadFile(final String id, final MultipartFile file) {
         if (isValidReaderPhoto(file)) {
             ReaderPhoto photo = new ReaderPhoto();
@@ -226,6 +248,7 @@ public class ReaderServiceImpl implements ReaderService {
             Reader reader = readerRepository.getById(Long.parseLong(id));
             reader.setReaderPhoto(photo);
             readerRepository.save(reader);
+
         }
 
         final String fileName = fileStorageService.storeFile(id, file);

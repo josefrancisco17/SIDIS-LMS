@@ -108,7 +108,7 @@ public class LendingController {
                 .body(lendingViewMapper.toLendingView(lending));
     }
 
-    @Operation(summary = "Saves a new Lending from created in another instance")
+    @Operation(summary = "Saves a new Lending created in another instance")
     @PostMapping("/internal")
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     @ResponseStatus(HttpStatus.CREATED)

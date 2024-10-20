@@ -9,7 +9,9 @@ import libraryapi.lendingservice.model.Book;
 import libraryapi.lendingservice.model.Genre;
 import libraryapi.lendingservice.model.Lending;
 import libraryapi.lendingservice.model.Reader;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -25,8 +27,9 @@ import java.util.Optional;
 
 @Repository
 public class LendingRepositoryHTTP {
-    @Value("${server.port}")
-    private int currentPort;
+    @Autowired
+    private Environment env;
+
     private final HttpClient httpClient = HttpClient.newBuilder().build();
     private final Dotenv dotenv = Dotenv.load();
     private final int BookServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_PORT1")));
@@ -37,7 +40,8 @@ public class LendingRepositoryHTTP {
     private final int LendingServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT2")));
 
     public List<Book> getAllBooks() {
-        int targetPort = (currentPort == BookServicePort1) ? BookServicePort2 :BookServicePort1;
+        int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
+        int targetPort = (currentPort == LendingServicePort1) ? BookServicePort1 : BookServicePort2;
         List<Book> books = new ArrayList<>();
 
         try {
@@ -63,7 +67,8 @@ public class LendingRepositoryHTTP {
     }
 
     public List<Reader> getAllReaders() {
-        int targetPort = (currentPort == ReaderServicePort1) ? ReaderServicePort2 :ReaderServicePort1;
+        int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
+        int targetPort = (currentPort == LendingServicePort1) ? ReaderServicePort1 :ReaderServicePort2;
         List<Reader> readers = new ArrayList<>();
 
         try {
@@ -89,7 +94,8 @@ public class LendingRepositoryHTTP {
     }
 
     public List<Genre> getAllGenres() {
-        int targetPort = (currentPort == BookServicePort1) ? BookServicePort2 :BookServicePort1;
+        int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
+        int targetPort = (currentPort == LendingServicePort1) ? BookServicePort1 : BookServicePort2;
         List<Genre> genres = new ArrayList<>();
 
         try {
@@ -115,6 +121,7 @@ public class LendingRepositoryHTTP {
     }
 
     public void createInternalLending(Lending lending) {
+        int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
         int targetPort = (currentPort == LendingServicePort1) ? LendingServicePort2 :LendingServicePort1;
 
         try {
@@ -137,6 +144,7 @@ public class LendingRepositoryHTTP {
     }
 
     public void returnInternalBook(Lending lending) {
+        int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
         int targetPort = (currentPort == LendingServicePort1) ? LendingServicePort2 :LendingServicePort1;
 
         try {
