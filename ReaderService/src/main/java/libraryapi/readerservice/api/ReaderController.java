@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-//import psoftg2.libraryapi.bookManagement.services.GenreServiceImpl;
 import libraryapi.readerservice.exceptions.NotFoundException;
 import libraryapi.readerservice.fileStorage.UploadFileResponse;
 import libraryapi.readerservice.model.Reader;
@@ -135,7 +134,7 @@ public class ReaderController {
     }
 
     @Operation(summary = "Creates a new Reader")
-    @PostMapping
+    @PutMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ReaderView> createReader(@Valid @RequestPart("reader") final EditReaderRequest resource,
                                                    @RequestPart(value = "photo", required = false) MultipartFile photo) {

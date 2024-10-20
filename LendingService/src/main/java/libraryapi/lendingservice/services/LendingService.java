@@ -21,5 +21,7 @@ public interface LendingService {
     double getAverageLendingDuration();
     double AveragePerGenreInMonth(LocalDate date);
     Lending createLending(CreateLendingRequest resource);
+    Lending createInternalLending(Lending lending);
     Lending returnBook(EditLendingRequest resource);
+    Lending returnInternalBook(Lending lending);
 }

@@ -40,7 +40,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/authors")
-public class    AuthorController {
+public class AuthorController {
 
     private static final String IF_MATCH = "If-Match";
     private final AuthorServiceImpl authorService;
