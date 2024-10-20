@@ -165,7 +165,7 @@ public class ReaderServiceImpl implements ReaderService {
         return readerRepository.save(reader);
     }
 
-    public Reader createInternalReader(Reader reader) {
+    public Reader manageInternalReader(Reader reader) {
         return readerRepository.save(reader);
     }
 

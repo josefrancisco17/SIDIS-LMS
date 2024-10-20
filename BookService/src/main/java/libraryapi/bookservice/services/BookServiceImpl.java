@@ -134,16 +134,53 @@ public class BookServiceImpl implements BookService{
 
         Book book = editBookMapper.create(resource);
 
+        List<BookAuthor> bookAuthorList = new ArrayList<>();
+
         if (resource.getBookAuthors() != null) {
-            updateBookAuthors(book, resource.getBookAuthors());
+            bookAuthorList = updateBookAuthors(book, resource.getBookAuthors());
         }
 
         if (coverPhoto != null) {
             doUploadFile(book.getId().toString(), coverPhoto);
         }
 
+        //Gets new book after with or without the photo for being sent to another instances
+        Book newBook = bookRepository.getById(book.getId());
+        bookRepositoryHTTP.manageInternalBook(newBook);
+        bookRepositoryHTTP.manageInternalBookAuthors(bookAuthorList);
         return bookRepository.save(book);
     }
+
+    @Transactional
+    public Book manageInternalBook(Book book) {
+        System.out.println("Received book: " + book);
+        System.out.println(3);
+        System.out.println(book);
+        if (book.getCover() != null) {
+            BookCover existingCover = bookCoverRepository.findById(book.getCover().getId())
+                    .orElse(null);
+
+            if (existingCover == null) {
+                BookCover newCover = new BookCover();
+                newCover.setImage(book.getCover().getImage());
+                newCover.setContentType(book.getCover().getContentType());
+                existingCover = bookCoverRepository.save(newCover);
+            }
+            book.setCover(existingCover);
+        }
+        System.out.println(book);
+
+        return bookRepository.save(book);
+    }
+
+    @Transactional
+    public List<BookAuthor> manageInternalBookAuthors(List<BookAuthor> bookAuthorList) {
+        if (!bookAuthorList.isEmpty()) {
+            bookAuthorRepository.deleteByBookId(bookAuthorList.getFirst().getBook().getId());
+        }
+        return bookAuthorRepository.saveAll(bookAuthorList);
+    }
+
 
     @Transactional
     public Book updateBook(final Long id, final EditBookRequest resource, final long desiredVersion) {
@@ -153,16 +190,19 @@ public class BookServiceImpl implements BookService{
 
         book.updateData(desiredVersion, resource.getTitle(), existingGenre ,resource.getDescription());
 
-        if (resource.getBookAuthors() != null) {
-            updateBookAuthors(book, resource.getBookAuthors());
-        }
+        List<BookAuthor> bookAuthorList = new ArrayList<>();
 
+        if (resource.getBookAuthors() != null) {
+            bookAuthorList = updateBookAuthors(book, resource.getBookAuthors());
+        }
+        bookRepositoryHTTP.manageInternalBookAuthors(bookAuthorList);
+        bookRepositoryHTTP.manageInternalBook(book);
         return bookRepository.save(book);
     }
 
+    @Transactional
     public Book partialUpdateBook(final Long id, final EditBookRequest resource, final long desiredVersion) {
-        final var book = bookRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
+        final var book = bookRepository.findById(id).orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
 
         Genre existingGenre = null;
 
@@ -172,9 +212,13 @@ public class BookServiceImpl implements BookService{
 
         book.applyPatch(desiredVersion, resource.getTitle(), existingGenre, resource.getDescription());
 
+        List<BookAuthor> bookAuthorList = new ArrayList<>();
+
         if (resource.getBookAuthors() != null) {
-            updateBookAuthors(book, resource.getBookAuthors());
+            bookAuthorList = updateBookAuthors(book, resource.getBookAuthors());
         }
+        bookRepositoryHTTP.manageInternalBookAuthors(bookAuthorList);
+        bookRepositoryHTTP.manageInternalBook(book);
         return bookRepository.save(book);
     }
 
@@ -205,15 +249,14 @@ public class BookServiceImpl implements BookService{
         }
     }
 
-    public void updateBookAuthors(final Book book, final List<BookAuthor> bookAuthorsList) {
+    public List<BookAuthor> updateBookAuthors(final Book book, final List<BookAuthor> bookAuthorsList) {
         //delete das entradas antigas da tabela para depois podermos introduzir os novos bookAuthors
         bookAuthorRepository.deleteByBookId(book.getId());
 
         //save no book uma vez que vai ser preciso para criar associacoes entre book e author na tabela bookAuthors
         bookRepository.save(book);
-
+        List<BookAuthor> listBookAuthors = new ArrayList<>();
         if (bookAuthorsList != null && !bookAuthorsList.isEmpty()) {
-            List<BookAuthor> listBookAuthors = new ArrayList<>();
             for (BookAuthor bookAuthor : bookAuthorsList) {
                 Author author = bookAuthor.getAuthor();
                 if (author != null && author.getName() != null && author.getShortBio() != null) {
@@ -226,6 +269,19 @@ public class BookServiceImpl implements BookService{
             }
             bookAuthorRepository.saveAll(listBookAuthors);
         }
+        return listBookAuthors;
+    }
+
+    @Transactional
+    public UploadFileResponse uploadBookCover(final String id, final MultipartFile file) {
+        UploadFileResponse up = doUploadFile(id, file);
+
+        Book book = bookRepository.findById(Long.valueOf(id))
+                .orElseThrow(() -> new NotFoundException("Book not found"));
+
+        bookRepositoryHTTP.manageInternalBook(book);
+
+        return up;
     }
 
     public UploadFileResponse doUploadFile(final String id, final MultipartFile file) {

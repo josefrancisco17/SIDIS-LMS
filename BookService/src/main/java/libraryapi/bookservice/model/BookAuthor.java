@@ -1,12 +1,14 @@
 package libraryapi.bookservice.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import libraryapi.bookservice.model.Book;
 
 @Entity
 @Table
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class BookAuthor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,7 +16,6 @@ public class BookAuthor {
 
     @ManyToOne
     @JoinColumn(name = "bookId")
-    @JsonIgnore
     @NotNull
     private Book book;
 
@@ -59,8 +60,8 @@ public class BookAuthor {
     public String toString() {
         return "BookAuthor{" +
                 "id=" + id +
-                ", book=" + book +
-                ", author=" + author +
+                ", bookId=" + (book != null ? book.getId() : null) +
+                ", authorId=" + (author != null ? author.getId() : null) +
                 '}';
     }
 }

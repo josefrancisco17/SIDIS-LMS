@@ -3,9 +3,12 @@ package libraryapi.bookservice.model;
 import jakarta.persistence.*;
 import libraryapi.bookservice.model.AuthorPhoto;
 import org.hibernate.StaleObjectStateException;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
 @Table
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

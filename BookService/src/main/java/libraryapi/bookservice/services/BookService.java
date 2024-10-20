@@ -25,7 +25,10 @@ public interface BookService {
     List<BookAuthor> getBookAuthorsByAuthorId(Long authorId);
     BookCover getBookCover(String bookId);
     Book createBook(CreateBookRequest resource, MultipartFile coverPhoto);
+    Book manageInternalBook(Book book);
+    List<BookAuthor> manageInternalBookAuthors(List<BookAuthor> bookAuthorList);
     Book updateBook(Long id, EditBookRequest resource, long desiredVersion);
     Book partialUpdateBook(Long id, EditBookRequest resource, long desiredVersion);
+    UploadFileResponse uploadBookCover(final String id, final MultipartFile file);
     UploadFileResponse doUploadFile(String id, MultipartFile file);
 }

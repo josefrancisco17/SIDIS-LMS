@@ -18,10 +18,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +29,7 @@ import libraryapi.bookservice.fileStorage.UploadFileResponse;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "Books", description = "Endpoints for managing Books")
@@ -145,28 +143,8 @@ public class BookController {
                 .body(resource);
     }
 
-    @Operation(summary = "Uploads a cover of a Book")
-    @PostMapping("/{bookId}/cover")
-    @ResponseStatus(HttpStatus.CREATED)
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public ResponseEntity<UploadFileResponse> uploadFile(@PathVariable("bookId") final String bookId,
-                                                         @RequestParam("file") final MultipartFile file) throws URISyntaxException {
-
-        final UploadFileResponse up = bookService.doUploadFile(bookId, file);
-
-        return ResponseEntity.created(new URI(up.getFileDownloadUri())).body(up);
-
-    }
-
-    private Long getVersionFromIfMatchHeader(final String ifMatchHeader) {
-        if (ifMatchHeader.startsWith("\"")) {
-            return Long.parseLong(ifMatchHeader.substring(1, ifMatchHeader.length() - 1));
-        }
-        return Long.parseLong(ifMatchHeader);
-    }
-
     @Operation(summary = "Creates a new Book")
-    @PutMapping
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     public ResponseEntity<BookView> createBook(@Valid @RequestPart("book") final CreateBookRequest resource,
@@ -179,6 +157,41 @@ public class BookController {
 
         return ResponseEntity.created(newbarUri).eTag(Long.toString(book.getVersion()))
                 .body(bookViewMapper.toCreateBookView(book));
+    }
+
+    @Operation(summary = "Handles Creation, Update and Patch of Books in another instances")
+    @PutMapping("/internal")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<BookView> manageInternalBook(@RequestBody Book book) {
+        System.out.println("Received book: " + book);
+        Book newBook = bookService.manageInternalBook(book);
+        System.out.println(2);
+
+        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(newBook.getId().toString())
+                .build().toUri();
+
+        return ResponseEntity.created(newbarUri).eTag(Long.toString(newBook.getVersion()))
+                .body(bookViewMapper.toBookView(newBook));
+    }
+
+    @Operation(summary = "Handles Creation, Update and Patch of BookAuthors in another instances")
+    @PutMapping("/internal/book-authors")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<List<BookAuthor>>  manageInternalBookAuthors(@Valid @RequestBody List<BookAuthor> bookAuthorList) {
+        List<BookAuthor> newBookAuthorList = bookService.manageInternalBookAuthors(bookAuthorList);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newBookAuthorList);
+    }
+
+    @Operation(summary = "Uploads a cover of a Book")
+    @PostMapping("/{bookId}/cover")
+    @ResponseStatus(HttpStatus.CREATED)
+    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    public ResponseEntity<UploadFileResponse> uploadFile(@PathVariable("bookId") final String bookId,
+                                                         @RequestParam("file") final MultipartFile file) throws URISyntaxException {
+
+        final UploadFileResponse up = bookService.uploadBookCover(bookId, file);
+
+        return ResponseEntity.created(new URI(up.getFileDownloadUri())).body(up);
     }
 
     @Operation(summary = "Fully replaces an existing book")
@@ -207,5 +220,12 @@ public class BookController {
         }
         Book book = bookService.partialUpdateBook(id, resource, getVersionFromIfMatchHeader(ifMatchValue));
         return ResponseEntity.ok().eTag(Long.toString(book.getVersion())).body(bookViewMapper.toBookView(book));
+    }
+
+    private Long getVersionFromIfMatchHeader(final String ifMatchHeader) {
+        if (ifMatchHeader.startsWith("\"")) {
+            return Long.parseLong(ifMatchHeader.substring(1, ifMatchHeader.length() - 1));
+        }
+        return Long.parseLong(ifMatchHeader);
     }
 }

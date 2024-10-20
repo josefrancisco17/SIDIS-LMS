@@ -148,8 +148,8 @@ public class ReaderController {
     @Operation(summary = "Handles Creation, Update and Patch of Readers in another instances")
     @PutMapping("/internal")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ReaderView> createInternalReader(@Valid @RequestBody Reader reader) {
-        Reader newReader = readerService.createInternalReader(reader);
+    public ResponseEntity<ReaderView> manageInternalReader(@Valid @RequestBody Reader reader) {
+        Reader newReader = readerService.manageInternalReader(reader);
 
         final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(newReader.getId().toString())
                 .build().toUri();
