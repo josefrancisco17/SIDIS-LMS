@@ -158,18 +158,6 @@ public class ReaderController {
                 .body(readerViewMapper.toReaderView(newReader));
     }
 
-    @Operation(summary = "Uploads a cover of a Reader")
-    @PostMapping("/{readerId}/photo")
-    @ResponseStatus(HttpStatus.CREATED)
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public ResponseEntity<UploadFileResponse> uploadFile(@PathVariable("readerId") final String readerId,
-                                                         @RequestParam("file") final MultipartFile file) throws URISyntaxException {
-        final UploadFileResponse up = readerService.uploadReaderPhoto(readerId, file);
-
-        return ResponseEntity.created(new URI(up.getFileDownloadUri())).body(up);
-
-    }
-
     @Operation(summary = "Fully replaces an existing reader. If the specified id does not exist does nothing and returns 400.")
     @PutMapping(path = "{readerId}")
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})

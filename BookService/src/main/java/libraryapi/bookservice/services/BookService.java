@@ -27,7 +27,6 @@ public interface BookService {
     Book manageInternalBook(Book book);
     Book updateBook(Long id, EditBookRequest resource, long desiredVersion);
     Book partialUpdateBook(Long id, EditBookRequest resource, long desiredVersion);
-    UploadFileResponse uploadBookCover(final String id, final MultipartFile file);
     UploadFileResponse doUploadFile(String id, MultipartFile file);
     List<Book> getBooksByAuthorId(Long id);
 }

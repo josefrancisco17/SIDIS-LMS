@@ -163,19 +163,6 @@ public class AuthorController {
                 .body(authorViewMapper.toAuthorView(newAuthor));
     }
 
-    @Operation(summary = "Uploads a author photo")
-    @PostMapping("/{authorId}/photo")
-    @ResponseStatus(HttpStatus.CREATED)
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public ResponseEntity<UploadFileResponse> uploadFile(@PathVariable("authorId") final String authorId,
-                                                         @RequestParam("file") final MultipartFile file) throws URISyntaxException {
-
-        final UploadFileResponse up = authorService.uploadAuthorPhoto(authorId, file);
-
-        return ResponseEntity.created(new URI(up.getFileDownloadUri())).body(up);
-
-    }
-
     @Operation(summary = "Fully replaces an existing author. If the specified id does not exist does nothing and returns 400.")
     @PutMapping(path = "{authorId}")
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})

@@ -42,19 +42,18 @@ public class BookRepositoryHTTP {
         List<Lending> lendings = new ArrayList<>();
 
         try {
+            String url = "http://localhost:" + targetPort + "/api/lendings/internal";
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:" + targetPort + "/api/lendings/internal"))
+                    .uri(new URI(url))
                     .GET()
                     .build();
-
+            System.out.println("Request URL: " + url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(response.body());
-
+            System.out.println("Response Body: " + response.body());
             if (response.statusCode() == 200) {
                 ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                         .registerModule(new JavaTimeModule());
 
-                // Deserialize the JSON response
                 lendings = objectMapper.readValue(response.body(), new TypeReference<List<Lending>>() {});
             }
 
@@ -85,7 +84,7 @@ public class BookRepositoryHTTP {
             System.out.println("Request Body: " + bookJson);
             System.out.println("Request URL: " + url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(response.body());
+            System.out.println("Response Body: " + response.body());
 
         } catch (URISyntaxException | IOException | InterruptedException ex) {
             throw new RuntimeException(ex);
@@ -113,7 +112,7 @@ public class BookRepositoryHTTP {
             System.out.println("Request Body: " + authorJson);
             System.out.println("Request URL: " + url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(response.body());
+            System.out.println("Response Body: " + response.body());
 
         } catch (URISyntaxException | IOException | InterruptedException ex) {
             throw new RuntimeException(ex);

@@ -222,18 +222,6 @@ public class ReaderServiceImpl implements ReaderService {
         }
     }
 
-    @Transactional
-    public UploadFileResponse uploadReaderPhoto(final String id, final MultipartFile file) {
-        UploadFileResponse up = doUploadFile(id, file);
-
-        Reader reader = readerRepository.findById(Long.valueOf(id))
-                .orElseThrow(() -> new NotFoundException("Reader not found"));
-
-        readerRepositoryHTTP.manageInternalReader(reader);
-
-        return up;
-    }
-
     public UploadFileResponse doUploadFile(final String id, final MultipartFile file) {
         if (isValidReaderPhoto(file)) {
             ReaderPhoto photo = new ReaderPhoto();

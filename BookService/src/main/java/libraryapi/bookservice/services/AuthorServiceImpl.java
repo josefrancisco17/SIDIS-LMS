@@ -124,6 +124,8 @@ public class AuthorServiceImpl implements AuthorService{
     }
 
     public Author manageInternalAuthor(Author author) {
+        Author newAuthor = author;
+        System.out.println("Internal Author Photo: " + newAuthor.getAuthorPhoto());
         return authorRepository.save(author);
     }
 
@@ -149,21 +151,8 @@ public class AuthorServiceImpl implements AuthorService{
         return authorRepository.save(author);
     }
 
-
-    public UploadFileResponse uploadAuthorPhoto(final String id, final MultipartFile file) {
-        UploadFileResponse up = doUploadFile(id, file);
-
-        Author author = authorRepository.findById(Long.valueOf(id))
-                .orElseThrow(() -> new NotFoundException("Author not found"));
-
-        bookRepositoryHTTP.manageInternalAuthor(author);
-
-        return up;
-    }
-
     public UploadFileResponse doUploadFile(final String id, final MultipartFile file) {
         if (isValidAuthorPhoto(file)) {
-
             AuthorPhoto authorPhoto = new AuthorPhoto();
             try {
                 authorPhoto.setImage(file.getBytes());

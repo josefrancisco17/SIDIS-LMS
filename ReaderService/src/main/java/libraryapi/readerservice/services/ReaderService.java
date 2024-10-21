@@ -24,6 +24,5 @@ public interface ReaderService {
     Reader manageInternalReader(Reader reader);
     Reader updateReader(final Long id, final EditReaderRequest resource, final long desiredVersion);
     Reader partialUpdateReader(final Long id, final EditReaderRequest resource, final long desiredVersion);
-    UploadFileResponse uploadReaderPhoto(final String id, final MultipartFile file);
     UploadFileResponse doUploadFile(final String id, final MultipartFile file);
 }

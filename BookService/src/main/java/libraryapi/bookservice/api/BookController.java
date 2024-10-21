@@ -173,18 +173,6 @@ public class BookController {
                     .body(bookViewMapper.toBookView(newBook));
         }
 
-        @Operation(summary = "Uploads a cover of a Book")
-        @PostMapping("/{bookId}/cover")
-        @ResponseStatus(HttpStatus.CREATED)
-        //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-        public ResponseEntity<UploadFileResponse> uploadFile(@PathVariable("bookId") final String bookId,
-                                                             @RequestParam("file") final MultipartFile file) throws URISyntaxException {
-
-            final UploadFileResponse up = bookService.uploadBookCover(bookId, file);
-
-            return ResponseEntity.created(new URI(up.getFileDownloadUri())).body(up);
-        }
-
         @Operation(summary = "Fully replaces an existing book")
         @PutMapping(path = "{bookId}")
         //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})

@@ -24,7 +24,6 @@ public interface AuthorService {
     Author updateAuthor(final Long id, final EditAuthorRequest resource, final long desiredVersion);
     Author partialUpdateAuthor(final Long id, final EditAuthorRequest resource, final long desiredVersion);
     UploadFileResponse doUploadFile(final String id, final MultipartFile file);
-    UploadFileResponse uploadAuthorPhoto(final String id, final MultipartFile file);
     void validateCreateAuthorRequest(final EditAuthorRequest request);
     List<Book> getCoAuthorsBooks(Long authorId);
 }
