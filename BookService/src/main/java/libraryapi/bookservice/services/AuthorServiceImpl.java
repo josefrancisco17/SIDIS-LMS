@@ -28,19 +28,17 @@ import static libraryapi.bookservice.util.AuthorUtil.isValidAuthorPhoto;
 @Service
 public class AuthorServiceImpl implements AuthorService{
     private final AuthorRepository authorRepository;
-    private final AuthorLentsViewMapper authorLentsViewMapper;
     private final EditAuthorMapper editAuthorMapper;
     private final AuthorPhotoRepository authorPhotoRepository;
     private final FileStorageService fileStorageService;
     private final BookService bookService;
     private final BookRepository bookRepository;
-    private BookRepositoryHTTP bookRepositoryHTTP;
+    private final BookRepositoryHTTP bookRepositoryHTTP;
 
     @Autowired
-    public AuthorServiceImpl(AuthorRepository authorRepository, EditAuthorMapper editAuthorMapper, AuthorLentsViewMapper authorLentsViewMapper, AuthorPhotoRepository authorPhotoRepository, FileStorageService fileStorageService, BookService bookService, BookRepository bookRepository, BookRepositoryHTTP bookRepositoryHTTP) {
+    public AuthorServiceImpl(AuthorRepository authorRepository, EditAuthorMapper editAuthorMapper, AuthorPhotoRepository authorPhotoRepository, FileStorageService fileStorageService, BookService bookService, BookRepository bookRepository, BookRepositoryHTTP bookRepositoryHTTP) {
         this.authorRepository = authorRepository;
         this.editAuthorMapper = editAuthorMapper;
-        this.authorLentsViewMapper = authorLentsViewMapper;
         this.authorPhotoRepository = authorPhotoRepository;
         this.fileStorageService = fileStorageService;
         this.bookService = bookService;
@@ -82,13 +80,7 @@ public class AuthorServiceImpl implements AuthorService{
     }
 
     public List<Book> getAuthorBooks(Long authorId) {
-        List<BookAuthor> bookAuthors = bookService.getBookAuthorsByAuthorId(authorId);
-        List<Book> booksList = new ArrayList<>();
-
-        for (BookAuthor bookAuthor : bookAuthors) {
-            booksList.add(bookAuthor.getBook());
-        }
-        return booksList;
+        return bookRepository.findByAuthors_Id(authorId);
     }
 
     public List<Author> getTop5Authors() {
@@ -96,11 +88,11 @@ public class AuthorServiceImpl implements AuthorService{
 
         List<Author> authors = authorRepository.findAll();
         for (Author author : authors) {
-            List<BookAuthor> bookAuthors = bookService.getBookAuthorsByAuthorId(author.getId());
+            List<Book> booksByAuthor = bookService.getBooksByAuthorId(author.getId());
             int totalLents = 0;
-            for (BookAuthor bookAuthor : bookAuthors) {
+            for (Book book : booksByAuthor) {
                 for (Lending lending : lendings) {
-                    if (lending.getBookId().equals(bookAuthor.getBook().getId())) {
+                    if (lending.getBookId().equals(book.getId())) {
                         totalLents++;
                     }
                 }
@@ -110,6 +102,7 @@ public class AuthorServiceImpl implements AuthorService{
         authors.sort((a1, a2) -> Integer.compare(a2.getLents(), a1.getLents()));
         return authors.subList(0, Math.min(5, authors.size()));
     }
+
 
 
     public Author createAuthor(final EditAuthorRequest resource, MultipartFile authorPhoto) {
@@ -123,13 +116,25 @@ public class AuthorServiceImpl implements AuthorService{
             doUploadFile(author.getId().toString(), authorPhoto);
         }
 
+        //Gets new author after with or without the photo for being sent to another instances
+        Author newAuthor = authorRepository.getById(author.getId());
+        bookRepositoryHTTP.manageInternalAuthor(newAuthor);
+
         return authorRepository.save(author);
     }
+
+    public Author manageInternalAuthor(Author author) {
+        return authorRepository.save(author);
+    }
+
     @Transactional
     public Author updateAuthor(final Long id, final EditAuthorRequest resource, final long desiredVersion) {
         final var author = authorRepository.findById(id).orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
         validateCreateAuthorRequest(resource);
         author.updateData(desiredVersion, resource.getName(), resource.getShortBio());
+        //Gets new author after with or without the photo for being sent to another instances
+        Author newAuthor = authorRepository.getById(author.getId());
+        bookRepositoryHTTP.manageInternalAuthor(newAuthor);
         return authorRepository.save(author);
     }
 
@@ -138,12 +143,25 @@ public class AuthorServiceImpl implements AuthorService{
                 .orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
 
         author.applyPatch(desiredVersion, resource.getName(), resource.getShortBio());
-
+        //Gets new author after with or without the photo for being sent to another instances
+        Author newAuthor = authorRepository.getById(author.getId());
+        bookRepositoryHTTP.manageInternalAuthor(newAuthor);
         return authorRepository.save(author);
     }
 
+
+    public UploadFileResponse uploadAuthorPhoto(final String id, final MultipartFile file) {
+        UploadFileResponse up = doUploadFile(id, file);
+
+        Author author = authorRepository.findById(Long.valueOf(id))
+                .orElseThrow(() -> new NotFoundException("Author not found"));
+
+        bookRepositoryHTTP.manageInternalAuthor(author);
+
+        return up;
+    }
+
     public UploadFileResponse doUploadFile(final String id, final MultipartFile file) {
-        System.out.println(isValidAuthorPhoto(file));
         if (isValidAuthorPhoto(file)) {
 
             AuthorPhoto authorPhoto = new AuthorPhoto();
@@ -174,5 +192,17 @@ public class AuthorServiceImpl implements AuthorService{
         if (StringUtils.isBlank(request.getName()) || StringUtils.isBlank(request.getShortBio())) {
             throw new IllegalArgumentException("[ERROR] Name and shortBio are mandatory.");
         }
+    }
+
+    public List<Book> getCoAuthorsBooks(Long authorId) {
+        List<Book> allBooks = bookRepository.findBooksByAuthorId(authorId);
+        Set<Book> coAuthorBooks = new HashSet<>();
+        for (Book book : allBooks) {
+            if (book.getAuthors().size() > 1) {
+                coAuthorBooks.add(book);
+            }
+        }
+
+        return new ArrayList<>(coAuthorBooks);
     }
 }

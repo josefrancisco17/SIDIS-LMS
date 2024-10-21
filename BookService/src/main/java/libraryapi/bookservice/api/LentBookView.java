@@ -1,6 +1,7 @@
 package libraryapi.bookservice.api;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import libraryapi.bookservice.model.Author;
 import lombok.Data;
 
 import java.util.List;
@@ -14,6 +15,6 @@ public class LentBookView {
     private String title;
     private BookGenreView genre;
     private String description;
-    private List<BookAuthorView> bookAuthors;
+    private List<Author> authorViews;
 }
 

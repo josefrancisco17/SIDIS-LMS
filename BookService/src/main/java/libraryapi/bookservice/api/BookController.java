@@ -10,6 +10,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import libraryapi.bookservice.model.*;
+import libraryapi.bookservice.repositories.AuthorRepository;
 import libraryapi.bookservice.repositories.BookRepositoryHTTP;
 import libraryapi.bookservice.services.*;
 import lombok.RequiredArgsConstructor;
@@ -143,84 +144,74 @@ public class BookController {
                 .body(resource);
     }
 
-    @Operation(summary = "Creates a new Book")
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public ResponseEntity<BookView> createBook(@Valid @RequestPart("book") final CreateBookRequest resource,
-                                               @RequestPart(value = "cover", required = false) MultipartFile coverPhoto) {
+        @Operation(summary = "Creates a new Book")
+        @PostMapping
+        @ResponseStatus(HttpStatus.CREATED)
+        //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+        public ResponseEntity<BookView> createBook(@Valid @RequestPart("book") final CreateBookRequest resource,
+                                                   @RequestPart(value = "cover", required = false) MultipartFile coverPhoto) {
 
-        final var book = bookService.createBook(resource, coverPhoto);
+            final var book = bookService.createBook(resource, coverPhoto);
 
-        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(book.getId().toString())
-                .build().toUri();
+            final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(book.getId().toString())
+                    .build().toUri();
 
-        return ResponseEntity.created(newbarUri).eTag(Long.toString(book.getVersion()))
-                .body(bookViewMapper.toCreateBookView(book));
-    }
-
-    @Operation(summary = "Handles Creation, Update and Patch of Books in another instances")
-    @PutMapping("/internal")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<BookView> manageInternalBook(@RequestBody Book book) {
-        System.out.println("Received book: " + book);
-        Book newBook = bookService.manageInternalBook(book);
-        System.out.println(2);
-
-        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(newBook.getId().toString())
-                .build().toUri();
-
-        return ResponseEntity.created(newbarUri).eTag(Long.toString(newBook.getVersion()))
-                .body(bookViewMapper.toBookView(newBook));
-    }
-
-    @Operation(summary = "Handles Creation, Update and Patch of BookAuthors in another instances")
-    @PutMapping("/internal/book-authors")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<List<BookAuthor>>  manageInternalBookAuthors(@Valid @RequestBody List<BookAuthor> bookAuthorList) {
-        List<BookAuthor> newBookAuthorList = bookService.manageInternalBookAuthors(bookAuthorList);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newBookAuthorList);
-    }
-
-    @Operation(summary = "Uploads a cover of a Book")
-    @PostMapping("/{bookId}/cover")
-    @ResponseStatus(HttpStatus.CREATED)
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public ResponseEntity<UploadFileResponse> uploadFile(@PathVariable("bookId") final String bookId,
-                                                         @RequestParam("file") final MultipartFile file) throws URISyntaxException {
-
-        final UploadFileResponse up = bookService.uploadBookCover(bookId, file);
-
-        return ResponseEntity.created(new URI(up.getFileDownloadUri())).body(up);
-    }
-
-    @Operation(summary = "Fully replaces an existing book")
-    @PutMapping(path = "{bookId}")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public ResponseEntity<BookView> updateBook(final WebRequest request,
-                                               @PathVariable("bookId") Long id,
-                                               @Valid @RequestBody final EditBookRequest resource) {
-        final String ifMatchValue = request.getHeader(IF_MATCH);
-        if (ifMatchValue == null || ifMatchValue.isEmpty()) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.created(newbarUri).eTag(Long.toString(book.getVersion()))
+                    .body(bookViewMapper.toCreateBookView(book));
         }
-        Book book = bookService.updateBook(id, resource, getVersionFromIfMatchHeader(ifMatchValue));
-        return ResponseEntity.ok().eTag(Long.toString(book.getVersion())).body(bookViewMapper.toBookView(book));
-    }
 
-    @Operation(summary = "Partially updates an existing book")
-    @PatchMapping(path = "{bookId}")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public ResponseEntity<BookView> partialUpdateBook(final WebRequest request,
-                                                      @PathVariable("bookId") Long id,
-                                                      @Valid @RequestBody final EditBookRequest resource) {
-        final String ifMatchValue = request.getHeader(IF_MATCH);
-        if (ifMatchValue == null || ifMatchValue.isEmpty()) {
-            return ResponseEntity.badRequest().build();
+        @Operation(summary = "Handles Creation, Update and Patch of Books in another instances")
+        @PutMapping("/internal")
+        @ResponseStatus(HttpStatus.CREATED)
+        public ResponseEntity<BookView> manageInternalBook(@Valid @RequestBody Book book) {
+            Book newBook = bookService.manageInternalBook(book);
+
+            final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(newBook.getId().toString())
+                    .build().toUri();
+
+            return ResponseEntity.created(newbarUri).eTag(Long.toString(newBook.getVersion()))
+                    .body(bookViewMapper.toBookView(newBook));
         }
-        Book book = bookService.partialUpdateBook(id, resource, getVersionFromIfMatchHeader(ifMatchValue));
-        return ResponseEntity.ok().eTag(Long.toString(book.getVersion())).body(bookViewMapper.toBookView(book));
-    }
+
+        @Operation(summary = "Uploads a cover of a Book")
+        @PostMapping("/{bookId}/cover")
+        @ResponseStatus(HttpStatus.CREATED)
+        //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+        public ResponseEntity<UploadFileResponse> uploadFile(@PathVariable("bookId") final String bookId,
+                                                             @RequestParam("file") final MultipartFile file) throws URISyntaxException {
+
+            final UploadFileResponse up = bookService.uploadBookCover(bookId, file);
+
+            return ResponseEntity.created(new URI(up.getFileDownloadUri())).body(up);
+        }
+
+        @Operation(summary = "Fully replaces an existing book")
+        @PutMapping(path = "{bookId}")
+        //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+        public ResponseEntity<BookView> updateBook(final WebRequest request,
+                                                   @PathVariable("bookId") Long id,
+                                                   @Valid @RequestBody final EditBookRequest resource) {
+            final String ifMatchValue = request.getHeader(IF_MATCH);
+            if (ifMatchValue == null || ifMatchValue.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            Book book = bookService.updateBook(id, resource, getVersionFromIfMatchHeader(ifMatchValue));
+            return ResponseEntity.ok().eTag(Long.toString(book.getVersion())).body(bookViewMapper.toBookView(book));
+        }
+
+        @Operation(summary = "Partially updates an existing book")
+        @PatchMapping(path = "{bookId}")
+        //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+        public ResponseEntity<BookView> partialUpdateBook(final WebRequest request,
+                                                          @PathVariable("bookId") Long id,
+                                                          @Valid @RequestBody final EditBookRequest resource) {
+            final String ifMatchValue = request.getHeader(IF_MATCH);
+            if (ifMatchValue == null || ifMatchValue.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            Book book = bookService.partialUpdateBook(id, resource, getVersionFromIfMatchHeader(ifMatchValue));
+            return ResponseEntity.ok().eTag(Long.toString(book.getVersion())).body(bookViewMapper.toBookView(book));
+        }
 
     private Long getVersionFromIfMatchHeader(final String ifMatchHeader) {
         if (ifMatchHeader.startsWith("\"")) {

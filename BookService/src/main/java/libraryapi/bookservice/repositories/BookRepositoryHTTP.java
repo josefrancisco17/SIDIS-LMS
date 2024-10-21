@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.github.cdimascio.dotenv.Dotenv;
+import libraryapi.bookservice.model.Author;
 import libraryapi.bookservice.model.Book;
-import libraryapi.bookservice.model.BookAuthor;
 import libraryapi.bookservice.model.Lending;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -74,15 +74,16 @@ public class BookRepositoryHTTP {
 
             String bookJson = objectMapper.writeValueAsString(book);
 
-            System.out.println(bookJson);
+            String url = "http://localhost:" + targetPort + "/api/books/internal";
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:" + targetPort + "/api/books/internal"))
+                    .uri(new URI(url))
                     .PUT(HttpRequest.BodyPublishers.ofString(bookJson))
                     .header("Content-Type", "application/json")
                     .build();
-            System.out.println(request.method());
-            System.out.println(request.bodyPublisher());
+
+            System.out.println("Request Body: " + bookJson);
+            System.out.println("Request URL: " + url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             System.out.println(response.body());
 
@@ -91,22 +92,28 @@ public class BookRepositoryHTTP {
         }
     }
 
-    public void manageInternalBookAuthors(List<BookAuthor> bookAuthorList) {
+    public void manageInternalAuthor(Author author) {
         int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
-        int targetPort = (currentPort == BookServicePort1) ? BookServicePort2 :BookServicePort1;
+        int targetPort = (currentPort == BookServicePort1) ? BookServicePort2 : BookServicePort1;
+
         try {
             ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     .registerModule(new JavaTimeModule());
 
-            String bookAuthorsJson = objectMapper.writeValueAsString(bookAuthorList);
-            System.out.println(bookAuthorsJson);
+            String authorJson = objectMapper.writeValueAsString(author);;
+
+            String url = "http://localhost:" + targetPort + "/api/authors/internal";
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:" + targetPort + "/api/books/internal/book-authors"))
-                    .PUT(HttpRequest.BodyPublishers.ofString(bookAuthorsJson))
+                    .uri(new URI(url))
+                    .PUT(HttpRequest.BodyPublishers.ofString(authorJson))
                     .header("Content-Type", "application/json")
                     .build();
 
+            System.out.println("Request Body: " + authorJson);
+            System.out.println("Request URL: " + url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println(response.body());
 
         } catch (URISyntaxException | IOException | InterruptedException ex) {
             throw new RuntimeException(ex);

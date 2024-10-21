@@ -28,19 +28,15 @@ public class BookServiceImpl implements BookService{
     private final BookRepository bookRepository;
     private final BookCoverRepository bookCoverRepository;
     private final BookRepositoryHTTP bookRepositoryHTTP;
-    private final AuthorRepository authorRepository;
-    private final BookAuthorRepository bookAuthorRepository;
     private final GenreRepository genreRepository;
     private final FileStorageService fileStorageService;
     private final EditBookMapper editBookMapper;
 
     @Autowired
-    public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, BookRepositoryHTTP bookRepositoryHTTP, AuthorRepository authorRepository, BookAuthorRepository bookAuthorRepository, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService) {
+    public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, BookRepositoryHTTP bookRepositoryHTTP, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService) {
         this.bookRepository = bookRepository;
         this.bookCoverRepository = bookCoverRepository;
         this.bookRepositoryHTTP = bookRepositoryHTTP;
-        this.authorRepository = authorRepository;
-        this.bookAuthorRepository = bookAuthorRepository;
         this.editBookMapper = editBookMapper;
         this.genreRepository = genreRepository;
         this.fileStorageService =  fileStorageService;
@@ -83,6 +79,10 @@ public class BookServiceImpl implements BookService{
                 .collect(Collectors.toList());
     }
 
+    public List<Book> getBooksByAuthorId(Long authorId) {
+        return bookRepository.findBooksByAuthorId(authorId);
+    }
+
     public Page<Book> getBooksByGenre(final String genre, Pageable pageable) {
         List<Book> filteredBooks = bookRepository.findAll().stream()
                 .filter(book -> book.getGenre().getName().toLowerCase().contains(genre.toLowerCase()))
@@ -97,26 +97,24 @@ public class BookServiceImpl implements BookService{
         return toPage(filteredBooks, pageable);
     }
 
-    public Page<Book> getBooksByAuthor(final String author, Pageable pageable) {
+    public Page<Book> getBooksByAuthor(final String authorName, Pageable pageable) {
         List<Book> filteredBooks = bookRepository.findAll().stream()
-                .filter(book -> book.getBookAuthors().stream()
-                        .anyMatch(bookAuthor -> bookAuthor.getAuthor().getName().equalsIgnoreCase(author)))
+                .filter(book -> book.getAuthors().stream()
+                        .anyMatch(author -> author.getName().equalsIgnoreCase(authorName)))
                 .collect(Collectors.toList());
+
         return toPage(filteredBooks, pageable);
     }
 
-    public Page<Book> getBooksByTitleAndGenreAndAuthor(final String genre, final String title, final String author, Pageable pageable) {
+    public Page<Book> getBooksByTitleAndGenreAndAuthor(final String genre, final String title, final String authorName, Pageable pageable) {
         List<Book> filteredBooks = bookRepository.findAll().stream()
-                .filter(book -> book.getGenre().getName().toLowerCase().contains(genre.toLowerCase()) &&
-                        book.getTitle().toLowerCase().contains(title.toLowerCase()) &&
-                        book.getBookAuthors().stream()
-                                .anyMatch(bookAuthor -> bookAuthor.getAuthor().getName().equalsIgnoreCase(author)))
+                .filter(book -> book.getGenre().getName().toLowerCase().contains(genre.toLowerCase()))
+                .filter(book -> book.getTitle().toLowerCase().contains(title.toLowerCase()))
+                .filter(book -> book.getAuthors().stream()
+                        .anyMatch(author -> author.getName().equalsIgnoreCase(authorName)))
                 .collect(Collectors.toList());
-        return toPage(filteredBooks, pageable);
-    }
 
-    public List<BookAuthor> getBookAuthorsByAuthorId(Long authorId) {
-        return bookAuthorRepository.getAuthorBooks(authorId);
+        return toPage(filteredBooks, pageable);
     }
 
     public BookCover getBookCover(final String bookId) {
@@ -134,180 +132,120 @@ public class BookServiceImpl implements BookService{
 
         Book book = editBookMapper.create(resource);
 
-        List<BookAuthor> bookAuthorList = new ArrayList<>();
+        System.out.println("Book created: " + book.getVersion());
+        System.out.println("Book created: " + book);
 
-        if (resource.getBookAuthors() != null) {
-            bookAuthorList = updateBookAuthors(book, resource.getBookAuthors());
-        }
+        bookRepository.save(book);
 
         if (coverPhoto != null) {
             doUploadFile(book.getId().toString(), coverPhoto);
         }
 
-        //Gets new book after with or without the photo for being sent to another instances
         Book newBook = bookRepository.getById(book.getId());
+        System.out.println("Book created: " + book.getVersion());
+
         bookRepositoryHTTP.manageInternalBook(newBook);
-        bookRepositoryHTTP.manageInternalBookAuthors(bookAuthorList);
-        return bookRepository.save(book);
+
+        return newBook;
     }
 
-    @Transactional
-    public Book manageInternalBook(Book book) {
-        System.out.println("Received book: " + book);
-        System.out.println(3);
-        System.out.println(book);
-        if (book.getCover() != null) {
-            BookCover existingCover = bookCoverRepository.findById(book.getCover().getId())
-                    .orElse(null);
 
-            if (existingCover == null) {
-                BookCover newCover = new BookCover();
-                newCover.setImage(book.getCover().getImage());
-                newCover.setContentType(book.getCover().getContentType());
-                existingCover = bookCoverRepository.save(newCover);
+        @Transactional
+        public Book manageInternalBook(Book book) {
+            System.out.println("Managing internal book: " + book.getVersion());
+            return bookRepository.save(book);
+        }
+
+
+        @Transactional
+        public Book updateBook(final Long id, final EditBookRequest resource, final long desiredVersion) {
+            final var book = bookRepository.findById(id).orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
+
+            final var existingGenre = genreRepository.findById(resource.getGenre().getId()).orElseThrow(() -> new NotFoundException("[ERROR] Genre not found"));
+
+            book.updateData(desiredVersion, resource.getTitle(), resource.getAuthors() ,existingGenre ,resource.getDescription());
+            bookRepositoryHTTP.manageInternalBook(book);
+            return bookRepository.save(book);
+        }
+
+        @Transactional
+        public Book partialUpdateBook(final Long id, final EditBookRequest resource, final long desiredVersion) {
+            final var book = bookRepository.findById(id).orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
+
+            Genre existingGenre = null;
+
+            if (resource.getGenre() != null) {
+                existingGenre = genreRepository.findById(resource.getGenre().getId()).orElseThrow(() -> new NotFoundException("[ERROR] Genre not found"));
             }
-            book.setCover(existingCover);
-        }
-        System.out.println(book);
 
-        return bookRepository.save(book);
-    }
+            book.applyPatch(desiredVersion, resource.getTitle(), resource.getAuthors(), existingGenre, resource.getDescription());
 
-    @Transactional
-    public List<BookAuthor> manageInternalBookAuthors(List<BookAuthor> bookAuthorList) {
-        if (!bookAuthorList.isEmpty()) {
-            bookAuthorRepository.deleteByBookId(bookAuthorList.getFirst().getBook().getId());
-        }
-        return bookAuthorRepository.saveAll(bookAuthorList);
-    }
-
-
-    @Transactional
-    public Book updateBook(final Long id, final EditBookRequest resource, final long desiredVersion) {
-        final var book = bookRepository.findById(id).orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
-
-        final var existingGenre = genreRepository.findById(resource.getGenre().getId()).orElseThrow(() -> new NotFoundException("[ERROR] Genre not found"));
-
-        book.updateData(desiredVersion, resource.getTitle(), existingGenre ,resource.getDescription());
-
-        List<BookAuthor> bookAuthorList = new ArrayList<>();
-
-        if (resource.getBookAuthors() != null) {
-            bookAuthorList = updateBookAuthors(book, resource.getBookAuthors());
-        }
-        bookRepositoryHTTP.manageInternalBookAuthors(bookAuthorList);
-        bookRepositoryHTTP.manageInternalBook(book);
-        return bookRepository.save(book);
-    }
-
-    @Transactional
-    public Book partialUpdateBook(final Long id, final EditBookRequest resource, final long desiredVersion) {
-        final var book = bookRepository.findById(id).orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
-
-        Genre existingGenre = null;
-
-        if (resource.getGenre() != null) {
-            existingGenre = genreRepository.findById(resource.getGenre().getId()).orElseThrow(() -> new NotFoundException("[ERROR] Genre not found"));
+            bookRepositoryHTTP.manageInternalBook(book);
+            return bookRepository.save(book);
         }
 
-        book.applyPatch(desiredVersion, resource.getTitle(), existingGenre, resource.getDescription());
+        private void validateCreateBookRequest(final CreateBookRequest request) {
+            String bookTitle = request.getTitle();
+            String trimmedTitle = bookTitle.trim();
 
-        List<BookAuthor> bookAuthorList = new ArrayList<>();
+            if(!bookTitle.equals(trimmedTitle)) {
+                throw new IllegalArgumentException("[ERROR] Book Title cannot start or end with spaces.");
+            }
 
-        if (resource.getBookAuthors() != null) {
-            bookAuthorList = updateBookAuthors(book, resource.getBookAuthors());
-        }
-        bookRepositoryHTTP.manageInternalBookAuthors(bookAuthorList);
-        bookRepositoryHTTP.manageInternalBook(book);
-        return bookRepository.save(book);
-    }
+            if (!BookUtil.isValidISBN(request.getIsbn())) {
+                throw new IllegalArgumentException("[ERROR] ISBN-10 or ISBN-13 invalid ISBN.");
+            }
 
-    private void validateCreateBookRequest(final CreateBookRequest request) {
-        String bookTitle = request.getTitle();
-        String trimmedTitle = bookTitle.trim();
+            if (bookRepository.findBookByIsbn(request.getIsbn()).isPresent()) {
+                throw new IllegalArgumentException("[ERROR] Book with that ISBN is already registered.");
+            }
 
-        if(!bookTitle.equals(trimmedTitle)) {
-            throw new IllegalArgumentException("[ERROR] Book Title cannot start or end with spaces.");
-        }
+            if (StringUtils.isBlank(request.getTitle()) ||
+                    StringUtils.isWhitespace(Character.toString(request.getTitle().charAt(0))) ||
+                    StringUtils.isWhitespace(Character.toString(request.getTitle().charAt(request.getTitle().length() - 1)))) {
+                throw new IllegalArgumentException("[ERROR] Book title is mandatory and cannot start or end with spaces.");
+            }
 
-        if (!BookUtil.isValidISBN(request.getIsbn())) {
-            throw new IllegalArgumentException("[ERROR] ISBN-10 or ISBN-13 invalid ISBN.");
-        }
-
-        if (bookRepository.findBookByIsbn(request.getIsbn()).isPresent()) {
-            throw new IllegalArgumentException("[ERROR] Book with that ISBN is already registered.");
-        }
-
-        if (StringUtils.isBlank(request.getTitle()) ||
-                StringUtils.isWhitespace(Character.toString(request.getTitle().charAt(0))) ||
-                StringUtils.isWhitespace(Character.toString(request.getTitle().charAt(request.getTitle().length() - 1)))) {
-            throw new IllegalArgumentException("[ERROR] Book title is mandatory and cannot start or end with spaces.");
+            if (StringUtils.isBlank(request.getGenre().getName()) || StringUtils.isBlank(request.getAuthors().toString())) {
+                throw new IllegalArgumentException("[ERROR] Genre and author fields are mandatory.");
+            }
         }
 
-        if (StringUtils.isBlank(request.getGenre().getName()) || StringUtils.isBlank(request.getBookAuthors().toString())) {
-            throw new IllegalArgumentException("[ERROR] Genre and author fields are mandatory.");
+        @Transactional
+        public UploadFileResponse uploadBookCover(final String id, final MultipartFile file) {
+            UploadFileResponse up = doUploadFile(id, file);
+
+            Book book = bookRepository.findById(Long.valueOf(id))
+                    .orElseThrow(() -> new NotFoundException("Book not found"));
+
+            bookRepositoryHTTP.manageInternalBook(book);
+
+            return up;
         }
-    }
 
-    public List<BookAuthor> updateBookAuthors(final Book book, final List<BookAuthor> bookAuthorsList) {
-        //delete das entradas antigas da tabela para depois podermos introduzir os novos bookAuthors
-        bookAuthorRepository.deleteByBookId(book.getId());
-
-        //save no book uma vez que vai ser preciso para criar associacoes entre book e author na tabela bookAuthors
-        bookRepository.save(book);
-        List<BookAuthor> listBookAuthors = new ArrayList<>();
-        if (bookAuthorsList != null && !bookAuthorsList.isEmpty()) {
-            for (BookAuthor bookAuthor : bookAuthorsList) {
-                Author author = bookAuthor.getAuthor();
-                if (author != null && author.getName() != null && author.getShortBio() != null) {
-                    Author existingAuthor = authorRepository.findAuthorByName(author.getName())
-                            .orElseThrow(() -> new IllegalArgumentException("[ERROR] Author not found"));
-                    listBookAuthors.add(new BookAuthor(book, existingAuthor));
-                } else {
-                    throw new IllegalArgumentException("[ERROR] Author information is incomplete. Please provide valid author details.");
+        public UploadFileResponse doUploadFile(final String id, final MultipartFile file) {
+            if (isValidBookCover(file)) {
+                BookCover cover = new BookCover();
+                try {
+                    cover.setImage(file.getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
                 }
+                cover.setContentType(file.getContentType());
+                bookCoverRepository.save(cover);
+                Book book = bookRepository.getById(Long.parseLong(id));
+                book.setCover(cover);
+                bookRepository.save(book);
             }
-            bookAuthorRepository.saveAll(listBookAuthors);
+
+            final String fileName = fileStorageService.storeFile(id, file);
+
+            String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(fileName)
+                    .toUriString();
+
+            fileDownloadUri = fileDownloadUri.replace("/covers/", "/cover/");
+
+            return new UploadFileResponse(fileName, fileDownloadUri, file.getContentType(), file.getSize());
         }
-        return listBookAuthors;
-    }
-
-    @Transactional
-    public UploadFileResponse uploadBookCover(final String id, final MultipartFile file) {
-        UploadFileResponse up = doUploadFile(id, file);
-
-        Book book = bookRepository.findById(Long.valueOf(id))
-                .orElseThrow(() -> new NotFoundException("Book not found"));
-
-        bookRepositoryHTTP.manageInternalBook(book);
-
-        return up;
-    }
-
-    public UploadFileResponse doUploadFile(final String id, final MultipartFile file) {
-
-        if (isValidBookCover(file)) {
-            BookCover cover = new BookCover();
-            try {
-                cover.setImage(file.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-            cover.setContentType(file.getContentType());
-            bookCoverRepository.save(cover);
-            Book book = bookRepository.getById(Long.parseLong(id));
-            book.setCover(cover);
-            bookRepository.save(book);
-        }
-
-        final String fileName = fileStorageService.storeFile(id, file);
-
-        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(fileName)
-                .toUriString();
-
-        fileDownloadUri = fileDownloadUri.replace("/covers/", "/cover/");
-
-        return new UploadFileResponse(fileName, fileDownloadUri, file.getContentType(), file.getSize());
-    }
 }

@@ -1,10 +1,10 @@
 package libraryapi.bookservice.services;
 
+import libraryapi.bookservice.model.Author;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import libraryapi.bookservice.model.Book;
-import libraryapi.bookservice.model.BookAuthor;
 import libraryapi.bookservice.model.BookCover;
 import libraryapi.bookservice.model.Genre;
 import libraryapi.bookservice.fileStorage.UploadFileResponse;
@@ -22,13 +22,12 @@ public interface BookService {
     Page<Book> getBooksByTitle(String title, Pageable pageable);
     Page<Book> getBooksByAuthor(String author, Pageable pageable);
     Page<Book> getBooksByTitleAndGenreAndAuthor(String genre, String title, String author, Pageable pageable);
-    List<BookAuthor> getBookAuthorsByAuthorId(Long authorId);
     BookCover getBookCover(String bookId);
     Book createBook(CreateBookRequest resource, MultipartFile coverPhoto);
     Book manageInternalBook(Book book);
-    List<BookAuthor> manageInternalBookAuthors(List<BookAuthor> bookAuthorList);
     Book updateBook(Long id, EditBookRequest resource, long desiredVersion);
     Book partialUpdateBook(Long id, EditBookRequest resource, long desiredVersion);
     UploadFileResponse uploadBookCover(final String id, final MultipartFile file);
     UploadFileResponse doUploadFile(String id, MultipartFile file);
+    List<Book> getBooksByAuthorId(Long id);
 }

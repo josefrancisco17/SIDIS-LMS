@@ -86,14 +86,7 @@ public class AuthorController {
             @PathVariable("authorId") Long authorId) {
 
         Pageable pageable = PageRequest.of(page, size);
-        List<BookAuthor> bookAuthors = bookService.getBookAuthorsByAuthorId(authorId);
-        List<Book> booksList = new ArrayList<>();
-
-        for (BookAuthor bookAuthor : bookAuthors) {
-            if (bookAuthor.getBook().getBookAuthors().size() > 1) {
-                booksList.add(bookAuthor.getBook());
-            }
-        }
+        List<Book> booksList = authorService.getCoAuthorsBooks(authorId);
 
         return getBookViews(pageable, booksList);
     }
@@ -157,6 +150,19 @@ public class AuthorController {
                 .body(authorViewMapper.toAuthorView(author));
     }
 
+    @Operation(summary = "Handles Creation, Update and Patch of Author in another instances")
+    @PutMapping("/internal")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<AuthorView> manageInternalReader(@Valid @RequestBody Author author) {
+        Author newAuthor = authorService.manageInternalAuthor(author);
+
+        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(newAuthor.getId().toString())
+                .build().toUri();
+
+        return ResponseEntity.created(newbarUri).eTag(Long.toString(newAuthor.getVersion()))
+                .body(authorViewMapper.toAuthorView(newAuthor));
+    }
+
     @Operation(summary = "Uploads a author photo")
     @PostMapping("/{authorId}/photo")
     @ResponseStatus(HttpStatus.CREATED)
@@ -164,7 +170,7 @@ public class AuthorController {
     public ResponseEntity<UploadFileResponse> uploadFile(@PathVariable("authorId") final String authorId,
                                                          @RequestParam("file") final MultipartFile file) throws URISyntaxException {
 
-        final UploadFileResponse up = authorService.doUploadFile(authorId, file);
+        final UploadFileResponse up = authorService.uploadAuthorPhoto(authorId, file);
 
         return ResponseEntity.created(new URI(up.getFileDownloadUri())).body(up);
 

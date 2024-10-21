@@ -6,9 +6,11 @@ import org.hibernate.StaleObjectStateException;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,9 +23,12 @@ public class Author {
     @Column(columnDefinition = "TEXT", length = 4096, nullable = false)
     private String shortBio;
 
+    @ManyToMany(mappedBy = "authors")
+    private List<Book> books = new ArrayList<>();
+
     private int lents;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private AuthorPhoto authorPhoto;
 
     public Author() {}
