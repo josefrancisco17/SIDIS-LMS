@@ -36,19 +36,28 @@ public class BookRepositoryHTTP {
     private final int LendingServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT2")));
 
     public List<Lending> getAllLendings() {
+        int targetPort;
         int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
-        int targetPort = (currentPort == BookServicePort1) ? LendingServicePort1 : LendingServicePort2;
+        try {
+            targetPort = (currentPort == BookServicePort1) ? LendingServicePort1 : LendingServicePort2;
+        } catch (NumberFormatException | NullPointerException e) {
+            throw new RuntimeException("Invalid or missing server port: " + e.getMessage(), e);
+        }
+
         List<Lending> lendings = new ArrayList<>();
 
         try {
             String url = "http://localhost:" + targetPort + "/api/lendings/internal";
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(url))
                     .GET()
                     .build();
+
             System.out.println("Request URL: " + url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             System.out.println("Response Body: " + response.body());
+
             if (response.statusCode() == 200) {
                 ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                         .registerModule(new JavaTimeModule());
@@ -63,8 +72,13 @@ public class BookRepositoryHTTP {
     }
 
     public void manageInternalBook(Book book) {
+        int targetPort;
         int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
-        int targetPort = (currentPort == BookServicePort1) ? BookServicePort2 :BookServicePort1;
+        try {
+            targetPort = (currentPort == BookServicePort1) ? BookServicePort2 :BookServicePort1;
+        } catch (NumberFormatException | NullPointerException e) {
+            throw new RuntimeException("Invalid or missing server port: " + e.getMessage(), e);
+        }
 
         try {
             ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -91,8 +105,13 @@ public class BookRepositoryHTTP {
     }
 
     public void manageInternalAuthor(Author author) {
+        int targetPort;
         int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
-        int targetPort = (currentPort == BookServicePort1) ? BookServicePort2 : BookServicePort1;
+        try {
+            targetPort = (currentPort == BookServicePort1) ? BookServicePort2 : BookServicePort1;
+        } catch (NumberFormatException | NullPointerException e) {
+            throw new RuntimeException("Invalid or missing server port: " + e.getMessage(), e);
+        }
 
         try {
             ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

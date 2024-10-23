@@ -38,17 +38,28 @@ public class LendingRepositoryHTTP {
     private final int LendingServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT2")));
 
     public List<Book> getAllBooks() {
+        int targetPort;
         int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
-        int targetPort = (currentPort == LendingServicePort1) ? BookServicePort1 : BookServicePort2;
+        try {
+            targetPort = (currentPort == LendingServicePort1) ? BookServicePort1 : BookServicePort2;
+        } catch (NumberFormatException | NullPointerException e) {
+            throw new RuntimeException("Invalid or missing server port: " + e.getMessage(), e);
+        }
+
         List<Book> books = new ArrayList<>();
 
         try {
+            String url = "http://localhost:" + targetPort + "/api/books/internal";
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:" + targetPort + "/api/books/internal"))
+                    .uri(new URI(url))
                     .GET()
                     .build();
 
+
+            System.out.println("Request URL: " + url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("Response Body: " + response.body());
 
             if (response.statusCode() == 200) {
                 ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -65,17 +76,27 @@ public class LendingRepositoryHTTP {
     }
 
     public List<Reader> getAllReaders() {
+        int targetPort;
         int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
-        int targetPort = (currentPort == LendingServicePort1) ? ReaderServicePort1 :ReaderServicePort2;
+        try {
+            targetPort = (currentPort == LendingServicePort1) ? ReaderServicePort1 :ReaderServicePort2;
+        } catch (NumberFormatException | NullPointerException e) {
+            throw new RuntimeException("Invalid or missing server port: " + e.getMessage(), e);
+        }
+
         List<Reader> readers = new ArrayList<>();
 
         try {
+            String url = "http://localhost:" + targetPort + "/api/readers/internal";
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:" + targetPort + "/api/readers/internal"))
+                    .uri(new URI(url))
                     .GET()
                     .build();
 
+            System.out.println("Request URL: " + url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("Response Body: " + response.body());
 
             if (response.statusCode() == 200) {
                 ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -92,17 +113,27 @@ public class LendingRepositoryHTTP {
     }
 
     public List<Genre> getAllGenres() {
+        int targetPort;
         int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
-        int targetPort = (currentPort == LendingServicePort1) ? BookServicePort1 : BookServicePort2;
+        try {
+            targetPort = (currentPort == LendingServicePort1) ? BookServicePort1 : BookServicePort2;
+        } catch (NumberFormatException | NullPointerException e) {
+            throw new RuntimeException("Invalid or missing server port: " + e.getMessage(), e);
+        }
+
         List<Genre> genres = new ArrayList<>();
 
         try {
+            String url = "http://localhost:" + targetPort + "/api/books/internal/genres";
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:" + targetPort + "/api/books/internal/genres"))
+                    .uri(new URI(url))
                     .GET()
                     .build();
 
+            System.out.println("Request URL: " + url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("Response Body: " + response.body());
 
             if (response.statusCode() == 200) {
                 ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -119,8 +150,13 @@ public class LendingRepositoryHTTP {
     }
 
     public void createInternalLending(Lending lending) {
+        int targetPort;
         int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
-        int targetPort = (currentPort == LendingServicePort1) ? LendingServicePort2 :LendingServicePort1;
+        try {
+            targetPort = (currentPort == LendingServicePort1) ? LendingServicePort2 :LendingServicePort1;
+        } catch (NumberFormatException | NullPointerException e) {
+            throw new RuntimeException("Invalid or missing server port: " + e.getMessage(), e);
+        }
 
         try {
             ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -128,13 +164,18 @@ public class LendingRepositoryHTTP {
 
             String lendingJson = objectMapper.writeValueAsString(lending);
 
+            String url = "http://localhost:" + targetPort + "/api/lendings/internal";
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:" + targetPort + "/api/lendings/internal"))
+                    .uri(new URI(url))
                     .POST(HttpRequest.BodyPublishers.ofString(lendingJson))
                     .header("Content-Type", "application/json")
                     .build();
 
+            System.out.println("Request Body: " + lendingJson);
+            System.out.println("Request URL: " + url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("Response Body: " + response.body());
 
         } catch (URISyntaxException | IOException | InterruptedException ex) {
             throw new RuntimeException(ex);
@@ -142,8 +183,13 @@ public class LendingRepositoryHTTP {
     }
 
     public void returnInternalBook(Lending lending) {
+        int targetPort;
         int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
-        int targetPort = (currentPort == LendingServicePort1) ? LendingServicePort2 :LendingServicePort1;
+        try {
+            targetPort = (currentPort == LendingServicePort1) ? LendingServicePort2 :LendingServicePort1;
+        } catch (NumberFormatException | NullPointerException e) {
+            throw new RuntimeException("Invalid or missing server port: " + e.getMessage(), e);
+        }
 
         try {
             ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -151,13 +197,18 @@ public class LendingRepositoryHTTP {
 
             String lendingJson = objectMapper.writeValueAsString(lending);
 
+            String url = "http://localhost:" + targetPort + "/api/lendings/internal/return";
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:" + targetPort + "/api/lendings/internal/return"))
+                    .uri(new URI(url))
                     .POST(HttpRequest.BodyPublishers.ofString(lendingJson))
                     .header("Content-Type", "application/json")
                     .build();
 
+            System.out.println("Request Body: " + lendingJson);
+            System.out.println("Request URL: " + url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("Response Body: " + response.body());
 
         } catch (URISyntaxException | IOException | InterruptedException ex) {
             throw new RuntimeException(ex);

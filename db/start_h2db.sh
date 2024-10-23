@@ -39,7 +39,7 @@ start_h2_instance() {
     H2_PIDS+=($pid)
 
     # Give it a moment to start
-    sleep 1
+    sleep 0.5
 
     # Check if process is still running
     if ! kill -0 $pid 2>/dev/null; then
