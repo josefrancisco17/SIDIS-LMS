@@ -1,5 +1,6 @@
 package libraryapi.readerservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.StaleObjectStateException;
@@ -10,6 +11,7 @@ import java.util.List;
 
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table
 public class Reader {
     @Id

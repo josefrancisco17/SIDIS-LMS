@@ -1,13 +1,11 @@
 package libraryapi.readerservice.api;
 
-import libraryapi.readerservice.model.Book;
-import libraryapi.readerservice.model.BookAuthor;
 import org.mapstruct.Mapper;
+import libraryapi.readerservice.model.Book;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import static libraryapi.readerservice.api.BookAuthorViewMapper.toBookAuthorView;
+
 import static libraryapi.readerservice.api.BookGenreViewMapper.toBookGenreView;
 
 @Mapper(componentModel = "spring")
@@ -24,14 +22,7 @@ public class BookViewMapper {
         bookView.setTitle( book.getTitle() );
         bookView.setGenre( toBookGenreView(book.getGenre()) );
         bookView.setDescription( book.getDescription() );
-        List<BookAuthor> list = book.getBookAuthors();
-        if (list != null) {
-            List<BookAuthorView> viewList = new ArrayList<>();
-            for (BookAuthor bookAuthor : list) {
-                viewList.add(toBookAuthorView(bookAuthor));
-            }
-            bookView.setBookAuthors(viewList);
-        }
+        bookView.setAuthors(book.getAuthors());
 
         return bookView;
     }
@@ -61,8 +52,9 @@ public class BookViewMapper {
         bookView.setTitle( book.getTitle() );
         bookView.setGenre( toBookGenreView(book.getGenre()) );
         bookView.setDescription( book.getDescription() );
-        bookView.setBookAuthors(new ArrayList<>());
+        bookView.setAuthors(new ArrayList<>());
 
         return bookView;
     }
 }
+

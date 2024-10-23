@@ -131,6 +131,12 @@ public class LendingServiceImpl implements LendingService {
         lending.setDaysTillReturn((int) ChronoUnit.DAYS.between(LocalDate.now(), limitDate));
         lending.setBookTitle(book.getTitle());
 
+        lendingRepositoryHTTP.createInternalLending(lending);
+
+        return lendingRepository.save(lending);
+    }
+
+    public Lending createInternalLending(Lending lending) {
         return lendingRepository.save(lending);
     }
 
@@ -171,7 +177,13 @@ public class LendingServiceImpl implements LendingService {
         returnedLending.setFine(fine);
         returnedLending.setComment(resource.getComment());
 
+        lendingRepositoryHTTP.returnInternalBook(returnedLending);
+
         return lendingRepository.save(returnedLending);
+    }
+
+    public Lending returnInternalBook(Lending lending) {
+        return lendingRepository.save(lending);
     }
 
     private float calculateFine(long daysOverdue) {

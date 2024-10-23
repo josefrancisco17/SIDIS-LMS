@@ -1,15 +1,11 @@
 package libraryapi.readerservice.services;
 
+import libraryapi.readerservice.model.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
-import libraryapi.readerservice.model.Book;
-import libraryapi.readerservice.model.Genre;
 import libraryapi.readerservice.fileStorage.UploadFileResponse;
-import libraryapi.readerservice.model.Reader;
-import libraryapi.readerservice.model.ReaderPhoto;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 public interface ReaderService {
@@ -23,6 +19,7 @@ public interface ReaderService {
     Page<Reader> getReadersByEmail(final String email, Pageable pageable);
     ReaderPhoto getReaderPhoto(final String readerId);
     Reader createReader(final EditReaderRequest resource, MultipartFile photo);
+    Reader manageInternalReader(Reader reader);
     Reader updateReader(final Long id, final EditReaderRequest resource, final long desiredVersion);
     Reader partialUpdateReader(final Long id, final EditReaderRequest resource, final long desiredVersion);
     UploadFileResponse doUploadFile(final String id, final MultipartFile file);

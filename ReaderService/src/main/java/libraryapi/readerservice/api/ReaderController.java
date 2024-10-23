@@ -22,18 +22,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-//import psoftg2.libraryapi.bookManagement.services.GenreServiceImpl;
 import libraryapi.readerservice.exceptions.NotFoundException;
-import libraryapi.readerservice.fileStorage.UploadFileResponse;
 import libraryapi.readerservice.model.Reader;
 import libraryapi.readerservice.model.ReaderPhoto;
 import libraryapi.readerservice.services.EditReaderRequest;
 import libraryapi.readerservice.services.ReaderServiceImpl;
 //import psoftg2.libraryapi.userManagement.model.Role;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.LocalDate;
 
 @Tag(name = "Readers", description = "Endpoints for managing Readers")
 @RestController
@@ -46,7 +41,6 @@ public class ReaderController {
     private final ReaderViewMapper readerViewMapper;
     private final ReaderProfileViewMapper readerProfileViewMapper ;
     private final BookViewMapper bookViewMapper;
-    private final ReaderLentsViewMapper readerLentsViewMapper;
     //private final GenreServiceImpl genreService;
 
     @Operation(summary = "Gets a reader profile with a funny quote based on date of birth")
@@ -148,16 +142,17 @@ public class ReaderController {
                 .body(readerViewMapper.toReaderView(reader));
     }
 
-    @Operation(summary = "Uploads a cover of a Reader")
-    @PostMapping("/{readerId}/photo")
+    @Operation(summary = "Handles Creation, Update and Patch of Readers in another instances")
+    @PutMapping("/internal")
     @ResponseStatus(HttpStatus.CREATED)
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public ResponseEntity<UploadFileResponse> uploadFile(@PathVariable("readerId") final String readerId,
-                                                         @RequestParam("file") final MultipartFile file) throws URISyntaxException {
-        final UploadFileResponse up = readerService.doUploadFile(readerId, file);
+    public ResponseEntity<ReaderView> manageInternalReader(@Valid @RequestBody Reader reader) {
+        Reader newReader = readerService.manageInternalReader(reader);
 
-        return ResponseEntity.created(new URI(up.getFileDownloadUri())).body(up);
+        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(newReader.getId().toString())
+                .build().toUri();
 
+        return ResponseEntity.created(newbarUri).eTag(Long.toString(newReader.getVersion()))
+                .body(readerViewMapper.toReaderView(newReader));
     }
 
     @Operation(summary = "Fully replaces an existing reader. If the specified id does not exist does nothing and returns 400.")

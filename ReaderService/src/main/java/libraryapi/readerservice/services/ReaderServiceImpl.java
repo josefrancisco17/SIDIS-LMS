@@ -14,17 +14,14 @@ import libraryapi.readerservice.exceptions.NotFoundException;
 import libraryapi.readerservice.fileStorage.FileStorageService;
 import libraryapi.readerservice.fileStorage.UploadFileResponse;
 import libraryapi.readerservice.repositories.ReaderPhotoRepository;
-import libraryapi.readerservice.repositories.ReaderRepositoryHTTP;
 import libraryapi.readerservice.repositories.ReaderRepository;
 import libraryapi.readerservice.util.ReaderUtil;
+import libraryapi.readerservice.repositories.ReaderRepositoryHTTP;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static libraryapi.readerservice.util.ReaderUtil.isValidReaderPhoto;
@@ -68,7 +65,6 @@ public class ReaderServiceImpl implements ReaderService {
 
     public Iterable<Reader> getTopReaders() {
         List<Lending> lendings = readerRepositoryHTTP.getAllLendings();
-
         Map<Long, Long> lendingCountMap = lendings.stream()
                 .collect(Collectors.groupingBy(
                         Lending::getReaderId,
@@ -105,7 +101,6 @@ public class ReaderServiceImpl implements ReaderService {
         }
 
         List<Book> suggestedBooks = readerRepositoryHTTP.getAllBooks().stream().filter(book -> interests.contains(book.getGenre().getName())).toList();
-
         return BookUtil.toPage(suggestedBooks, pageable);
     }
 
@@ -163,6 +158,14 @@ public class ReaderServiceImpl implements ReaderService {
             doUploadFile(reader.getId().toString(), photo);
         }
 
+        //Gets new reader after with or without the photo for being sent to another instances
+        Reader newReader = readerRepository.getById(reader.getId());
+        readerRepositoryHTTP.manageInternalReader(newReader);
+
+        return readerRepository.save(reader);
+    }
+
+    public Reader manageInternalReader(Reader reader) {
         return readerRepository.save(reader);
     }
 
@@ -170,6 +173,7 @@ public class ReaderServiceImpl implements ReaderService {
     public Reader updateReader(final Long id, final EditReaderRequest resource, final long desiredVersion) {
         final var reader = readerRepository.findById(id).orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
         reader.updateData(desiredVersion, resource.getName(), resource.getEmail(), resource.getDateOfBirth(), resource.getPhoneNumber(), resource.getGDBRConsent(), resource.getInterests());
+        readerRepositoryHTTP.manageInternalReader(reader);
         return readerRepository.save(reader);
     }
 
@@ -177,6 +181,7 @@ public class ReaderServiceImpl implements ReaderService {
         final var reader = readerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
         reader.applyPatch(desiredVersion, resource.getName(), resource.getEmail(), resource.getDateOfBirth(), resource.getPhoneNumber(), resource.getGDBRConsent(), resource.getInterests());
+        readerRepositoryHTTP.manageInternalReader(reader);
         return readerRepository.save(reader);
     }
 
@@ -231,6 +236,7 @@ public class ReaderServiceImpl implements ReaderService {
             Reader reader = readerRepository.getById(Long.parseLong(id));
             reader.setReaderPhoto(photo);
             readerRepository.save(reader);
+
         }
 
         final String fileName = fileStorageService.storeFile(id, file);

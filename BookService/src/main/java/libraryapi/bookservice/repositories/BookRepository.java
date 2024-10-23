@@ -2,6 +2,7 @@ package libraryapi.bookservice.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import libraryapi.bookservice.model.Book;
 import libraryapi.bookservice.model.Genre;
@@ -20,4 +21,9 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     @Query(value = "SELECT g FROM Genre g JOIN Book b ON g.id = b.genre.id GROUP BY g.id, g.name ORDER BY COUNT(b.id) DESC LIMIT 5")
     List<Genre> findTopGenres();
+
+    List<Book> findByAuthors_Id(Long authorId);
+
+    @Query("SELECT b FROM Book b JOIN b.authors a WHERE a.id = :authorId")
+    List<Book> findBooksByAuthorId(@Param("authorId") Long authorId);
 }

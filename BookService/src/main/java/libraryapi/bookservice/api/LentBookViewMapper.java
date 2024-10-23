@@ -1,14 +1,10 @@
 package libraryapi.bookservice.api;
 
-import libraryapi.bookservice.model.Book;
-import libraryapi.bookservice.model.BookAuthor;
 import org.mapstruct.Mapper;
+import libraryapi.bookservice.model.Book;
 import libraryapi.bookservice.model.Lending;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static libraryapi.bookservice.api.BookAuthorViewMapper.toBookAuthorView;
 import static libraryapi.bookservice.api.BookGenreViewMapper.toBookGenreView;
 
 @Mapper(componentModel = "spring")
@@ -31,14 +27,7 @@ public class LentBookViewMapper {
         lentBookView.setTitle( book.getTitle() );
         lentBookView.setGenre( toBookGenreView(book.getGenre()));
         lentBookView.setDescription( book.getDescription() );
-        List<BookAuthor> list = book.getBookAuthors();
-        if (list != null) {
-            List<BookAuthorView> viewList = new ArrayList<>();
-            for (BookAuthor bookAuthor : list) {
-                viewList.add(toBookAuthorView(bookAuthor));
-            }
-            lentBookView.setBookAuthors(viewList);
-        }
+        lentBookView.setAuthorViews(book.getAuthors());
 
         return lentBookView;
     }

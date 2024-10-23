@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import libraryapi.bookservice.model.*;
@@ -29,18 +28,13 @@ import libraryapi.bookservice.services.AuthorServiceImpl;
 import libraryapi.bookservice.services.EditAuthorRequest;
 import libraryapi.bookservice.services.BookServiceImpl;
 import libraryapi.bookservice.exceptions.NotFoundException;
-import libraryapi.bookservice.fileStorage.UploadFileResponse;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "Authors", description = "Endpoints for managing Authors")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/authors")
-public class    AuthorController {
+public class AuthorController {
 
     private static final String IF_MATCH = "If-Match";
     private final AuthorServiceImpl authorService;
@@ -86,14 +80,7 @@ public class    AuthorController {
             @PathVariable("authorId") Long authorId) {
 
         Pageable pageable = PageRequest.of(page, size);
-        List<BookAuthor> bookAuthors = bookService.getBookAuthorsByAuthorId(authorId);
-        List<Book> booksList = new ArrayList<>();
-
-        for (BookAuthor bookAuthor : bookAuthors) {
-            if (bookAuthor.getBook().getBookAuthors().size() > 1) {
-                booksList.add(bookAuthor.getBook());
-            }
-        }
+        List<Book> booksList = authorService.getCoAuthorsBooks(authorId);
 
         return getBookViews(pageable, booksList);
     }
@@ -157,20 +144,20 @@ public class    AuthorController {
                 .body(authorViewMapper.toAuthorView(author));
     }
 
-    @Operation(summary = "Uploads a author photo")
-    @PostMapping("/{authorId}/photo")
+    @Operation(summary = "Handles Creation, Update and Patch of Author in another instances")
+    @PutMapping("/internal")
     @ResponseStatus(HttpStatus.CREATED)
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public ResponseEntity<UploadFileResponse> uploadFile(@PathVariable("authorId") final String authorId,
-                                                         @RequestParam("file") final MultipartFile file) throws URISyntaxException {
+    public ResponseEntity<AuthorView> manageInternalReader(@Valid @RequestBody Author author) {
+        Author newAuthor = authorService.manageInternalAuthor(author);
 
-        final UploadFileResponse up = authorService.doUploadFile(authorId, file);
+        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(newAuthor.getId().toString())
+                .build().toUri();
 
-        return ResponseEntity.created(new URI(up.getFileDownloadUri())).body(up);
-
+        return ResponseEntity.created(newbarUri).eTag(Long.toString(newAuthor.getVersion()))
+                .body(authorViewMapper.toAuthorView(newAuthor));
     }
 
-    @Operation(summary = "Fully replaces an existing author. If the specified id does not exist does nothing and returns 400.")
+    @Operation(summary = "Fully replaces an existing author")
     @PutMapping(path = "{authorId}")
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     public ResponseEntity<AuthorView> updateAuthor(final WebRequest request,

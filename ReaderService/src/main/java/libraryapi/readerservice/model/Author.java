@@ -3,6 +3,9 @@ package libraryapi.readerservice.model;
 import jakarta.persistence.*;
 import org.hibernate.StaleObjectStateException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table
 public class Author {
@@ -16,6 +19,9 @@ public class Author {
     private String name;
     @Column(columnDefinition = "TEXT", length = 4096, nullable = false)
     private String shortBio;
+
+    @ManyToMany(mappedBy = "authors")
+    private List<Book> books = new ArrayList<>();
 
     private int lents;
 

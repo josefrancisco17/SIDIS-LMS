@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import libraryapi.readerservice.util.BookUtil;
 import org.hibernate.StaleObjectStateException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -34,29 +35,33 @@ public class Book {
     @Column(length = 4096, nullable = true)
     private String description;
 
-    @OneToMany(mappedBy = "book", orphanRemoval = true)
-    private List<BookAuthor> bookAuthors;
+    @ManyToMany
+    @JoinTable(
+            name = "book_authors",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
+    private List<Author> authors = new ArrayList<>();
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private BookCover cover;
 
     public Book() {
     }
 
-    public Book(String isbn, String title, Genre genre, String description, List<BookAuthor> bookAuthors, BookCover cover) {
+    public Book(String isbn, String title, Genre genre, String description, List<Author> authors, BookCover cover) {
         this.isbn = isbn;
         this.title = title;
         this.genre = genre;
         this.description = description;
-        this.bookAuthors = bookAuthors;
+        this.authors = authors;
         this.cover = cover;
     }
 
-    public Book(String isbn, String title, Genre genre, List<BookAuthor> bookAuthors, String description) {
+    public Book(String isbn, String title, Genre genre, List<Author> authors, String description) {
         this.isbn = isbn;
         this.title = title;
         this.genre = genre;
-        this.bookAuthors = bookAuthors;
         this.description = description;
     }
 
@@ -131,14 +136,6 @@ public class Book {
         this.description = description;
     }
 
-    public List<BookAuthor> getBookAuthors() {
-        return bookAuthors;
-    }
-
-    public void setBookAuthors(List<BookAuthor> bookAuthors) {
-        this.bookAuthors = bookAuthors;
-    }
-
     public BookCover getCover() {
         return cover;
     }
@@ -147,16 +144,17 @@ public class Book {
         this.cover = cover;
     }
 
-    public void updateData(final long desiredVersion, final String title, final Genre genre, final String description) {
+    public void updateData(final long desiredVersion, final String title, final List<Author> authors, final Genre genre, final String description) {
         if (this.version != desiredVersion) {
             throw new StaleObjectStateException("Object was already modified by another user", this.id);
         }
         setTitle(title);
+        setAuthors(authors);
         setGenre(genre);
         setDescription(description);
     }
 
-    public void applyPatch(final long desiredVersion, final String title, final Genre genre, final String description) {
+    public void applyPatch(final long desiredVersion, final String title, final List<Author> authors, final Genre genre, final String description) {
         if (this.version != desiredVersion) {
             throw new StaleObjectStateException("Object was already modified by another user", this.id);
         }
@@ -165,6 +163,10 @@ public class Book {
         }
         if (genre != null) {
             setGenre(genre);
+        }
+
+        if (authors != null && !authors.isEmpty()) {
+            setAuthors(authors);
         }
 
         if (description != null) {
@@ -178,6 +180,14 @@ public class Book {
         }
     }
 
+    public List<Author> getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(List<Author> authors) {
+        this.authors = authors;
+    }
+
     @Override
     public String toString() {
         return "Book{" +
@@ -186,7 +196,7 @@ public class Book {
                 ", title='" + title + '\'' +
                 ", genre='" + genre + '\'' +
                 ", description='" + description + '\'' +
-                ", bookAuthors=" + bookAuthors +
+                ", authors=" + authors +
                 '}';
     }
 }

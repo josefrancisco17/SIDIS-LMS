@@ -20,7 +20,6 @@ import libraryapi.lendingservice.exceptions.NotFoundException;
 import libraryapi.lendingservice.model.Lending;
 import libraryapi.lendingservice.services.CreateLendingRequest;
 import libraryapi.lendingservice.services.EditLendingRequest;
-//import psoftg2.libraryapi.userManagement.model.Role;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -108,6 +107,20 @@ public class LendingController {
                 .body(lendingViewMapper.toLendingView(lending));
     }
 
+    @Operation(summary = "Saves a new Lending created in another instance")
+    @PostMapping("/internal")
+    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<LendingView> createInternalLending(@Valid @RequestBody Lending lending) {
+        Lending savedLending = lendingService.createInternalLending(lending);
+
+        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(savedLending.getId().toString())
+                .build().toUri();
+
+        return ResponseEntity.created(newbarUri).eTag(Long.toString(savedLending.getVersion()))
+                .body(lendingViewMapper.toLendingView(savedLending));
+    }
+
     @Operation(summary = "Return a Book")
     @PostMapping("/return")
     //@RolesAllowed({Role.ADMIN, Role.READER})
@@ -120,6 +133,20 @@ public class LendingController {
 
         return ResponseEntity.created(newbarUri).eTag(Long.toString(lending.getVersion()))
                 .body(lendingViewMapper.toLendingView(lending));
+    }
+
+    @Operation(summary = "Returns a Lending that was returned in another instance")
+    @PostMapping("/internal/return")
+    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<LendingView> returnInternalBook(@Valid @RequestBody Lending lending) {
+        Lending savedLending = lendingService.returnInternalBook(lending);
+
+        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(savedLending.getId().toString())
+                .build().toUri();
+
+        return ResponseEntity.created(newbarUri).eTag(Long.toString(savedLending.getVersion()))
+                .body(lendingViewMapper.toLendingView(savedLending));
     }
     
     private Long getVersionFromIfMatchHeader(final String ifMatchHeader) {

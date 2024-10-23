@@ -28,19 +28,15 @@ public class BookServiceImpl implements BookService{
     private final BookRepository bookRepository;
     private final BookCoverRepository bookCoverRepository;
     private final BookRepositoryHTTP bookRepositoryHTTP;
-    private final AuthorRepository authorRepository;
-    private final BookAuthorRepository bookAuthorRepository;
     private final GenreRepository genreRepository;
     private final FileStorageService fileStorageService;
     private final EditBookMapper editBookMapper;
 
     @Autowired
-    public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, BookRepositoryHTTP bookRepositoryHTTP, AuthorRepository authorRepository, BookAuthorRepository bookAuthorRepository, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService) {
+    public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, BookRepositoryHTTP bookRepositoryHTTP, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService) {
         this.bookRepository = bookRepository;
         this.bookCoverRepository = bookCoverRepository;
         this.bookRepositoryHTTP = bookRepositoryHTTP;
-        this.authorRepository = authorRepository;
-        this.bookAuthorRepository = bookAuthorRepository;
         this.editBookMapper = editBookMapper;
         this.genreRepository = genreRepository;
         this.fileStorageService =  fileStorageService;
@@ -83,6 +79,10 @@ public class BookServiceImpl implements BookService{
                 .collect(Collectors.toList());
     }
 
+    public List<Book> getBooksByAuthorId(Long authorId) {
+        return bookRepository.findBooksByAuthorId(authorId);
+    }
+
     public Page<Book> getBooksByGenre(final String genre, Pageable pageable) {
         List<Book> filteredBooks = bookRepository.findAll().stream()
                 .filter(book -> book.getGenre().getName().toLowerCase().contains(genre.toLowerCase()))
@@ -97,26 +97,24 @@ public class BookServiceImpl implements BookService{
         return toPage(filteredBooks, pageable);
     }
 
-    public Page<Book> getBooksByAuthor(final String author, Pageable pageable) {
+    public Page<Book> getBooksByAuthor(final String authorName, Pageable pageable) {
         List<Book> filteredBooks = bookRepository.findAll().stream()
-                .filter(book -> book.getBookAuthors().stream()
-                        .anyMatch(bookAuthor -> bookAuthor.getAuthor().getName().equalsIgnoreCase(author)))
+                .filter(book -> book.getAuthors().stream()
+                        .anyMatch(author -> author.getName().equalsIgnoreCase(authorName)))
                 .collect(Collectors.toList());
+
         return toPage(filteredBooks, pageable);
     }
 
-    public Page<Book> getBooksByTitleAndGenreAndAuthor(final String genre, final String title, final String author, Pageable pageable) {
+    public Page<Book> getBooksByTitleAndGenreAndAuthor(final String genre, final String title, final String authorName, Pageable pageable) {
         List<Book> filteredBooks = bookRepository.findAll().stream()
-                .filter(book -> book.getGenre().getName().toLowerCase().contains(genre.toLowerCase()) &&
-                        book.getTitle().toLowerCase().contains(title.toLowerCase()) &&
-                        book.getBookAuthors().stream()
-                                .anyMatch(bookAuthor -> bookAuthor.getAuthor().getName().equalsIgnoreCase(author)))
+                .filter(book -> book.getGenre().getName().toLowerCase().contains(genre.toLowerCase()))
+                .filter(book -> book.getTitle().toLowerCase().contains(title.toLowerCase()))
+                .filter(book -> book.getAuthors().stream()
+                        .anyMatch(author -> author.getName().equalsIgnoreCase(authorName)))
                 .collect(Collectors.toList());
-        return toPage(filteredBooks, pageable);
-    }
 
-    public List<BookAuthor> getBookAuthorsByAuthorId(Long authorId) {
-        return bookAuthorRepository.getAuthorBooks(authorId);
+        return toPage(filteredBooks, pageable);
     }
 
     public BookCover getBookCover(final String bookId) {
@@ -133,16 +131,20 @@ public class BookServiceImpl implements BookService{
         validateCreateBookRequest(resource);
 
         Book book = editBookMapper.create(resource);
-
-        if (resource.getBookAuthors() != null) {
-            updateBookAuthors(book, resource.getBookAuthors());
-        }
+        bookRepository.save(book);
 
         if (coverPhoto != null) {
             doUploadFile(book.getId().toString(), coverPhoto);
+            book.setVersion(book.getVersion() - 1);
         }
+        bookRepositoryHTTP.manageInternalBook(book);
 
-        return bookRepository.save(book);
+        return book;
+    }
+
+    @Transactional
+    public Book manageInternalBook(Book book) {
+            return bookRepository.save(book);
     }
 
     @Transactional
@@ -151,18 +153,14 @@ public class BookServiceImpl implements BookService{
 
         final var existingGenre = genreRepository.findById(resource.getGenre().getId()).orElseThrow(() -> new NotFoundException("[ERROR] Genre not found"));
 
-        book.updateData(desiredVersion, resource.getTitle(), existingGenre ,resource.getDescription());
-
-        if (resource.getBookAuthors() != null) {
-            updateBookAuthors(book, resource.getBookAuthors());
-        }
-
+        book.updateData(desiredVersion, resource.getTitle(), resource.getAuthors() ,existingGenre ,resource.getDescription());
+        bookRepositoryHTTP.manageInternalBook(book);
         return bookRepository.save(book);
     }
 
+    @Transactional
     public Book partialUpdateBook(final Long id, final EditBookRequest resource, final long desiredVersion) {
-        final var book = bookRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
+        final var book = bookRepository.findById(id).orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
 
         Genre existingGenre = null;
 
@@ -170,11 +168,9 @@ public class BookServiceImpl implements BookService{
             existingGenre = genreRepository.findById(resource.getGenre().getId()).orElseThrow(() -> new NotFoundException("[ERROR] Genre not found"));
         }
 
-        book.applyPatch(desiredVersion, resource.getTitle(), existingGenre, resource.getDescription());
+        book.applyPatch(desiredVersion, resource.getTitle(), resource.getAuthors(), existingGenre, resource.getDescription());
 
-        if (resource.getBookAuthors() != null) {
-            updateBookAuthors(book, resource.getBookAuthors());
-        }
+        bookRepositoryHTTP.manageInternalBook(book);
         return bookRepository.save(book);
     }
 
@@ -200,36 +196,12 @@ public class BookServiceImpl implements BookService{
             throw new IllegalArgumentException("[ERROR] Book title is mandatory and cannot start or end with spaces.");
         }
 
-        if (StringUtils.isBlank(request.getGenre().getName()) || StringUtils.isBlank(request.getBookAuthors().toString())) {
+        if (StringUtils.isBlank(request.getGenre().getName()) || StringUtils.isBlank(request.getAuthors().toString())) {
             throw new IllegalArgumentException("[ERROR] Genre and author fields are mandatory.");
         }
     }
 
-    public void updateBookAuthors(final Book book, final List<BookAuthor> bookAuthorsList) {
-        //delete das entradas antigas da tabela para depois podermos introduzir os novos bookAuthors
-        bookAuthorRepository.deleteByBookId(book.getId());
-
-        //save no book uma vez que vai ser preciso para criar associacoes entre book e author na tabela bookAuthors
-        bookRepository.save(book);
-
-        if (bookAuthorsList != null && !bookAuthorsList.isEmpty()) {
-            List<BookAuthor> listBookAuthors = new ArrayList<>();
-            for (BookAuthor bookAuthor : bookAuthorsList) {
-                Author author = bookAuthor.getAuthor();
-                if (author != null && author.getName() != null && author.getShortBio() != null) {
-                    Author existingAuthor = authorRepository.findAuthorByName(author.getName())
-                            .orElseThrow(() -> new IllegalArgumentException("[ERROR] Author not found"));
-                    listBookAuthors.add(new BookAuthor(book, existingAuthor));
-                } else {
-                    throw new IllegalArgumentException("[ERROR] Author information is incomplete. Please provide valid author details.");
-                }
-            }
-            bookAuthorRepository.saveAll(listBookAuthors);
-        }
-    }
-
     public UploadFileResponse doUploadFile(final String id, final MultipartFile file) {
-
         if (isValidBookCover(file)) {
             BookCover cover = new BookCover();
             try {
@@ -242,6 +214,7 @@ public class BookServiceImpl implements BookService{
             bookCoverRepository.save(cover);
             Book book = bookRepository.getById(Long.parseLong(id));
             book.setCover(cover);
+            book.setVersion(book.getVersion() - 1);
             bookRepository.save(book);
         }
 

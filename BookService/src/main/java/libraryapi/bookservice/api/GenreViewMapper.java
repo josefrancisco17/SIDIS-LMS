@@ -3,7 +3,6 @@ package libraryapi.bookservice.api;
 import libraryapi.bookservice.model.Book;
 import libraryapi.bookservice.model.Genre;
 import org.mapstruct.Mapper;
-
 import java.util.ArrayList;
 import java.util.List;
 

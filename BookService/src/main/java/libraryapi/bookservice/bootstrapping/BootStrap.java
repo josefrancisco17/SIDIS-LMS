@@ -5,20 +5,16 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import libraryapi.bookservice.model.Author;
-import libraryapi.bookservice.model.BookAuthor;
 import libraryapi.bookservice.repositories.AuthorRepository;
 import libraryapi.bookservice.model.Genre;
-import libraryapi.bookservice.repositories.BookAuthorRepository;
 import libraryapi.bookservice.model.Book;
 import libraryapi.bookservice.repositories.BookRepository;
-import libraryapi.bookservice.model.Lending;
-import libraryapi.bookservice.model.Reader;
 import libraryapi.bookservice.repositories.GenreRepository;
 
-import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -27,7 +23,6 @@ import java.util.Map;
 public class BootStrap implements CommandLineRunner {
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
-    private final BookAuthorRepository bookAuthorRepository;
     private final GenreRepository genreRepository;
 
     public static final Map<Month, String> funnyQuotes = new HashMap<>();
@@ -49,6 +44,22 @@ public class BootStrap implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        //Authors Mock Data
+        Author author1 = new Author("Stephen R. Covey", "An American educator, author, businessman, and keynote speaker.");
+        Author author2 = new Author("James Clear", "An author and speaker focused on habits, decision-making, and continuous improvement.");
+        Author author3 = new Author("Dale Carnegie", "An American writer and lecturer known for self-improvement courses.");
+        Author author4 = new Author("Frank Herbert", "An American science fiction writer best known for the novel Dune.");
+        Author author5 = new Author("Eckhart Tolle", "A spiritual teacher and author best known for his books The Power of Now and A New Earth.");
+        Author author6 = new Author("Robert T. Kiyosaki", "An American businessman and author of Rich Dad Poor Dad.");
+        Author author7 = new Author("J.D. Salinger", "An American writer known for his novel The Catcher in the Rye.");
+        Author author8 = new Author("William Gibson", "An American-Canadian speculative fiction writer and essayist widely credited with pioneering the cyberpunk genre.");
+        Author author9 = new Author("F. Scott Fitzgerald", "An American novelist and short story writer, widely regarded as one of the greatest writers of the 20th century.");
+        Author author10 = new Author("J.K. Rowling", "A British author, best known for writing the Harry Potter fantasy series.");
+
+        authorRepository.saveAll(Arrays.asList(
+                author1, author2, author3, author4, author5, author6, author7, author8, author9, author10
+        ));
+
         // Genre Mock Data
         Genre genre1 = new Genre("Self-Improvement");
         Genre genre2 = new Genre("Science Fiction");
@@ -66,7 +77,7 @@ public class BootStrap implements CommandLineRunner {
         ));
 
         //Books Mock Data
-        Book book1 = new Book("9781982137274", "The 7 Habits of Highly Effective People", genre1, null, "Powerful lessons in personal change.");
+        Book book1 = new Book("9781982137274", "The 7 Habits of Highly Effective People", genre1,null, "Powerful lessons in personal change.");
         Book book2 = new Book("9780735211292", "Atomic Habits", genre1, null, "Tiny Changes, Remarkable Results");
         Book book3 = new Book("9780671027032", "How to Win Friends and Influence People", genre1, null, "Timeless advice on building successful relationships.");
         Book book4 = new Book("9780345472328", "Mindset: The New Psychology of Success", genre2, null, "Discover the power of our mindset.");
@@ -74,7 +85,7 @@ public class BootStrap implements CommandLineRunner {
         Book book6 = new Book("9781612681139", "Rich Dad Poor Dad", genre1, null, "What the Rich Teach Their Kids About Money That the Poor and Middle Class Do Not!");
         Book book7 = new Book("9780743273565", "The Great Gatsby", genre5, null, "A novel of the Jazz Age.");
         Book book8 = new Book("9780441172719", "Dune", genre4, null, "Science fiction novel about the son of a noble family.");
-        Book book9 = new Book("9780316769488", "The Catcher in the Rye", genre6, null, "A story about teenage rebellion.");
+        Book book9 = new Book("9780316769488", "The Catcher in the Rye", genre6,null, "A story about teenage rebellion.");
         Book book10 = new Book("9780451524935", "1984", genre7, null, "A dystopian social science fiction novel.");
         Book book11 = new Book("9781400032716", "The Road", genre8, null, "A post-apocalyptic novel.");
         Book book12 = new Book("9780618640157", "The Hobbit", genre9, null, "A fantasy novel and children's book.");
@@ -87,53 +98,30 @@ public class BootStrap implements CommandLineRunner {
         Book book19 = new Book("9780316015844", "Twilight", genre10, null, "A young adult vampire-romance novel.");
         Book book20 = new Book("9780140283334", "Siddhartha", genre3, null, "A novel about the spiritual journey of self-discovery.");
 
+        book1.setAuthors(Arrays.asList(author3, author4));
+        book2.setAuthors(List.of(author3));
+        book3.setAuthors(List.of(author2));
+        book4.setAuthors(List.of(author3));
+        book5.setAuthors(List.of(author4));
+        book6.setAuthors(List.of(author10));
+        book7.setAuthors(List.of(author10));
+        book8.setAuthors(Arrays.asList(author1, author2));
+        book9.setAuthors(List.of(author7));
+        book10.setAuthors(List.of(author8));
+        book11.setAuthors(List.of(author6));
+        book12.setAuthors(Arrays.asList(author1, author2));
+        book13.setAuthors(List.of(author9));
+        book14.setAuthors(List.of(author1));
+        book15.setAuthors(List.of(author5));
+        book16.setAuthors(Arrays.asList(author1, author2));
+        book17.setAuthors(Arrays.asList(author3, author2));
+        book18.setAuthors(Arrays.asList(author1, author2));
+        book19.setAuthors(Arrays.asList(author5, author9));
+        book20.setAuthors(Arrays.asList(author5, author10));
+
         bookRepository.saveAll(Arrays.asList(
                 book1, book2, book3, book4, book5, book6, book7, book8, book9, book10,
                 book11, book12, book13, book14, book15, book16, book17, book18, book19, book20
-        ));
-
-        //Authors Mock Data
-        Author author1 = new Author("Stephen R. Covey", "An American educator, author, businessman, and keynote speaker.");
-        Author author2 = new Author("James Clear", "An author and speaker focused on habits, decision-making, and continuous improvement.");
-        Author author3 = new Author("Dale Carnegie", "An American writer and lecturer known for self-improvement courses.");
-        Author author4 = new Author("Frank Herbert", "An American science fiction writer best known for the novel Dune.");
-        Author author5 = new Author("Eckhart Tolle", "A spiritual teacher and author best known for his books The Power of Now and A New Earth.");
-        Author author6 = new Author("Robert T. Kiyosaki", "An American businessman and author of Rich Dad Poor Dad.");
-        Author author7 = new Author("J.D. Salinger", "An American writer known for his novel The Catcher in the Rye.");
-        Author author8 = new Author("William Gibson", "An American-Canadian speculative fiction writer and essayist widely credited with pioneering the cyberpunk genre.");
-        Author author9 = new Author("F. Scott Fitzgerald", "An American novelist and short story writer, widely regarded as one of the greatest writers of the 20th century.");
-        Author author10 = new Author("J.K. Rowling", "A British author, best known for writing the Harry Potter fantasy series.");
-
-        authorRepository.saveAll(Arrays.asList(
-                author1, author2, author3, author4, author5, author6, author7, author8, author9, author10
-        ));
-
-        //BookAuthor Mock Data
-        BookAuthor bookAuthor1 = new BookAuthor(book1, author1);
-        BookAuthor bookAuthor2 = new BookAuthor(book2, author2);
-        BookAuthor bookAuthor3 = new BookAuthor(book3, author3);
-        BookAuthor bookAuthor4 = new BookAuthor(book4, author4);
-        BookAuthor bookAuthor5 = new BookAuthor(book5, author5);
-        BookAuthor bookAuthor6 = new BookAuthor(book6, author6);
-        BookAuthor bookAuthor7 = new BookAuthor(book7, author7);
-        BookAuthor bookAuthor8 = new BookAuthor(book8, author8);
-        BookAuthor bookAuthor9 = new BookAuthor(book9, author9);
-        BookAuthor bookAuthor10 = new BookAuthor(book10, author10);
-        BookAuthor bookAuthor11 = new BookAuthor(book11, author5);
-        BookAuthor bookAuthor12 = new BookAuthor(book12, author8);
-        BookAuthor bookAuthor13 = new BookAuthor(book13, author3);
-        BookAuthor bookAuthor14 = new BookAuthor(book14, author3);
-        BookAuthor bookAuthor15 = new BookAuthor(book15, author3);
-        BookAuthor bookAuthor16 = new BookAuthor(book16, author10);
-        BookAuthor bookAuthor17 = new BookAuthor(book17, author10);
-        BookAuthor bookAuthor18 = new BookAuthor(book18, author10);
-        BookAuthor bookAuthor19 = new BookAuthor(book19, author10);
-        BookAuthor bookAuthor20 = new BookAuthor(book20, author10);
-        BookAuthor bookAuthor21 = new BookAuthor(book2, author1);
-
-        bookAuthorRepository.saveAll(Arrays.asList(
-                bookAuthor1, bookAuthor2, bookAuthor3, bookAuthor4, bookAuthor5, bookAuthor6, bookAuthor7, bookAuthor8, bookAuthor9, bookAuthor10,
-                bookAuthor11, bookAuthor12, bookAuthor13, bookAuthor14, bookAuthor15, bookAuthor16, bookAuthor17, bookAuthor18, bookAuthor19, bookAuthor20, bookAuthor21
         ));
     }
 }

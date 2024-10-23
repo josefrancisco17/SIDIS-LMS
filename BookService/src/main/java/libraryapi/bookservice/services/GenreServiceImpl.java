@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import libraryapi.bookservice.model.Genre;
 import libraryapi.bookservice.repositories.GenreRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
