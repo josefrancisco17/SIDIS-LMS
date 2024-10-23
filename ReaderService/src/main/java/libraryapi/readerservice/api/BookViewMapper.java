@@ -1,11 +1,9 @@
 package libraryapi.readerservice.api;
 
-import libraryapi.readerservice.model.Author;
 import org.mapstruct.Mapper;
 import libraryapi.readerservice.model.Book;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 import static libraryapi.readerservice.api.BookGenreViewMapper.toBookGenreView;

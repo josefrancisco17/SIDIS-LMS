@@ -2,14 +2,10 @@ package libraryapi.lendingservice.services;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import libraryapi.lendingservice.model.Genre;
-import libraryapi.lendingservice.api.LendingAvgPerBookView;
-import libraryapi.lendingservice.api.LendingAvgPerGenrePerMonthView;
 import libraryapi.lendingservice.model.Lending;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface LendingService {

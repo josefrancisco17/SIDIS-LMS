@@ -8,7 +8,6 @@ import io.github.cdimascio.dotenv.Dotenv;
 import libraryapi.bookservice.model.Author;
 import libraryapi.bookservice.model.Book;
 import libraryapi.bookservice.model.Lending;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;

@@ -1,13 +1,8 @@
 package libraryapi.bookservice.api;
 
-import libraryapi.bookservice.model.Author;
 import org.mapstruct.Mapper;
 import libraryapi.bookservice.model.Book;
-
 import java.util.ArrayList;
-import java.util.List;
-
-
 import static libraryapi.bookservice.api.BookGenreViewMapper.toBookGenreView;
 
 @Mapper(componentModel = "spring")

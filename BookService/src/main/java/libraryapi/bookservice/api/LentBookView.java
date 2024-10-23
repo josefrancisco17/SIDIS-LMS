@@ -3,7 +3,6 @@ package libraryapi.bookservice.api;
 import io.swagger.v3.oas.annotations.media.Schema;
 import libraryapi.bookservice.model.Author;
 import lombok.Data;
-
 import java.util.List;
 
 @Data

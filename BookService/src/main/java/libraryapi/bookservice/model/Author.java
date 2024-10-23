@@ -1,10 +1,7 @@
 package libraryapi.bookservice.model;
 
 import jakarta.persistence.*;
-import libraryapi.bookservice.model.AuthorPhoto;
 import org.hibernate.StaleObjectStateException;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import java.util.ArrayList;
 import java.util.List;

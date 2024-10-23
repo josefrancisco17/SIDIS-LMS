@@ -6,8 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import libraryapi.readerservice.fileStorage.UploadFileResponse;
 
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 public interface ReaderService {

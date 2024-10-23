@@ -2,7 +2,6 @@ package libraryapi.bookservice.api;
 
 import libraryapi.bookservice.model.Author;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.ArrayList;
 import java.util.List;

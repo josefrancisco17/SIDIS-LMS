@@ -3,8 +3,6 @@ package libraryapi.readerservice.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import libraryapi.readerservice.model.BookCover;
-import libraryapi.readerservice.model.Genre;
 import libraryapi.readerservice.util.BookUtil;
 import org.hibernate.StaleObjectStateException;
 

@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import libraryapi.bookservice.model.*;
@@ -29,11 +28,6 @@ import libraryapi.bookservice.services.AuthorServiceImpl;
 import libraryapi.bookservice.services.EditAuthorRequest;
 import libraryapi.bookservice.services.BookServiceImpl;
 import libraryapi.bookservice.exceptions.NotFoundException;
-import libraryapi.bookservice.fileStorage.UploadFileResponse;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "Authors", description = "Endpoints for managing Authors")
@@ -163,7 +157,7 @@ public class AuthorController {
                 .body(authorViewMapper.toAuthorView(newAuthor));
     }
 
-    @Operation(summary = "Fully replaces an existing author. If the specified id does not exist does nothing and returns 400.")
+    @Operation(summary = "Fully replaces an existing author")
     @PutMapping(path = "{authorId}")
     //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     public ResponseEntity<AuthorView> updateAuthor(final WebRequest request,

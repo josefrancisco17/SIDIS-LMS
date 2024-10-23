@@ -1,7 +1,6 @@
 package libraryapi.lendingservice.model;
 
 import jakarta.persistence.*;
-import libraryapi.lendingservice.model.AuthorPhoto;
 import org.hibernate.StaleObjectStateException;
 
 @Entity

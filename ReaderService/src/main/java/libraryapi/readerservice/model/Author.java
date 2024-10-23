@@ -1,8 +1,6 @@
 package libraryapi.readerservice.model;
 
 import jakarta.persistence.*;
-import libraryapi.readerservice.model.AuthorPhoto;
-import libraryapi.readerservice.model.Book;
 import org.hibernate.StaleObjectStateException;
 
 import java.util.ArrayList;

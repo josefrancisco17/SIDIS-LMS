@@ -10,7 +10,6 @@ import libraryapi.lendingservice.model.Genre;
 import libraryapi.lendingservice.model.Lending;
 import libraryapi.lendingservice.model.Reader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;
 
@@ -23,7 +22,6 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Repository
 public class LendingRepositoryHTTP {

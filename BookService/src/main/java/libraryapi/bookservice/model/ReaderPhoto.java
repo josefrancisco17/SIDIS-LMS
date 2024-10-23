@@ -1,7 +1,6 @@
 package libraryapi.bookservice.model;
 
 import jakarta.persistence.*;
-import libraryapi.bookservice.model.Reader;
 
 import java.util.Arrays;
 

@@ -20,7 +20,6 @@ import libraryapi.lendingservice.exceptions.NotFoundException;
 import libraryapi.lendingservice.model.Lending;
 import libraryapi.lendingservice.services.CreateLendingRequest;
 import libraryapi.lendingservice.services.EditLendingRequest;
-//import psoftg2.libraryapi.userManagement.model.Role;
 
 import java.time.LocalDate;
 import java.util.List;

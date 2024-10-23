@@ -23,15 +23,12 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import libraryapi.readerservice.exceptions.NotFoundException;
-import libraryapi.readerservice.fileStorage.UploadFileResponse;
 import libraryapi.readerservice.model.Reader;
 import libraryapi.readerservice.model.ReaderPhoto;
 import libraryapi.readerservice.services.EditReaderRequest;
 import libraryapi.readerservice.services.ReaderServiceImpl;
 //import psoftg2.libraryapi.userManagement.model.Role;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 
 @Tag(name = "Readers", description = "Endpoints for managing Readers")
 @RestController

@@ -6,11 +6,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import libraryapi.bookservice.model.*;
-import libraryapi.bookservice.repositories.AuthorRepository;
 import libraryapi.bookservice.repositories.BookRepositoryHTTP;
 import libraryapi.bookservice.services.*;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +23,6 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import libraryapi.bookservice.exceptions.NotFoundException;
-import libraryapi.bookservice.fileStorage.UploadFileResponse;
-//import libraryapi.bookservice.model.Role;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "Books", description = "Endpoints for managing Books")
