@@ -1,4 +1,4 @@
-package libraryapi.authservice.model;
+package libraryapi.readerservice.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

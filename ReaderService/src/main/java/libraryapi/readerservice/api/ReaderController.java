@@ -6,8 +6,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import libraryapi.readerservice.model.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -45,7 +47,7 @@ public class ReaderController {
 
     @Operation(summary = "Gets a reader profile with a funny quote based on date of birth")
     @GetMapping("/{readerId}")
-    //@RolesAllowed({Role.READER, Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.READER, Role.LIBRARIAN, Role.ADMIN})
     @ApiResponse(description = "Success", content = { @Content(mediaType = "application/json",
             schema = @Schema(implementation = ReaderProfileView.class)) })
     public ResponseEntity<ReaderProfileView> getReaderProfileWithQuote(@PathVariable("readerId") Long id) {
@@ -55,7 +57,7 @@ public class ReaderController {
 
     @Operation(summary = "Gets Readers")
     @GetMapping
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     @ApiResponse(description = "Success", responseCode = "200", content = { @Content(mediaType = "application/json",
             array = @ArraySchema(schema = @Schema(implementation = ReaderView.class))) })
     public Iterable<ReaderView> getReaders(@RequestParam(value = "phoneNumber", required = false) String phoneNumber,
@@ -84,7 +86,6 @@ public class ReaderController {
 
     @Operation(summary = "Gets all Readers for other services")
     @GetMapping("/internal")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     @ApiResponse(description = "Success", responseCode = "200", content = {
             @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Reader.class)))
     })
@@ -94,7 +95,7 @@ public class ReaderController {
 
     @Operation(summary = "Gets the Top 5 Readers")
     @GetMapping("/top-readers")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     @ApiResponse(description = "Success", content = { @Content(mediaType = "application/json",
             array = @ArraySchema(schema = @Schema(implementation = ReaderView.class))) })
     public Iterable<ReaderView> getTopReaders() {
@@ -103,7 +104,7 @@ public class ReaderController {
 
     @Operation(summary = "Gets book suggestions based on reader's interest list")
     @GetMapping("/{readerId}/suggestions")
-    //@RolesAllowed({Role.READER, Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.READER, Role.LIBRARIAN, Role.ADMIN})
     public Iterable<BookView> getSuggestedBooks(@PathVariable("readerId") Long readerId,
                                                 @RequestParam(defaultValue = "0", required = false) int page,
                                                 @RequestParam(defaultValue = "100", required = false) int size) {
@@ -113,7 +114,7 @@ public class ReaderController {
 
     @Operation(summary = "Downloads a cover of a reader by id")
     @GetMapping("/{readerId}/photo")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     public ResponseEntity<Resource> getReaderPhoto(@PathVariable("readerId") final String readerId,
                                                  final HttpServletRequest request) {
 
@@ -157,7 +158,7 @@ public class ReaderController {
 
     @Operation(summary = "Fully replaces an existing reader. If the specified id does not exist does nothing and returns 400.")
     @PutMapping(path = "{readerId}")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     public ResponseEntity<ReaderView> updateReader(final WebRequest request,
                                                @PathVariable("readerId") Long id,
                                                @Valid @RequestBody final EditReaderRequest resource) {
@@ -171,7 +172,7 @@ public class ReaderController {
 
     @Operation(summary = "Partially updates an existing reader")
     @PatchMapping(path = "{readerId}")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     public ResponseEntity<ReaderView> partialUpdateReader(final WebRequest request,
                                                       @PathVariable("readerId") Long id,
                                                       @Valid @RequestBody final EditReaderRequest resource) {
