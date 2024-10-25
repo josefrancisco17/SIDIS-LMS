@@ -1,13 +1,13 @@
-package libraryapi.bookservice.repositories;
+package libraryapi.lendingservice.repositories;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.github.cdimascio.dotenv.Dotenv;
-import libraryapi.bookservice.model.Author;
-import libraryapi.bookservice.model.Book;
-import libraryapi.bookservice.model.Lending;
+import libraryapi.lendingservice.model.Reader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -20,50 +20,52 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.springframework.core.env.Environment;
-import org.springframework.beans.factory.annotation.Autowired;
-
 @Repository
-public class BookRepositoryHTTP {
+public class ReaderRepositoryHTTP {
     @Autowired
     private Environment env;
 
     private final HttpClient httpClient = HttpClient.newBuilder().build();
     private final Dotenv dotenv = Dotenv.load();
-    private final int BookServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_PORT1")));
-    private final int BookServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_PORT2")));
+    private final int ReaderServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("READER_PORT1")));
+    private final int ReaderServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("READER_PORT2")));
+    private final int LendingServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT1")));
+    private final int LendingServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT2")));
 
-    public void manageInternalBook(Book book) {
+    public List<Reader> getAllReaders() {
         int targetPort;
         int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
         try {
-            targetPort = (currentPort == BookServicePort1) ? BookServicePort2 :BookServicePort1;
+            targetPort = (currentPort == LendingServicePort1) ? ReaderServicePort1 :ReaderServicePort2;
         } catch (NumberFormatException | NullPointerException e) {
             throw new RuntimeException("Invalid or missing server port: " + e.getMessage(), e);
         }
 
+        List<Reader> readers = new ArrayList<>();
+
         try {
-            ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                    .registerModule(new JavaTimeModule());
-
-            String bookJson = objectMapper.writeValueAsString(book);
-
-            String url = "http://localhost:" + targetPort + "/api/books/internal";
+            String url = "http://localhost:" + targetPort + "/api/readers/internal";
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(url))
-                    .PUT(HttpRequest.BodyPublishers.ofString(bookJson))
-                    .header("Content-Type", "application/json")
+                    .GET()
                     .build();
 
-            System.out.println("Request Body: " + bookJson);
             System.out.println("Request URL: " + url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             System.out.println("Response Body: " + response.body());
 
+            if (response.statusCode() == 200) {
+                ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                        .registerModule(new JavaTimeModule());
+
+                // Deserialize the JSON response
+                readers = objectMapper.readValue(response.body(), new TypeReference<List<Reader>>() {});
+            }
+
         } catch (URISyntaxException | IOException | InterruptedException ex) {
             throw new RuntimeException(ex);
         }
+        return readers;
     }
 }
-

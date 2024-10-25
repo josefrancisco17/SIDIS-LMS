@@ -2,6 +2,7 @@ package libraryapi.readerservice.services;
 
 import jakarta.transaction.Transactional;
 import libraryapi.readerservice.model.*;
+import libraryapi.readerservice.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -13,10 +14,7 @@ import libraryapi.readerservice.util.BookUtil;
 import libraryapi.readerservice.exceptions.NotFoundException;
 import libraryapi.readerservice.fileStorage.FileStorageService;
 import libraryapi.readerservice.fileStorage.UploadFileResponse;
-import libraryapi.readerservice.repositories.ReaderPhotoRepository;
-import libraryapi.readerservice.repositories.ReaderRepository;
 import libraryapi.readerservice.util.ReaderUtil;
-import libraryapi.readerservice.repositories.ReaderRepositoryHTTP;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -34,14 +32,18 @@ public class ReaderServiceImpl implements ReaderService {
     private final FileStorageService fileStorageService;
     private final ReaderPhotoRepository readerPhotoRepository;
     private final ReaderRepositoryHTTP readerRepositoryHTTP;
+    private final LendingRepositoryHTTP lendingRepositoryHTTP;
+    private final BookRepositoryHTTP bookRepositoryHTTP;
 
     @Autowired
-    public ReaderServiceImpl(ReaderRepository readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService, ReaderRepositoryHTTP readerRepositoryHTTP) {
+    public ReaderServiceImpl(ReaderRepository readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService, ReaderRepositoryHTTP readerRepositoryHTTP, LendingRepositoryHTTP lendingRepositoryHTTP, BookRepositoryHTTP bookRepositoryHTTP) {
         this.readerRepository = readerRepository;
         this.editReaderMapper = editReaderMapper;
         this.fileStorageService = fileStorageService;
         this.readerPhotoRepository = readerPhotoRepository;
         this.readerRepositoryHTTP = readerRepositoryHTTP;
+        this.lendingRepositoryHTTP = lendingRepositoryHTTP;
+        this.bookRepositoryHTTP = bookRepositoryHTTP;
     }
 
     public Page<Reader> getReadersByName(final String name, Pageable pageable) {
@@ -64,7 +66,7 @@ public class ReaderServiceImpl implements ReaderService {
     }
 
     public Iterable<Reader> getTopReaders() {
-        List<Lending> lendings = readerRepositoryHTTP.getAllLendings();
+        List<Lending> lendings = lendingRepositoryHTTP.getAllLendings();
         Map<Long, Long> lendingCountMap = lendings.stream()
                 .collect(Collectors.groupingBy(
                         Lending::getReaderId,
@@ -100,7 +102,7 @@ public class ReaderServiceImpl implements ReaderService {
             throw new IllegalArgumentException("[ERROR] Reader does not have any interests specified.");
         }
 
-        List<Book> suggestedBooks = readerRepositoryHTTP.getAllBooks().stream().filter(book -> interests.contains(book.getGenre().getName())).toList();
+        List<Book> suggestedBooks = bookRepositoryHTTP.getAllBooks().stream().filter(book -> interests.contains(book.getGenre().getName())).toList();
         return BookUtil.toPage(suggestedBooks, pageable);
     }
 
@@ -158,7 +160,6 @@ public class ReaderServiceImpl implements ReaderService {
             doUploadFile(reader.getId().toString(), photo);
         }
 
-        //Gets new reader after with or without the photo for being sent to another instances
         Reader newReader = readerRepository.getById(reader.getId());
         readerRepositoryHTTP.manageInternalReader(newReader);
 
