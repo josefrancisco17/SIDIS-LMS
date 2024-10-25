@@ -1,10 +1,12 @@
 package libraryapi.lendingservice.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import libraryapi.lendingservice.model.Author;
+import libraryapi.lendingservice.model.BookCover;
+import libraryapi.lendingservice.model.Genre;
 import libraryapi.lendingservice.util.BookUtil;
 import org.hibernate.StaleObjectStateException;
 
@@ -13,7 +15,6 @@ import java.util.List;
 
 @Entity
 @Table
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,9 +40,14 @@ public class Book {
     private String description;
 
     @ManyToMany
+    @JoinTable(
+            name = "book_authors",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
     private List<Author> authors = new ArrayList<>();
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private BookCover cover;
 
     public Book() {

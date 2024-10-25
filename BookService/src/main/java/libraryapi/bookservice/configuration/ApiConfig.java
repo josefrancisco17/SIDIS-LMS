@@ -1,9 +1,12 @@
 package libraryapi.bookservice.configuration;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import libraryapi.bookservice.fileStorage.FileStorageProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +29,6 @@ public class ApiConfig {
 	/*
 	 * OpenAPI
 	 */
-	/*
 	@Bean
 	public OpenAPI openApi() {
 		return new OpenAPI().addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
@@ -39,11 +41,5 @@ public class ApiConfig {
 	private SecurityScheme createAPIKeyScheme() {
 		return new SecurityScheme().type(SecurityScheme.Type.HTTP).bearerFormat("JWT").scheme("bearer");
 	}
-*/
-	@Bean
-	public OpenAPI openApi() {
-		return new OpenAPI().info(new Info().title("Library API").description("Library API").version("v1.0")
-				.contact(new Contact().name("Jose Francisco").email("1220971@isep.ipp.pt")).termsOfService("TOC")
-				.license(new License().name("MIT").url("#")));
-	}
+
 }

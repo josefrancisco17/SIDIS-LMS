@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import libraryapi.bookservice.model.*;
@@ -45,7 +46,7 @@ public class AuthorController {
 
     @Operation(summary = "Gets all Authors")
     @GetMapping
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     @ApiResponse(description = "Success", responseCode = "200", content = { @Content(mediaType = "application/json",
             array = @ArraySchema(schema = @Schema(implementation = AuthorView.class))) })
     public List<AuthorView> getAuthors(
@@ -58,7 +59,7 @@ public class AuthorController {
 
     @Operation(summary = "Gets a specific Author by id")
     @GetMapping("/{authorId}")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     public ResponseEntity<AuthorView> getAuthor(@PathVariable("authorId") Long id) {
         final var author = authorService.getAuthorsById(id).orElseThrow(() -> new NotFoundException(Author.class, id));
         return ResponseEntity.ok().eTag(Long.toString(author.getVersion())).body(authorViewMapper.toAuthorView(author));
@@ -66,14 +67,14 @@ public class AuthorController {
 
     @Operation(summary = "Gets a specific Author by name")
     @GetMapping("/name")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     public Iterable<AuthorView> getAuthors(@RequestParam String name) {
         return authorViewMapper.toAuthorView(authorService.getAuthorsByName(name));
     }
 
     @Operation(summary = "Gets the co-authors of an author and their respective books")
     @GetMapping("/{authorId}/co-authors")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     public List<BookView> getAuthorCoAuthors(
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "100", required = false) int size,
@@ -87,7 +88,7 @@ public class AuthorController {
 
     @Operation(summary = "Gets the top-5 authors")
     @GetMapping("/top-authors")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     @ApiResponse(description = "Success", responseCode = "200", content = { @Content(mediaType = "application/json",
             array = @ArraySchema(schema = @Schema(implementation = AuthorView.class))) })
     public Iterable<AuthorLentsView> getTop5Authors() {
@@ -99,7 +100,7 @@ public class AuthorController {
 
     @Operation(summary = "Gets the books from a specific Author by its id")
     @GetMapping("/{authorId}/books")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     public List<BookView> getAuthorBooks(
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "100", required = false) int size,
@@ -114,7 +115,7 @@ public class AuthorController {
 
     @Operation(summary = "Downloads a photo of an author by id")
     @GetMapping("/{authorId}/photo")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     public ResponseEntity<Resource> getBookCover(@PathVariable("authorId") final String authorId) {
 
         AuthorPhoto authorPhoto = authorService.getAuthorPhoto(authorId);
@@ -131,7 +132,7 @@ public class AuthorController {
     @Operation(summary = "Creates a new Author")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     public ResponseEntity<AuthorView> createAuthor(@Valid @RequestPart("author") final EditAuthorRequest resource,
                                                    @RequestPart(value = "authorPhoto", required = false) MultipartFile authorPhoto) {
 
@@ -159,7 +160,7 @@ public class AuthorController {
 
     @Operation(summary = "Fully replaces an existing author")
     @PutMapping(path = "{authorId}")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     public ResponseEntity<AuthorView> updateAuthor(final WebRequest request,
                                                    @PathVariable("authorId") Long id,
                                                    @Valid @RequestBody final EditAuthorRequest resource) {
@@ -173,7 +174,7 @@ public class AuthorController {
 
     @Operation(summary = "Partially updates an existing author")
     @PatchMapping(path = "{authorId}")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     public ResponseEntity<AuthorView> partialUpdateAuthor(final WebRequest request,
                                                           @PathVariable("authorId") Long id,
                                                           @Valid @RequestBody final EditAuthorRequest resource) {

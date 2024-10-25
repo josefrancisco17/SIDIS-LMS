@@ -1,6 +1,7 @@
 package libraryapi.lendingservice.model;
 
 import jakarta.persistence.*;
+import libraryapi.lendingservice.model.Author;
 
 import java.util.Arrays;
 
