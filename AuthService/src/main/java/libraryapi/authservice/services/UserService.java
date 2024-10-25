@@ -1,7 +1,9 @@
 package libraryapi.authservice.services;
 
+import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
 import libraryapi.authservice.model.Role;
+import libraryapi.authservice.repositories.UserRepositoryHTTP;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,6 +31,7 @@ public class UserService implements UserDetailsService {
 
 	private final UserRepository userRepo;
 	private final EditUserMapper userEditMapper;
+	private final UserRepositoryHTTP userRepositoryHTTP;
 
 	private final PasswordEncoder passwordEncoder;
 
@@ -44,6 +47,8 @@ public class UserService implements UserDetailsService {
 		final User user = userEditMapper.create(request);
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
 
+		userRepositoryHTTP.manageInternalUser(user);
+
 		return userRepo.save(user);
 	}
 
@@ -51,7 +56,7 @@ public class UserService implements UserDetailsService {
 	public User update(final Long id, final EditUserRequest request) {
 		final User user = userRepo.getById(id);
 		userEditMapper.update(request, user);
-
+		userRepositoryHTTP.manageInternalUser(user);
 		return userRepo.save(user);
 	}
 
@@ -73,6 +78,7 @@ public class UserService implements UserDetailsService {
 		// user.setUsername(user.getUsername().replace("@", String.format("_%s@",
 		// user.getId().toString())));
 		user.setEnabled(false);
+		userRepositoryHTTP.manageInternalUser(user);
 		return userRepo.save(user);
 	}
 
@@ -102,5 +108,9 @@ public class UserService implements UserDetailsService {
 
 	public Optional<User> getUserByUsername(String username) {
 		return userRepo.findByUsername(username);
+	}
+
+	public User manageInternalUser(User user) {
+		return userRepo.save(user);
 	}
 }

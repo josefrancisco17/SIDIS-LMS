@@ -26,6 +26,7 @@ import libraryapi.authservice.api.UserViewMapper;
 import libraryapi.authservice.model.User;
 import libraryapi.authservice.services.CreateUserRequest;
 import libraryapi.authservice.services.UserService;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -88,5 +89,18 @@ public class AuthApi {
 			throw new NotFoundException(User.class, username);
 		}
 		return user;
+	}
+
+	@Operation(summary = "Handles Creation, Update and Patch of Users in another instances")
+	@PutMapping("/internal")
+	@ResponseStatus(HttpStatus.CREATED)
+	public ResponseEntity<UserView> manageInternalReader(@Valid @RequestBody User user) {
+		User newUser = userService.manageInternalUser(user);
+
+		final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(newUser.getId().toString())
+				.build().toUri();
+
+		return ResponseEntity.created(newbarUri).eTag(Long.toString(newUser.getVersion()))
+				.body(userViewMapper.toUserView(newUser));
 	}
 }

@@ -32,6 +32,7 @@ public class User implements UserDetails {
 	private Long id;
 
 	@Version
+	@Getter
 	private Long version;
 
 	@CreatedDate
