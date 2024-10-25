@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import libraryapi.bookservice.model.*;
 import libraryapi.bookservice.repositories.BookRepositoryHTTP;
+import libraryapi.bookservice.repositories.LendingRepositoryHTTP;
 import libraryapi.bookservice.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -39,6 +40,7 @@ public class BookController {
     private final LentBookViewMapper lentBookViewMapper;
     private final BookRepositoryHTTP bookRepositoryHTTP;
     private final GenreServiceImpl genreService;
+    private final LendingRepositoryHTTP lendingRepositoryHTTP;
 
     @Operation(summary = "Gets a specific Book")
     @GetMapping("/{bookIsbn}")
@@ -117,7 +119,7 @@ public class BookController {
     @ApiResponse(description = "Success", responseCode = "200", content = { @Content(mediaType = "application/json",
             array = @ArraySchema(schema = @Schema(implementation = BookView.class))) })
     public Iterable<LentBookView> getTopBooks() {
-        return lentBookViewMapper.toLentBookView(bookService.getTopBooks(), bookRepositoryHTTP.getAllLendings());
+        return lentBookViewMapper.toLentBookView(bookService.getTopBooks(), lendingRepositoryHTTP.getAllLendings());
     }
 
     @Operation(summary = "Downloads a cover of a book by id")

@@ -31,15 +31,17 @@ public class BookServiceImpl implements BookService{
     private final GenreRepository genreRepository;
     private final FileStorageService fileStorageService;
     private final EditBookMapper editBookMapper;
+    private final LendingRepositoryHTTP lendingRepositoryHTTP;
 
     @Autowired
-    public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, BookRepositoryHTTP bookRepositoryHTTP, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService) {
+    public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, BookRepositoryHTTP bookRepositoryHTTP, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService, LendingRepositoryHTTP lendingRepositoryHTTP) {
         this.bookRepository = bookRepository;
         this.bookCoverRepository = bookCoverRepository;
         this.bookRepositoryHTTP = bookRepositoryHTTP;
         this.editBookMapper = editBookMapper;
         this.genreRepository = genreRepository;
         this.fileStorageService =  fileStorageService;
+        this.lendingRepositoryHTTP = lendingRepositoryHTTP;
     }
 
     public Optional<Book> getBook(final String isbn) {
@@ -59,7 +61,7 @@ public class BookServiceImpl implements BookService{
     }
 
     public Iterable<Book> getTopBooks() {
-        List<Lending> lendings = bookRepositoryHTTP.getAllLendings();
+        List<Lending> lendings = lendingRepositoryHTTP.getAllLendings();
 
         Map<Long, Long> lendingCountMap = lendings.stream()
                 .collect(Collectors.groupingBy(
