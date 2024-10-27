@@ -1,75 +1,27 @@
-# US 01 -  user credential data for librarians
-
+# Vista Física
 ## 1. Requirements Engineering
 
-### 1.1. User Story Description
+### 1.1. Description
 
-As Admin, I want to  user credential data for librarians.
+- explicar as vistas
 
-### 1.2. Customer Specifications and Clarifications
+![VF-N1](VF-N1.png)
+- explicar as vistas
 
-**From the specifications document:**
+![VF-N2](VF-N2.png)
+- explicar as vistas
 
->
+![VF-N3](VF-N3.png)
+- explicar as vistas
 
-**From the client clarifications:**
-
-> **Question:**
->
-> **Answer:**
->
-
-### 1.3. Acceptance Criteria
-
--n/a
-
-### 1.4. Found out Dependencies
-
-* No dependencies were found.
-
-### 1.5 Input and Output Data
-
-**Input Data:**
-
-- Typed Data:
-    - n/a
-
-**Output Data:**
-
-- Success of the operation.
-
-### 1.6 Functionality
+### 1.2 Functionality
 
 - n/a
 
-### 1.7 Other Relevant Remarks
+### 1.3 Other Relevant Remarks
 
 - n/a
 
-## 2. OO Analysis
-
-### 2.1. Relevant Domain Model Excerpt
-
-![US01-DM](US01-DM.svg)
-
-### 2.2. Other Remarks
-
-- n/a
-
-## 3. Design - User Story Realization
-
-### 3.1. Sequence Diagram (SD)
-
-![US01-SD](US01-SD.svg)
-
-### 3.2. Class Diagram (CD)
-
-![US01-CD](US01-CD.svg)
-
-## 4. Tests
-
-- n/a
-
-## 5. Observations
+## 2. Observations
 
 - n/a

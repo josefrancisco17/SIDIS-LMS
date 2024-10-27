@@ -1,75 +1,37 @@
-# US 01 -  user credential data for librarians
-
+# Vistas de Processos
 ## 1. Requirements Engineering
 
-### 1.1. User Story Description
+### 1.1. Description
 
-As Admin, I want to user credential data for librarians.
+![VF-N1](VF-N1.png)
+- explicar as vistas
 
-### 1.2. Customer Specifications and Clarifications
+![VF-N2](VF-N2.png)
+- explicar as vistas
 
-**From the specifications document:**
+![VF-N3](VF-N3.png)
+- explicar as vistas
 
->
+![VL-N1](VL-N1.png)
+- explicar as vistas
 
-**From the client clarifications:**
+![VL-N2](VL-N2.png)
+- explicar as vistas
 
-> **Question:**
->
-> **Answer:**
->
+![VL-N3](VL-N3.png)
+- explicar as vistas
 
-### 1.3. Acceptance Criteria
+![VL-N3](VL-N4.png)
+- explicar as vistas
 
--n/a
+### 1.2 Functionality
 
-### 1.4. Found out Dependencies
+- n/a falar do /internal e das escolhas feitas token,Auth etc
 
-* No dependencies were found.
-
-### 1.5 Input and Output Data
-
-**Input Data:**
-
-- Typed Data:
-    - n/a
-
-**Output Data:**
-
-- Success of the operation.
-
-### 1.6 Functionality
+### 1.3 Other Relevant Remarks
 
 - n/a
 
-### 1.7 Other Relevant Remarks
-
-- n/a
-
-## 2. OO Analysis
-
-### 2.1. Relevant Domain Model Excerpt
-
-![US01-DM](US01-DM.svg)
-
-### 2.2. Other Remarks
-
-- n/a
-
-## 3. Design - User Story Realization
-
-### 3.1. Sequence Diagram (SD)
-
-![US01-SD](US01-SD.svg)
-
-### 3.2. Class Diagram (CD)
-
-![US01-CD](US01-CD.svg)
-
-## 4. Tests
-
-- n/a
-
-## 5. Observations
+## 2. Observations
 
 - n/a
