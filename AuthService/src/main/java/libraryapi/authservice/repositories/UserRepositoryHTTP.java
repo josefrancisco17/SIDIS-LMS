@@ -24,6 +24,7 @@ public class UserRepositoryHTTP {
 
     private final HttpClient httpClient = HttpClient.newBuilder().build();
     private final Dotenv dotenv = Dotenv.load();
+    private final String token = dotenv.get("TOKEN");
     private final int AuthServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("AUTH_PORT1")));
     private final int AuthServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("AUTH_PORT2")));
 
@@ -48,6 +49,7 @@ public class UserRepositoryHTTP {
                     .uri(new URI(url))
                     .PUT(HttpRequest.BodyPublishers.ofString(userJson))
                     .header("Content-Type", "application/json")
+                    .header("Authorization", token)
                     .build();
 
             System.out.println("Request Body: " + userJson);

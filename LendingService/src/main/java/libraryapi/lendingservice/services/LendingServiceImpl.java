@@ -88,6 +88,7 @@ public class LendingServiceImpl implements LendingService {
 
     public Lending createLending(final CreateLendingRequest resource) {
         List<Book> books = bookRepositoryHTTP.getAllBooks();
+        System.out.println(books);
         Book book = new Book();
         for (Book b : books) {
             if (Objects.equals(b.getId(), resource.getBookId())) {

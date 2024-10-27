@@ -26,6 +26,7 @@ public class ReaderRepositoryHTTP {
 
     private final HttpClient httpClient = HttpClient.newBuilder().build();
     private final Dotenv dotenv = Dotenv.load();
+    private final String token = dotenv.get("TOKEN");
     private final int ReaderServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("READER_PORT1")));
     private final int ReaderServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("READER_PORT2")));
 
@@ -50,6 +51,7 @@ public class ReaderRepositoryHTTP {
                     .uri(new URI(url))
                     .PUT(HttpRequest.BodyPublishers.ofString(readerJson))
                     .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token)
                     .build();
 
             System.out.println("Request Body: " + readerJson);

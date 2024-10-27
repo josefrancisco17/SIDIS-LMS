@@ -24,6 +24,7 @@ public class LendingRepositoryHTTP {
 
     private final HttpClient httpClient = HttpClient.newBuilder().build();
     private final Dotenv dotenv = Dotenv.load();
+    private final String token = dotenv.get("TOKEN");
     private final int LendingServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT1")));
     private final int LendingServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT2")));
 
@@ -48,6 +49,7 @@ public class LendingRepositoryHTTP {
                     .uri(new URI(url))
                     .POST(HttpRequest.BodyPublishers.ofString(lendingJson))
                     .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token)
                     .build();
 
             System.out.println("Request Body: " + lendingJson);
@@ -81,6 +83,7 @@ public class LendingRepositoryHTTP {
                     .uri(new URI(url))
                     .POST(HttpRequest.BodyPublishers.ofString(lendingJson))
                     .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token)
                     .build();
 
             System.out.println("Request Body: " + lendingJson);

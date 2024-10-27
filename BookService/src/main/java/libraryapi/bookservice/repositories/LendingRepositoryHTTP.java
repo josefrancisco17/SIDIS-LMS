@@ -27,6 +27,7 @@ public class LendingRepositoryHTTP {
 
     private final HttpClient httpClient = HttpClient.newBuilder().build();
     private final Dotenv dotenv = Dotenv.load();
+    private final String token = dotenv.get("TOKEN");
     private final int BookServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_PORT1")));
     private final int BookServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_PORT2")));
     private final int LendingServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT1")));
@@ -48,6 +49,7 @@ public class LendingRepositoryHTTP {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(url))
+                    .header("Authorization", "Bearer " + token)
                     .GET()
                     .build();
 

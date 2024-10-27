@@ -24,6 +24,7 @@ public class AuthorRepositoryHTTP {
 
     private final HttpClient httpClient = HttpClient.newBuilder().build();
     private final Dotenv dotenv = Dotenv.load();
+    private final String token = dotenv.get("TOKEN");
     private final int BookServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_PORT1")));
     private final int BookServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_PORT2")));
 
@@ -48,6 +49,7 @@ public class AuthorRepositoryHTTP {
                     .uri(new URI(url))
                     .PUT(HttpRequest.BodyPublishers.ofString(authorJson))
                     .header("Content-Type", "application/json")
+                    .header("Authorization", token)
                     .build();
 
             System.out.println("Request Body: " + authorJson);
