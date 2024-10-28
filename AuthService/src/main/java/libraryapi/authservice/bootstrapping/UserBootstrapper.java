@@ -36,6 +36,120 @@ public class UserBootstrapper implements CommandLineRunner {
             userRepo.save(reader1);
         }
 
+        if (userRepo.findByUsername("reader2@mail.com").isEmpty()) {
+            final User reader2 = new User("reader2@mail.com", encoder.encode("password"),  "Reader");
+            reader2.addAuthority(new Role(Role.READER));
+            userRepo.save(reader2);
+        }
+
+        if (userRepo.findByUsername("reader3@mail.com").isEmpty()) {
+            final User reader3 = new User("reader3@mail.com", encoder.encode("password"),  "Reader");
+            reader3.addAuthority(new Role(Role.READER));
+            userRepo.save(reader3);
+        }
+
+        if (userRepo.findByUsername("reader4@mail.com").isEmpty()) {
+            final User reader4 = new User("reader4@mail.com", encoder.encode("password"),  "Reader");
+            reader4.addAuthority(new Role(Role.READER));
+            userRepo.save(reader4);
+        }
+
+        if (userRepo.findByUsername("reader5@mail.com").isEmpty()) {
+            final User reader5 = new User("reader5@mail.com", encoder.encode("password"),  "Reader");
+            reader5.addAuthority(new Role(Role.READER));
+            userRepo.save(reader5);
+        }
+
+        if (userRepo.findByUsername("reader6@mail.com").isEmpty()) {
+            final User reader6 = new User("reader6@mail.com", encoder.encode("password"),  "Reader");
+            reader6.addAuthority(new Role(Role.READER));
+            userRepo.save(reader6);
+        }
+
+        if (userRepo.findByUsername("reader7@mail.com").isEmpty()) {
+            final User reader7 = new User("reader7@mail.com", encoder.encode("password"),  "Reader");
+            reader7.addAuthority(new Role(Role.READER));
+            userRepo.save(reader7);
+        }
+
+        if (userRepo.findByUsername("reader8@mail.com").isEmpty()) {
+            final User reader8 = new User("reader8@mail.com", encoder.encode("password"),  "Reader");
+            reader8.addAuthority(new Role(Role.READER));
+            userRepo.save(reader8);
+        }
+
+        if (userRepo.findByUsername("reader9@mail.com").isEmpty()) {
+            final User reader9 = new User("reader9@mail.com", encoder.encode("password"),  "Reader");
+            reader9.addAuthority(new Role(Role.READER));
+            userRepo.save(reader9);
+        }
+
+        if (userRepo.findByUsername("reader10@mail.com").isEmpty()) {
+            final User reader10 = new User("reader10@mail.com", encoder.encode("password"),  "Reader");
+            reader10.addAuthority(new Role(Role.READER));
+            userRepo.save(reader10);
+        }
+
+        if (userRepo.findByUsername("reader11@mail.com").isEmpty()) {
+            final User reader11 = new User("reader11@mail.com", encoder.encode("password"),  "Reader");
+            reader11.addAuthority(new Role(Role.READER));
+            userRepo.save(reader11);
+        }
+
+        if (userRepo.findByUsername("reader12@mail.com").isEmpty()) {
+            final User reader12 = new User("reader12@mail.com", encoder.encode("password"),  "Reader");
+            reader12.addAuthority(new Role(Role.READER));
+            userRepo.save(reader12);
+        }
+
+        if (userRepo.findByUsername("reader13@mail.com").isEmpty()) {
+            final User reader13 = new User("reader13@mail.com", encoder.encode("password"),  "Reader");
+            reader13.addAuthority(new Role(Role.READER));
+            userRepo.save(reader13);
+        }
+
+        if (userRepo.findByUsername("reader14@mail.com").isEmpty()) {
+            final User reader14 = new User("reader14@mail.com", encoder.encode("password"),  "Reader");
+            reader14.addAuthority(new Role(Role.READER));
+            userRepo.save(reader14);
+        }
+
+        if (userRepo.findByUsername("reader15@mail.com").isEmpty()) {
+            final User reader15 = new User("reader15@mail.com", encoder.encode("password"),  "Reader");
+            reader15.addAuthority(new Role(Role.READER));
+            userRepo.save(reader15);
+        }
+
+        if (userRepo.findByUsername("reader16@mail.com").isEmpty()) {
+            final User reader16 = new User("reader16@mail.com", encoder.encode("password"),  "Reader");
+            reader16.addAuthority(new Role(Role.READER));
+            userRepo.save(reader16);
+        }
+
+        if (userRepo.findByUsername("reader17@mail.com").isEmpty()) {
+            final User reader17 = new User("reader17@mail.com", encoder.encode("password"),  "Reader");
+            reader17.addAuthority(new Role(Role.READER));
+            userRepo.save(reader17);
+        }
+
+        if (userRepo.findByUsername("reader18@mail.com").isEmpty()) {
+            final User reader18 = new User("reader18@mail.com", encoder.encode("password"),  "Reader");
+            reader18.addAuthority(new Role(Role.READER));
+            userRepo.save(reader18);
+        }
+
+        if (userRepo.findByUsername("reader19@mail.com").isEmpty()) {
+            final User reader19 = new User("reader19@mail.com", encoder.encode("password"),  "Reader");
+            reader19.addAuthority(new Role(Role.READER));
+            userRepo.save(reader19);
+        }
+
+        if (userRepo.findByUsername("reader20@mail.com").isEmpty()) {
+            final User reader20 = new User("reader20@mail.com", encoder.encode("password"),  "Reader");
+            reader20.addAuthority(new Role(Role.READER));
+            userRepo.save(reader20);
+        }
+
         if (userRepo.findByUsername("librarian1@mail.com").isEmpty()) {
             final var librarian1 = new User("librarian1@mail.com", encoder.encode("password"), "Librarian");
             librarian1.addAuthority(new Role(Role.LIBRARIAN));

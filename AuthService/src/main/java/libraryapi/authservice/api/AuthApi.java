@@ -1,7 +1,13 @@
 package libraryapi.authservice.api;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import libraryapi.authservice.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,15 +20,16 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import libraryapi.authservice.api.UserView;
+import libraryapi.authservice.api.UserViewMapper;
 import libraryapi.authservice.model.User;
 import libraryapi.authservice.services.CreateUserRequest;
 import libraryapi.authservice.services.UserService;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
@@ -52,15 +59,14 @@ public class AuthApi {
 
 			final Instant now = Instant.now();
 			//final long expiry = 36000L; // 1 hour is usually too long for a token to be valid. adjust for production
-			final long expiry = 2592000L; // 1 month
+			//final long expiry = 2592000L; // 1 month
 
 			final String scope = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 					.collect(joining(" "));
 
 			final JwtClaimsSet claims = JwtClaimsSet.builder().issuer("example.io").issuedAt(now)
-					.expiresAt(now.plusSeconds(expiry)).subject(format("%s,%s", user.getId(), user.getUsername()))
+					.subject(format("%s,%s", user.getId(), user.getUsername()))
 					.claim("roles", scope).build();
-
 			final String token = this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
 			return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, token).body(userViewMapper.toUserView(user));
@@ -75,4 +81,26 @@ public class AuthApi {
 		return userViewMapper.toUserView(user);
 	}
 
+	@Operation(summary = "Get user data given its bearer token")
+	@GetMapping("/internal/{username}")
+	public Optional<User> getUserByUsername(@PathVariable("username") String username) {
+		Optional<User> user = userService.getUserByUsername(username);
+		if (user.isEmpty()) {
+			throw new NotFoundException(User.class, username);
+		}
+		return user;
+	}
+
+	@Operation(summary = "Handles Creation, Update and Patch of Users in another instances")
+	@PutMapping("/internal")
+	@ResponseStatus(HttpStatus.CREATED)
+	public ResponseEntity<UserView> manageInternalReader(@Valid @RequestBody User user) {
+		User newUser = userService.manageInternalUser(user);
+
+		final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(newUser.getId().toString())
+				.build().toUri();
+
+		return ResponseEntity.created(newbarUri).eTag(Long.toString(newUser.getVersion()))
+				.body(userViewMapper.toUserView(newUser));
+	}
 }

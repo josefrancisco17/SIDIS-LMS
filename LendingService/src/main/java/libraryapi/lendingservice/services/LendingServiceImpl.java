@@ -1,6 +1,8 @@
 package libraryapi.lendingservice.services;
 
+import libraryapi.lendingservice.repositories.BookRepositoryHTTP;
 import libraryapi.lendingservice.repositories.LendingRepositoryHTTP;
+import libraryapi.lendingservice.repositories.ReaderRepositoryHTTP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,8 @@ public class LendingServiceImpl implements LendingService {
 
     private final LendingRepository lendingRepository;
     private final LendingRepositoryHTTP lendingRepositoryHTTP;
+    private final BookRepositoryHTTP bookRepositoryHTTP;
+    private final ReaderRepositoryHTTP readerRepositoryHTTP;
 
     @Value("${lending.days}")
     private int daysOfLending ;
@@ -28,10 +32,11 @@ public class LendingServiceImpl implements LendingService {
     private float lateFee;
 
     @Autowired
-    public LendingServiceImpl(LendingRepository lendingRepository, LendingRepositoryHTTP lendingRepositoryHTTP) {
+    public LendingServiceImpl(LendingRepository lendingRepository, LendingRepositoryHTTP lendingRepositoryHTTP, BookRepositoryHTTP bookRepositoryHTTP, ReaderRepositoryHTTP readerRepositoryHTTP ) {
         this.lendingRepository = lendingRepository;
         this.lendingRepositoryHTTP = lendingRepositoryHTTP;
-
+        this.bookRepositoryHTTP = bookRepositoryHTTP;
+        this.readerRepositoryHTTP = readerRepositoryHTTP;
     }
 
     public Optional<Lending> getLending(final Long lendingId) {
@@ -70,7 +75,7 @@ public class LendingServiceImpl implements LendingService {
     }
 
     public double AveragePerGenreInMonth(LocalDate date) {
-        int numberOfGenres = lendingRepositoryHTTP.getAllGenres().size();
+        int numberOfGenres = bookRepositoryHTTP.getAllGenres().size();
         List<Lending> lendings = lendingRepository.findAll();
         long count = lendings.stream()
                 .filter(l -> l.getLendDate().getMonth() == date.getMonth() &&
@@ -82,7 +87,8 @@ public class LendingServiceImpl implements LendingService {
 
 
     public Lending createLending(final CreateLendingRequest resource) {
-        List<Book> books = lendingRepositoryHTTP.getAllBooks();
+        List<Book> books = bookRepositoryHTTP.getAllBooks();
+        System.out.println(books);
         Book book = new Book();
         for (Book b : books) {
             if (Objects.equals(b.getId(), resource.getBookId())) {
@@ -93,7 +99,7 @@ public class LendingServiceImpl implements LendingService {
             throw new IllegalArgumentException("[ERROR] Book not found with ID: " + resource.getBookId());
         }
 
-        List<Reader> readers = lendingRepositoryHTTP.getAllReaders();
+        List<Reader> readers = readerRepositoryHTTP.getAllReaders();
         Reader reader = new Reader();
         for (Reader r : readers) {
             if (Objects.equals(r.getId(), resource.getReaderId())) {

@@ -6,10 +6,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import libraryapi.bookservice.model.*;
 import libraryapi.bookservice.repositories.BookRepositoryHTTP;
+import libraryapi.bookservice.repositories.LendingRepositoryHTTP;
 import libraryapi.bookservice.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -38,10 +40,11 @@ public class BookController {
     private final LentBookViewMapper lentBookViewMapper;
     private final BookRepositoryHTTP bookRepositoryHTTP;
     private final GenreServiceImpl genreService;
+    private final LendingRepositoryHTTP lendingRepositoryHTTP;
 
     @Operation(summary = "Gets a specific Book")
     @GetMapping("/{bookIsbn}")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     public ResponseEntity<BookView> getBook(@PathVariable("bookIsbn") String isbn) {
         final var book = bookService.getBook(isbn).orElseThrow(() -> new NotFoundException(Book.class, isbn));
 
@@ -50,7 +53,7 @@ public class BookController {
 
     @Operation(summary = "Gets all Books")
     @GetMapping
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     @ApiResponse(description = "Success", responseCode = "200", content = {
             @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = BookView.class)))
     })
@@ -81,7 +84,7 @@ public class BookController {
 
     @Operation(summary = "Gets all Books for other services")
     @GetMapping("/internal")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     @ApiResponse(description = "Success", responseCode = "200", content = {
             @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Book.class)))
     })
@@ -91,7 +94,7 @@ public class BookController {
 
     @Operation(summary = "Gets all Genres for other services")
     @GetMapping("/internal/genres")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     @ApiResponse(description = "Success", responseCode = "200", content = {
             @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Genre.class)))
     })
@@ -102,7 +105,7 @@ public class BookController {
 
     @Operation(summary = "Gets top 5 Genres by book number")
     @GetMapping("/top-genres")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     @ApiResponse(description = "Success", responseCode = "200", content = { @Content(mediaType = "application/json",
             array = @ArraySchema(schema = @Schema(implementation = BookView.class))) })
     public Iterable<GenreView> getTopGenres() {
@@ -112,16 +115,16 @@ public class BookController {
 
     @Operation(summary = "Gets top 5 Books lent")
     @GetMapping("/top-books")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     @ApiResponse(description = "Success", responseCode = "200", content = { @Content(mediaType = "application/json",
             array = @ArraySchema(schema = @Schema(implementation = BookView.class))) })
     public Iterable<LentBookView> getTopBooks() {
-        return lentBookViewMapper.toLentBookView(bookService.getTopBooks(), bookRepositoryHTTP.getAllLendings());
+        return lentBookViewMapper.toLentBookView(bookService.getTopBooks(), lendingRepositoryHTTP.getAllLendings());
     }
 
     @Operation(summary = "Downloads a cover of a book by id")
     @GetMapping("/{bookId}/cover")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     public ResponseEntity<Resource> getBookCover(@PathVariable("bookId") final String bookId,
                                                  final HttpServletRequest request) {
 
@@ -139,7 +142,7 @@ public class BookController {
         @Operation(summary = "Creates a new Book")
         @PostMapping
         @ResponseStatus(HttpStatus.CREATED)
-        //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+        @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
         public ResponseEntity<BookView> createBook(@Valid @RequestPart("book") final CreateBookRequest resource,
                                                    @RequestPart(value = "cover", required = false) MultipartFile coverPhoto) {
 
@@ -167,7 +170,7 @@ public class BookController {
 
         @Operation(summary = "Fully replaces an existing book")
         @PutMapping(path = "{bookId}")
-        //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+        @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
         public ResponseEntity<BookView> updateBook(final WebRequest request,
                                                    @PathVariable("bookId") Long id,
                                                    @Valid @RequestBody final EditBookRequest resource) {
@@ -181,7 +184,7 @@ public class BookController {
 
         @Operation(summary = "Partially updates an existing book")
         @PatchMapping(path = "{bookId}")
-        //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+        @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
         public ResponseEntity<BookView> partialUpdateBook(final WebRequest request,
                                                           @PathVariable("bookId") Long id,
                                                           @Valid @RequestBody final EditBookRequest resource) {

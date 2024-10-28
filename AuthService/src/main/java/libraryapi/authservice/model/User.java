@@ -31,6 +31,7 @@ public class User implements UserDetails {
 	private Long id;
 
 	@Version
+	@Getter
 	private Long version;
 
 	@CreatedDate
@@ -75,10 +76,16 @@ public class User implements UserDetails {
 
 	@ElementCollection
 	@Getter
-	private final Set<Role> authorities = new HashSet<>();
+	private Set<Role> authorities = new HashSet<>();
 
 	public User() {
 
+	}
+
+	public User(final Long id, final String username, final Set<Role> authorities) {
+		this.id = id;
+		this.username = username;
+		this.authorities = authorities;
 	}
 
 	public User(final String username, final String password) {

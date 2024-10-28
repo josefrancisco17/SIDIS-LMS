@@ -30,46 +30,9 @@ public class BookRepositoryHTTP {
 
     private final HttpClient httpClient = HttpClient.newBuilder().build();
     private final Dotenv dotenv = Dotenv.load();
+    private final String token = dotenv.get("TOKEN");
     private final int BookServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_PORT1")));
     private final int BookServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_PORT2")));
-    private final int LendingServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT1")));
-    private final int LendingServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT2")));
-
-    public List<Lending> getAllLendings() {
-        int targetPort;
-        int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
-        try {
-            targetPort = (currentPort == BookServicePort1) ? LendingServicePort1 : LendingServicePort2;
-        } catch (NumberFormatException | NullPointerException e) {
-            throw new RuntimeException("Invalid or missing server port: " + e.getMessage(), e);
-        }
-
-        List<Lending> lendings = new ArrayList<>();
-
-        try {
-            String url = "http://localhost:" + targetPort + "/api/lendings/internal";
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(url))
-                    .GET()
-                    .build();
-
-            System.out.println("Request URL: " + url);
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("Response Body: " + response.body());
-
-            if (response.statusCode() == 200) {
-                ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                        .registerModule(new JavaTimeModule());
-
-                lendings = objectMapper.readValue(response.body(), new TypeReference<List<Lending>>() {});
-            }
-
-        } catch (URISyntaxException | IOException | InterruptedException ex) {
-            throw new RuntimeException(ex);
-        }
-        return lendings;
-    }
 
     public void manageInternalBook(Book book) {
         int targetPort;
@@ -92,42 +55,10 @@ public class BookRepositoryHTTP {
                     .uri(new URI(url))
                     .PUT(HttpRequest.BodyPublishers.ofString(bookJson))
                     .header("Content-Type", "application/json")
+                    .header("Authorization", token)
                     .build();
 
             System.out.println("Request Body: " + bookJson);
-            System.out.println("Request URL: " + url);
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("Response Body: " + response.body());
-
-        } catch (URISyntaxException | IOException | InterruptedException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public void manageInternalAuthor(Author author) {
-        int targetPort;
-        int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
-        try {
-            targetPort = (currentPort == BookServicePort1) ? BookServicePort2 : BookServicePort1;
-        } catch (NumberFormatException | NullPointerException e) {
-            throw new RuntimeException("Invalid or missing server port: " + e.getMessage(), e);
-        }
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                    .registerModule(new JavaTimeModule());
-
-            String authorJson = objectMapper.writeValueAsString(author);;
-
-            String url = "http://localhost:" + targetPort + "/api/authors/internal";
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(url))
-                    .PUT(HttpRequest.BodyPublishers.ofString(authorJson))
-                    .header("Content-Type", "application/json")
-                    .build();
-
-            System.out.println("Request Body: " + authorJson);
             System.out.println("Request URL: " + url);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             System.out.println("Response Body: " + response.body());

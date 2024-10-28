@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
+import libraryapi.lendingservice.model.Role;
 import libraryapi.lendingservice.services.LendingServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,7 +38,7 @@ public class LendingController {
 
     @Operation(summary = "Gets all Lendings")
     @GetMapping
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     @ApiResponse(description = "Success", responseCode = "200", content = {
             @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = LendingView.class)))})
     public List<LendingView> getLendings(
@@ -50,7 +52,7 @@ public class LendingController {
 
     @Operation(summary = "Gets all Lendings for other services")
     @GetMapping("/internal")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     @ApiResponse(description = "Success", responseCode = "200", content = {
             @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Lending.class)))})
     public Iterable<Lending> getAllLendings() {
@@ -60,7 +62,7 @@ public class LendingController {
 
     @Operation(summary = "Gets a specific Lending")
     @GetMapping("/{lendingId}")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
     public ResponseEntity<LendingView> getLending(@PathVariable("lendingId") Long id) {
         final var lending = lendingService.getLending(id).orElseThrow(() -> new NotFoundException(Lending.class, id));
 
@@ -69,7 +71,7 @@ public class LendingController {
 
     @Operation(summary = "Gets a list of overdue lending sorted by their tardiness")
     @GetMapping("/overdue")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     public List<LendingView> getOverdue(
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "100", required = false) int size) {
@@ -81,21 +83,21 @@ public class LendingController {
 
     @Operation(summary = "Gets average lending duration")
     @GetMapping("/average")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     public double getAverageLendingDuration() {
         return lendingService.getAverageLendingDuration();
     }
 
     @Operation(summary = "Gets the average number of lending per genre of a certain month\n")
     @GetMapping("/average-per-genre/{date}")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     public double getAveragePerGenreInMonth(@PathVariable("date") LocalDate date) {
         return lendingService.AveragePerGenreInMonth(date);
     }
 
     @Operation(summary = "Creates a new Lending")
     @PostMapping
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<LendingView> createLending(@Valid @RequestBody final CreateLendingRequest resource) {
         Lending lending = lendingService.createLending(resource);
@@ -109,7 +111,7 @@ public class LendingController {
 
     @Operation(summary = "Saves a new Lending created in another instance")
     @PostMapping("/internal")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<LendingView> createInternalLending(@Valid @RequestBody Lending lending) {
         Lending savedLending = lendingService.createInternalLending(lending);
@@ -123,7 +125,7 @@ public class LendingController {
 
     @Operation(summary = "Return a Book")
     @PostMapping("/return")
-    //@RolesAllowed({Role.ADMIN, Role.READER})
+    @RolesAllowed({Role.ADMIN, Role.READER})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<LendingView> returnBook(@Valid @RequestBody final EditLendingRequest resource) {
         Lending lending = lendingService.returnBook(resource);
@@ -137,7 +139,7 @@ public class LendingController {
 
     @Operation(summary = "Returns a Lending that was returned in another instance")
     @PostMapping("/internal/return")
-    //@RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
+    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<LendingView> returnInternalBook(@Valid @RequestBody Lending lending) {
         Lending savedLending = lendingService.returnInternalBook(lending);

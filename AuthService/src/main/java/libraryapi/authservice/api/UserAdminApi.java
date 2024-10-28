@@ -3,11 +3,11 @@ package libraryapi.authservice.api;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
-import libraryapi.authservice.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import libraryapi.authservice.model.Role;
 import libraryapi.authservice.model.User;
+import libraryapi.authservice.services.*;
 
 import java.util.List;
 

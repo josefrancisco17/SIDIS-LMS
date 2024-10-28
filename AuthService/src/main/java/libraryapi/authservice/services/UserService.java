@@ -1,19 +1,29 @@
 package libraryapi.authservice.services;
 
+import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
+import libraryapi.authservice.model.Role;
+import libraryapi.authservice.repositories.UserRepositoryHTTP;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import libraryapi.authservice.exceptions.ConflictException;
 import libraryapi.authservice.model.User;
 import libraryapi.authservice.repositories.UserRepository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +31,7 @@ public class UserService implements UserDetailsService {
 
 	private final UserRepository userRepo;
 	private final EditUserMapper userEditMapper;
+	private final UserRepositoryHTTP userRepositoryHTTP;
 
 	private final PasswordEncoder passwordEncoder;
 
@@ -36,6 +47,8 @@ public class UserService implements UserDetailsService {
 		final User user = userEditMapper.create(request);
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
 
+		userRepositoryHTTP.manageInternalUser(user);
+
 		return userRepo.save(user);
 	}
 
@@ -43,7 +56,7 @@ public class UserService implements UserDetailsService {
 	public User update(final Long id, final EditUserRequest request) {
 		final User user = userRepo.getById(id);
 		userEditMapper.update(request, user);
-
+		userRepositoryHTTP.manageInternalUser(user);
 		return userRepo.save(user);
 	}
 
@@ -65,6 +78,7 @@ public class UserService implements UserDetailsService {
 		// user.setUsername(user.getUsername().replace("@", String.format("_%s@",
 		// user.getId().toString())));
 		user.setEnabled(false);
+		userRepositoryHTTP.manageInternalUser(user);
 		return userRepo.save(user);
 	}
 
@@ -90,5 +104,13 @@ public class UserService implements UserDetailsService {
 			query = new SearchUsersQuery("", "");
 		}
 		return userRepo.searchUsers(page, query);
+	}
+
+	public Optional<User> getUserByUsername(String username) {
+		return userRepo.findByUsername(username);
+	}
+
+	public User manageInternalUser(User user) {
+		return userRepo.save(user);
 	}
 }
