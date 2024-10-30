@@ -2612,7 +2612,7 @@
 									"formdata": [
 										{
 											"key": "book",
-											"value": "{\n    \"title\": \"test\",\n    \"isbn\": \"9780452267565\",\n    \"genre\": { \"id\": 1, \"name\": \"Self-Improvement\" },\n    \"description\": \"A book on personal development.\",\n    \"authors\": [\n        {\n            \"id\": 1,\n            \"name\": \"Stephen R. Covey\",\n            \"shortBio\": \"An American educator, author, businessman, and keynote speaker.\"\n        }\n    ]\n}",
+											"value": "{\n    \"title\": \"test\",\n    \"isbn\": \"9780000002662\",\n    \"genre\": { \"id\": 1, \"name\": \"Self-Improvement\" },\n    \"description\": \"A book on personal development.\",\n    \"authors\": [\n        {\n            \"id\": 1,\n            \"name\": \"Stephen R. Covey\",\n            \"shortBio\": \"An American educator, author, businessman, and keynote speaker.\"\n        }\n    ]\n}",
 											"contentType": "application/json",
 											"type": "text"
 										},
@@ -2870,7 +2870,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:9010/api/authors/2",
+									"raw": "http://localhost:9010/api/authors/6",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -2879,7 +2879,7 @@
 									"path": [
 										"api",
 										"authors",
-										"2"
+										"6"
 									]
 								}
 							},
@@ -2947,7 +2947,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:9010/api/authors/2",
+									"raw": "http://localhost:9010/api/authors/6",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -2956,7 +2956,7 @@
 									"path": [
 										"api",
 										"authors",
-										"2"
+										"6"
 									]
 								}
 							},
@@ -3024,7 +3024,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:9011/api/authors/2",
+									"raw": "http://localhost:9011/api/authors/6",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -3033,7 +3033,7 @@
 									"path": [
 										"api",
 										"authors",
-										"2"
+										"6"
 									]
 								}
 							},
@@ -3094,7 +3094,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:9030/api/readers/3",
+									"raw": "http://localhost:9030/api/readers/7",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -3103,7 +3103,7 @@
 									"path": [
 										"api",
 										"readers",
-										"3"
+										"7"
 									]
 								}
 							},
@@ -3176,7 +3176,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:9030/api/readers/3",
+									"raw": "http://localhost:9030/api/readers/7",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -3185,7 +3185,7 @@
 									"path": [
 										"api",
 										"readers",
-										"3"
+										"7"
 									]
 								}
 							},
@@ -3258,7 +3258,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:9031/api/readers/3",
+									"raw": "http://localhost:9031/api/readers/7",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -3267,7 +3267,7 @@
 									"path": [
 										"api",
 										"readers",
-										"3"
+										"7"
 									]
 								}
 							},
@@ -3328,7 +3328,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"readerId\": 2,\n  \"bookId\": 5\n}",
+									"raw": "{\n  \"readerId\": 2,\n  \"bookId\": 8\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -3412,7 +3412,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:9020/api/lendings/42",
+									"raw": "http://localhost:9020/api/lendings/43",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -3421,14 +3421,14 @@
 									"path": [
 										"api",
 										"lendings",
-										"42"
+										"43"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Lending By Id Copy",
+							"name": "Lending By Id",
 							"event": [
 								{
 									"listen": "test",
@@ -3489,7 +3489,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:9021/api/lendings/42",
+									"raw": "http://localhost:9021/api/lendings/43",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -3498,7 +3498,7 @@
 									"path": [
 										"api",
 										"lendings",
-										"42"
+										"43"
 									]
 								}
 							},
@@ -3566,7 +3566,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"id\": 42,\n  \"comment\": \"liked it\"\n}",
+									"raw": "{\n  \"id\": 43,\n  \"comment\": \"liked it\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -3651,7 +3651,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:9020/api/lendings/40",
+									"raw": "http://localhost:9020/api/lendings/43",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -3660,7 +3660,84 @@
 									"path": [
 										"api",
 										"lendings",
-										"40"
+										"43"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Lending By Id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Response has the required fields\", function () {",
+											"    const responseData = pm.response.json();",
+											"",
+											"    pm.expect(responseData).to.be.an('object');",
+											"    pm.expect(responseData).to.have.property('id');",
+											"    pm.expect(responseData).to.have.property('lendingCode');",
+											"    pm.expect(responseData).to.have.property('readerId');",
+											"    pm.expect(responseData).to.have.property('bookId');",
+											"    pm.expect(responseData).to.have.property('bookTitle');",
+											"    pm.expect(responseData).to.have.property('lendDate');",
+											"    pm.expect(responseData).to.have.property('limitDate');",
+											"    pm.expect(responseData).to.have.property('returnedDate');",
+											"    pm.expect(responseData).to.have.property('daysTillReturn');",
+											"    pm.expect(responseData).to.have.property('daysOverdue');",
+											"    pm.expect(responseData).to.have.property('fine');",
+											"    pm.expect(responseData).to.have.property('returned');",
+											"    pm.expect(responseData).to.have.property('comment');",
+											"});",
+											"",
+											"pm.test(\"Returned date is either null or in a valid date format\", function () {",
+											"    const responseData = pm.response.json();",
+											"    ",
+											"    pm.expect(responseData).to.be.an('object');",
+											"    pm.expect(responseData.returnedDate).to.satisfy((date) => {",
+											"        return date === null || !isNaN(Date.parse(date));",
+											"    }, \"Returned date should be null or in a valid date format\");",
+											"});",
+											"",
+											"pm.test(\"Response time is less than 200ms\", function () {",
+											"  pm.expect(pm.response.responseTime).to.be.below(200);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{adminToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:9020/api/lendings/43",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "9020",
+									"path": [
+										"api",
+										"lendings",
+										"43"
 									]
 								}
 							},
