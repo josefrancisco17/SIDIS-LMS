@@ -8,13 +8,13 @@
 ![VL-N1](VL-N1.png)
 - explicar as vistas
 
-![VL-N2](VL-N2.png)
+![VL-N2](VL-N1.png)
+- explicar as vistas
+
+![VL-N3](VL-N2.png)
 - explicar as vistas
 
 ![VL-N3](VL-N3.png)
-- explicar as vistas
-
-![VL-N3](VL-N4.png)
 - explicar as vistas
 
 ### 1.2 Functionality
