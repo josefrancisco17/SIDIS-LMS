@@ -3,6 +3,7 @@ package libraryapi.readerservice.services;
 import jakarta.transaction.Transactional;
 import libraryapi.readerservice.model.*;
 import libraryapi.readerservice.repositories.*;
+import libraryapi.readerservice.services.producer.Sender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -34,6 +35,9 @@ public class ReaderServiceImpl implements ReaderService {
     private final ReaderRepositoryHTTP readerRepositoryHTTP;
     private final LendingRepositoryHTTP lendingRepositoryHTTP;
     private final BookRepositoryHTTP bookRepositoryHTTP;
+
+    @Autowired
+    private Sender sender;
 
     @Autowired
     public ReaderServiceImpl(ReaderRepository readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService, ReaderRepositoryHTTP readerRepositoryHTTP, LendingRepositoryHTTP lendingRepositoryHTTP, BookRepositoryHTTP bookRepositoryHTTP) {
@@ -91,6 +95,11 @@ public class ReaderServiceImpl implements ReaderService {
        if (readerOpt.isEmpty()) {
             throw new IllegalArgumentException("[ERROR] Cannot find Reader");
         }
+       try {
+           sender.sendMessage("Hello World");
+       } catch (Exception e) {
+           e.printStackTrace();
+       }
         return readerOpt;
     }
 
