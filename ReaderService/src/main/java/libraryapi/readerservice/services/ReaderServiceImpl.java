@@ -95,11 +95,6 @@ public class ReaderServiceImpl implements ReaderService {
        if (readerOpt.isEmpty()) {
             throw new IllegalArgumentException("[ERROR] Cannot find Reader");
         }
-       try {
-           sender.sendMessage("Hello World");
-       } catch (Exception e) {
-           e.printStackTrace();
-       }
         return readerOpt;
     }
 
@@ -170,8 +165,12 @@ public class ReaderServiceImpl implements ReaderService {
         }
 
         Reader newReader = readerRepository.getById(reader.getId());
-        readerRepositoryHTTP.manageInternalReader(newReader);
-
+        //readerRepositoryHTTP.manageInternalReader(newReader);
+        try {
+            sender.sendReaderUpdate(newReader);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return readerRepository.save(reader);
     }
 

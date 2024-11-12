@@ -4,16 +4,12 @@ import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.UUID;
+
 @Configuration
 public class RabbitMQConfig {
-
-    public static final String QUEUE_NAME = "your.queue.name";
-    public static final String EXCHANGE_NAME = "your.exchange.name";
-
-    @Bean
-    public Queue queue() {
-        return new Queue(QUEUE_NAME, false);
-    }
+    public static final String EXCHANGE_NAME = "reader.exchange";
+    public static final String ROUTING_KEY = "reader.sync";
 
     @Bean
     public TopicExchange exchange() {
@@ -21,7 +17,12 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Queue queue() {
+        return new Queue("reader.sync.queue." + UUID.randomUUID(), true); // Unique queue per instance
+    }
+
+    @Bean
     public Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with("routing.key");
+        return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY);
     }
 }
