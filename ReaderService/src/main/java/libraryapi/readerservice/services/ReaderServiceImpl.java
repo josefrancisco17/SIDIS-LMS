@@ -3,7 +3,7 @@ package libraryapi.readerservice.services;
 import jakarta.transaction.Transactional;
 import libraryapi.readerservice.model.*;
 import libraryapi.readerservice.repositories.*;
-import libraryapi.readerservice.services.producer.Sender;
+import libraryapi.readerservice.rabbitMQ.producer.Sender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -167,7 +167,8 @@ public class ReaderServiceImpl implements ReaderService {
         Reader newReader = readerRepository.getById(reader.getId());
         //readerRepositoryHTTP.manageInternalReader(newReader);
         try {
-            sender.sendReaderUpdate(newReader);
+            sender.SyncReader(newReader);
+            sender.getAllLendings();
         } catch (Exception e) {
             e.printStackTrace();
         }

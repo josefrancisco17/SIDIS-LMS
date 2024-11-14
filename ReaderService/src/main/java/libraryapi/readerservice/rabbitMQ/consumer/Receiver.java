@@ -1,10 +1,7 @@
-package libraryapi.readerservice.services.consumer;
+package libraryapi.readerservice.rabbitMQ.consumer;
 
-import libraryapi.readerservice.configuration.RabbitMQConfig;
-import libraryapi.readerservice.services.ReaderService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +12,7 @@ public class Receiver {
     @Autowired
     private Environment env;
 
-    @RabbitListener(queues = "#{queue.name}") // Dynamically resolve queue name
+    @RabbitListener(queues = "#{ReaderSyncQueue.name}")
     public void receiveMessage(org.springframework.amqp.core.Message message) {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
         String senderInstancePort = (String) message.getMessageProperties().getHeaders().get("instancePort");
