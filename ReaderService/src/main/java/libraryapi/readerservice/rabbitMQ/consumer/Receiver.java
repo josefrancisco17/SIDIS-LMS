@@ -23,7 +23,6 @@ public class Receiver {
             return;
         }
 
-        // Process the message
         String messageBody = new String(message.getBody());
         System.out.println("[RabbitMQ] Synchronized Reader: " + messageBody);
     }

@@ -25,18 +25,18 @@ public class RabbitMQConfig {
     public static final String LENDING_ROUTING_KEY_QUERY = "lending.query";
 
     @Bean
-    public TopicExchange LendingQueryExchange() {
-        return new TopicExchange(LENDING_EXCHANGE_NAME);
+    public TopicExchange ReaderSyncExchange() {
+        return new TopicExchange(READER_EXCHANGE_NAME);
     }
 
     @Bean
-    public Queue LendingQueryQueue() {
+    public Queue ReaderSyncQueue() {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
-        return new Queue("lending.sync.queue." + currentPort, true);
+        return new Queue("reader.sync.queue." + currentPort, true);
     }
 
     @Bean
-    public Binding LendingQueryBinding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(LENDING_ROUTING_KEY_QUERY);
+    public Binding ReaderSyncBinding(Queue queue, TopicExchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with(READER_ROUTING_KEY_SYNC);
     }
 }

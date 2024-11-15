@@ -20,4 +20,5 @@ public class Sender {
     public Sender(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
+
 }

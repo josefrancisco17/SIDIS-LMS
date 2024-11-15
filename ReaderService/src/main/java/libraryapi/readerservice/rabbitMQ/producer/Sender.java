@@ -29,25 +29,8 @@ public class Sender {
         String message = reader.toString();
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
         rabbitTemplate.convertAndSend(RabbitMQConfig.READER_EXCHANGE_NAME, RabbitMQConfig.READER_ROUTING_KEY_SYNC, message, msg -> {
-            msg.getMessageProperties().setHeader("instancePort", currentPort); // Add sender's ID as a header
+            msg.getMessageProperties().setHeader("instancePort", currentPort);
             return msg;
         });
-    }
-
-    public String getAllLendings() {
-        String lendings = "";
-        String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
-        String requestMessage = "GetAllLendings";
-        Message responseMessage = (Message) rabbitTemplate.sendAndReceive(
-                RabbitMQConfig.LENDING_EXCHANGE_NAME,
-                RabbitMQConfig.LENDING_ROUTING_KEY_QUERY,
-                new Message(requestMessage.getBytes(), new MessageProperties())
-        );
-
-        if (responseMessage != null) {
-            lendings = new String(responseMessage.getBody());
-        }
-
-        return lendings;
     }
 }

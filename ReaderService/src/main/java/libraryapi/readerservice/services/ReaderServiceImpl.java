@@ -168,7 +168,6 @@ public class ReaderServiceImpl implements ReaderService {
         //readerRepositoryHTTP.manageInternalReader(newReader);
         try {
             sender.SyncReader(newReader);
-            sender.getAllLendings();
         } catch (Exception e) {
             e.printStackTrace();
         }
