@@ -2,7 +2,6 @@ package libraryapi.readerservice.rabbitMQ.consumer;
 
 import libraryapi.readerservice.model.Reader;
 import libraryapi.readerservice.rabbitMQ.Mapper.RabbitMapper;
-import libraryapi.readerservice.repositories.ReaderRepository;
 import libraryapi.readerservice.services.ReaderServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +14,6 @@ import java.util.Objects;
 public class Receiver {
     @Autowired
     private Environment env;
-
-    @Autowired
-    private ReaderRepository readerRepository;
 
     @Autowired
     private ReaderServiceImpl readerService;
