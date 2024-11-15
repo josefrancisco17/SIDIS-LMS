@@ -3,6 +3,7 @@ package libraryapi.readerservice.services;
 import jakarta.transaction.Transactional;
 import libraryapi.readerservice.model.*;
 import libraryapi.readerservice.repositories.*;
+import libraryapi.readerservice.rabbitMQ.producer.Sender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -34,6 +35,9 @@ public class ReaderServiceImpl implements ReaderService {
     private final ReaderRepositoryHTTP readerRepositoryHTTP;
     private final LendingRepositoryHTTP lendingRepositoryHTTP;
     private final BookRepositoryHTTP bookRepositoryHTTP;
+
+    @Autowired
+    private Sender sender;
 
     @Autowired
     public ReaderServiceImpl(ReaderRepository readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService, ReaderRepositoryHTTP readerRepositoryHTTP, LendingRepositoryHTTP lendingRepositoryHTTP, BookRepositoryHTTP bookRepositoryHTTP) {
@@ -161,8 +165,12 @@ public class ReaderServiceImpl implements ReaderService {
         }
 
         Reader newReader = readerRepository.getById(reader.getId());
-        readerRepositoryHTTP.manageInternalReader(newReader);
-
+        //readerRepositoryHTTP.manageInternalReader(newReader);
+        try {
+            sender.sendSyncReader(newReader);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return readerRepository.save(reader);
     }
 
@@ -174,7 +182,12 @@ public class ReaderServiceImpl implements ReaderService {
     public Reader updateReader(final Long id, final EditReaderRequest resource, final long desiredVersion) {
         final var reader = readerRepository.findById(id).orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
         reader.updateData(desiredVersion, resource.getName(), resource.getEmail(), resource.getDateOfBirth(), resource.getPhoneNumber(), resource.getGDBRConsent(), resource.getInterests());
-        readerRepositoryHTTP.manageInternalReader(reader);
+        //readerRepositoryHTTP.manageInternalReader(reader);
+        try {
+            sender.sendSyncReader(reader);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return readerRepository.save(reader);
     }
 
@@ -182,7 +195,12 @@ public class ReaderServiceImpl implements ReaderService {
         final var reader = readerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
         reader.applyPatch(desiredVersion, resource.getName(), resource.getEmail(), resource.getDateOfBirth(), resource.getPhoneNumber(), resource.getGDBRConsent(), resource.getInterests());
-        readerRepositoryHTTP.manageInternalReader(reader);
+        //readerRepositoryHTTP.manageInternalReader(reader);
+        try {
+            sender.sendSyncReader(reader);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return readerRepository.save(reader);
     }
 

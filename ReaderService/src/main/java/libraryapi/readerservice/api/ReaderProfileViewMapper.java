@@ -22,7 +22,6 @@ public class ReaderProfileViewMapper {
         readerProfileView.setAge( reader.getAge() );
         readerProfileView.setPhoneNumber( reader.getPhoneNumber() );
         readerProfileView.setGDBRConsent( reader.getGDBRConsent() );
-        readerProfileView.setFunnyQuote(reader.getFunnyQuote());
         List<String> list = reader.getInterests();
         if ( list != null ) {
             readerProfileView.setInterests( new ArrayList<String>( list ) );

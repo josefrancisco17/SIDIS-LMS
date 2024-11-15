@@ -1,5 +1,6 @@
 package libraryapi.bookservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.StaleObjectStateException;
@@ -10,6 +11,7 @@ import java.util.List;
 
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table
 public class Reader {
     @Id
@@ -50,7 +52,6 @@ public class Reader {
     @OneToOne(cascade = CascadeType.ALL)
     private ReaderPhoto readerPhoto;
 
-    private String funnyQuote;
 
     private Integer calculateAge(LocalDate dateOfBirth) {
         if (dateOfBirth == null) {
@@ -63,17 +64,6 @@ public class Reader {
 
     }
 
-    public Reader(String readerCode, String name, String email, LocalDate dateOfBirth, Integer phoneNumber, Boolean GDBRConsent, List<String> interests, String funnyQuote) {
-        this.readerCode = readerCode;
-        this.name = name;
-        this.email = email;
-        this.dateOfBirth = dateOfBirth;
-        this.phoneNumber = phoneNumber;
-        this.GDBRConsent = GDBRConsent;
-        this.interests = interests;
-        this.funnyQuote = funnyQuote;
-    }
-
     public Reader(String readerCode, String name, String email, LocalDate dateOfBirth, Integer phoneNumber, Boolean GDBRConsent, List<String> interests) {
         this.readerCode = readerCode;
         this.name = name;
@@ -81,13 +71,13 @@ public class Reader {
         this.dateOfBirth = dateOfBirth;
         LocalDate currentDate = LocalDate.now();
         Period period = Period.between(dateOfBirth, currentDate);
-        this.age = period.getYears();
+        this.age = calculateAge(dateOfBirth);
         this.phoneNumber = phoneNumber;
         this.GDBRConsent = GDBRConsent;
         this.interests = interests;
     }
 
-    public Reader(String readerCode, String name, String email, LocalDate dateOfBirth, Integer phoneNumber, Boolean GDBRConsent, List<String> interests,ReaderPhoto readerPhoto) {
+    public Reader(String readerCode, String name, String email, LocalDate dateOfBirth, Integer phoneNumber, Boolean GDBRConsent, List<String> interests, ReaderPhoto readerPhoto) {
         this.readerCode = readerCode;
         this.name = name;
         this.email = email;
@@ -198,14 +188,6 @@ public class Reader {
         this.readerPhoto = readerPhoto;
     }
 
-    public String getFunnyQuote() {
-        return funnyQuote;
-    }
-
-    public void setFunnyQuote(String funnyQuote) {
-        this.funnyQuote = funnyQuote;
-    }
-
     public void updateData(final long desiredVersion, final String name, final String email, final LocalDate dateOfBirth, final Integer phoneNumber, final Boolean GDBRConsent, final List<String> interests) {
         if (this.version != desiredVersion) {
             throw new StaleObjectStateException("Object was already modified by another user", this.id);
@@ -213,6 +195,7 @@ public class Reader {
         setName(name);
         setEmail(email);
         setDateOfBirth(dateOfBirth);
+        setAge(Period.between(dateOfBirth, LocalDate.now()).getYears());
         setPhoneNumber(phoneNumber);
         setGDBRConsent(GDBRConsent);
         setInterests(interests);
@@ -230,6 +213,7 @@ public class Reader {
         }
         if (dateOfBirth != null) {
             setDateOfBirth(dateOfBirth);
+            setAge(Period.between(dateOfBirth, LocalDate.now()).getYears());
         }
         if (phoneNumber != null) {
             setPhoneNumber(phoneNumber);

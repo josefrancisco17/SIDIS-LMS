@@ -29,7 +29,6 @@ import libraryapi.readerservice.model.Reader;
 import libraryapi.readerservice.model.ReaderPhoto;
 import libraryapi.readerservice.services.EditReaderRequest;
 import libraryapi.readerservice.services.ReaderServiceImpl;
-//import psoftg2.libraryapi.userManagement.model.Role;
 
 
 @Tag(name = "Readers", description = "Endpoints for managing Readers")
