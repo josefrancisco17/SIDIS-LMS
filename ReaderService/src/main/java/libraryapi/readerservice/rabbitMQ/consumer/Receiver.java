@@ -1,5 +1,9 @@
 package libraryapi.readerservice.rabbitMQ.consumer;
 
+import libraryapi.readerservice.model.Reader;
+import libraryapi.readerservice.rabbitMQ.Mapper.RabbitMapper;
+import libraryapi.readerservice.repositories.ReaderRepository;
+import libraryapi.readerservice.services.ReaderServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -12,18 +16,24 @@ public class Receiver {
     @Autowired
     private Environment env;
 
+    @Autowired
+    private ReaderRepository readerRepository;
+
+    @Autowired
+    private ReaderServiceImpl readerService;
+
     @RabbitListener(queues = "#{ReaderSyncQueue.name}")
-    public void receiveMessage(org.springframework.amqp.core.Message message) {
+    public void receiveSyncReader(org.springframework.amqp.core.Message message) {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
         String senderInstancePort = (String) message.getMessageProperties().getHeaders().get("instancePort");
 
-        // Ignore messages sent by this instance
         if (currentPort.equals(senderInstancePort)) {
             System.out.println("[RabbitMQ] Ignored message from same instance: " + senderInstancePort);
             return;
         }
-
         String messageBody = new String(message.getBody());
-        System.out.println("[RabbitMQ] Synchronized Reader: " + messageBody);
+        System.out.println("[RabbitMQ]  Reader sync: " + messageBody);
+        Reader newReader = RabbitMapper.StringToReader(messageBody);
+        readerService.manageInternalReader(newReader);
     }
 }

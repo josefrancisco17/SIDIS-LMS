@@ -13,17 +13,12 @@ public class RabbitMQConfig {
     @Autowired
     private Environment env;
 
-    public static final String READER_EXCHANGE_NAME = "reader.exchange";
+    public static final String READER_EXCHANGE = "reader.exchange";
     public static final String READER_ROUTING_KEY_SYNC = "reader.sync";
-    public static final String READER_ROUTING_KEY_QUERY = "reader.query";
-
-    public static final String LENDING_EXCHANGE_NAME = "lending.exchange";
-    public static final String LENDING_ROUTING_KEY_SYNC = "lending.sync";
-    public static final String LENDING_ROUTING_KEY_QUERY = "lending.query";
 
     @Bean
     public TopicExchange ReaderSyncExchange() {
-        return new TopicExchange(READER_EXCHANGE_NAME);
+        return new TopicExchange(READER_EXCHANGE);
     }
 
     @Bean
