@@ -1,5 +1,6 @@
 package libraryapi.bookservice.rabbitMQ.producer;
 
+import libraryapi.bookservice.model.Author;
 import libraryapi.bookservice.model.Book;
 import libraryapi.bookservice.rabbitMQ.RabbitMQConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -26,6 +27,19 @@ public class Sender {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
         try {
             rabbitTemplate.convertAndSend(RabbitMQConfig.BOOK_EXCHANGE, RabbitMQConfig.BOOK_ROUTING_KEY_SYNC, message, msg -> {
+                msg.getMessageProperties().setHeader("instancePort", currentPort);
+                return msg;
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendSyncAuthor(Author author) {
+        String message = author.toString();
+        String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
+        try {
+            rabbitTemplate.convertAndSend(RabbitMQConfig.AUTHOR_EXCHANGE, RabbitMQConfig.AUTHOR_ROUTING_KEY_SYNC, message, msg -> {
                 msg.getMessageProperties().setHeader("instancePort", currentPort);
                 return msg;
             });

@@ -3,6 +3,7 @@ package libraryapi.bookservice.services;
 import jakarta.transaction.Transactional;
 import libraryapi.bookservice.api.AuthorLentsViewMapper;
 import libraryapi.bookservice.model.*;
+import libraryapi.bookservice.rabbitMQ.producer.Sender;
 import libraryapi.bookservice.repositories.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class AuthorServiceImpl implements AuthorService{
     private final BookRepositoryHTTP bookRepositoryHTTP;
     private final AuthorRepositoryHTTP authorRepositoryHTTP;
     private final LendingRepositoryHTTP lendingRepositoryHTTP;
+
+    @Autowired
+    private Sender sender;
 
     @Autowired
     public AuthorServiceImpl(AuthorRepository authorRepository, EditAuthorMapper editAuthorMapper, AuthorPhotoRepository authorPhotoRepository, FileStorageService fileStorageService, BookService bookService, BookRepository bookRepository, BookRepositoryHTTP bookRepositoryHTTP, AuthorRepositoryHTTP authorRepositoryHTTP, LendingRepositoryHTTP lendingRepositoryHTTP) {
@@ -119,7 +123,12 @@ public class AuthorServiceImpl implements AuthorService{
 
         //Gets new author after with or without the photo for being sent to another instances
         Author newAuthor = authorRepository.getById(author.getId());
-        authorRepositoryHTTP.manageInternalAuthor(newAuthor);
+        //authorRepositoryHTTP.manageInternalAuthor(newAuthor);
+        try {
+            sender.sendSyncAuthor(newAuthor);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return authorRepository.save(author);
     }
@@ -137,7 +146,12 @@ public class AuthorServiceImpl implements AuthorService{
         author.updateData(desiredVersion, resource.getName(), resource.getShortBio());
         //Gets new author after with or without the photo for being sent to another instances
         Author newAuthor = authorRepository.getById(author.getId());
-        authorRepositoryHTTP.manageInternalAuthor(newAuthor);
+        //authorRepositoryHTTP.manageInternalAuthor(newAuthor);
+        try {
+            sender.sendSyncAuthor(newAuthor);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return authorRepository.save(author);
     }
 
@@ -148,7 +162,12 @@ public class AuthorServiceImpl implements AuthorService{
         author.applyPatch(desiredVersion, resource.getName(), resource.getShortBio());
         //Gets new author after with or without the photo for being sent to another instances
         Author newAuthor = authorRepository.getById(author.getId());
-        authorRepositoryHTTP.manageInternalAuthor(newAuthor);
+        //authorRepositoryHTTP.manageInternalAuthor(newAuthor);
+        try {
+            sender.sendSyncAuthor(newAuthor);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return authorRepository.save(author);
     }
 

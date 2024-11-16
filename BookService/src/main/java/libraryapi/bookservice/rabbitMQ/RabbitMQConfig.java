@@ -18,9 +18,12 @@ public class RabbitMQConfig {
 
     public static final String BOOK_EXCHANGE = "book.exchange";
     public static final String BOOK_ROUTING_KEY_SYNC = "book.sync";
+    public static final String AUTHOR_EXCHANGE = "author.exchange";
+    public static final String AUTHOR_ROUTING_KEY_SYNC = "author.sync";
 
+    // Book Configuration
     @Bean
-    public TopicExchange BookSyncExchange() {
+    public TopicExchange bookSyncExchange() {
         return new TopicExchange(BOOK_EXCHANGE);
     }
 
@@ -31,7 +34,24 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding BookSyncBinding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(BOOK_ROUTING_KEY_SYNC);
+    public Binding bookSyncBinding(Queue BookSyncQueue, TopicExchange bookSyncExchange) {
+        return BindingBuilder.bind(BookSyncQueue).to(bookSyncExchange).with(BOOK_ROUTING_KEY_SYNC);
+    }
+
+    // Author Configuration
+    @Bean
+    public TopicExchange authorSyncExchange() {
+        return new TopicExchange(AUTHOR_EXCHANGE);
+    }
+
+    @Bean
+    public Queue AuthorSyncQueue() {
+        String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
+        return new Queue("author.sync.queue." + currentPort, true);
+    }
+
+    @Bean
+    public Binding authorSyncBinding(Queue AuthorSyncQueue, TopicExchange authorSyncExchange) {
+        return BindingBuilder.bind(AuthorSyncQueue).to(authorSyncExchange).with(AUTHOR_ROUTING_KEY_SYNC);
     }
 }

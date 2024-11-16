@@ -46,4 +46,20 @@ public class Receiver {
         newBook.setAuthors(savedAuthors);
         bookService.manageInternalBook(newBook);
     }
+
+    @RabbitListener(queues = "#{AuthorSyncQueue.name}")
+    public void receiveSyncAuthor(Message message) {
+        String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
+        String senderInstancePort = (String) message.getMessageProperties().getHeaders().get("instancePort");
+
+        if (currentPort.equals(senderInstancePort)) {
+            System.out.println("[RabbitMQ] Ignored message from same instance: " + senderInstancePort);
+            return;
+        }
+        String messageBody = new String(message.getBody());
+        System.out.println("[RabbitMQ]  Author sync: " + messageBody);
+        Author newAuthor = RabbitMapper.StringToAuthor(messageBody);
+        System.out.println("[RabbitMQ]  Author: " + newAuthor);
+        authorService.manageInternalAuthor(newAuthor);
+    }
 }

@@ -1,9 +1,6 @@
 package libraryapi.bookservice.rabbitMQ.Mapper;
 
-import libraryapi.bookservice.model.Author;
-import libraryapi.bookservice.model.Book;
-import libraryapi.bookservice.model.BookCover;
-import libraryapi.bookservice.model.Genre;
+import libraryapi.bookservice.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,4 +95,63 @@ public class RabbitMapper {
 
         return null;
     }
+
+    public static Author StringToAuthor(String input) {
+        Pattern pattern = Pattern.compile(
+                "Author\\{" +
+                        "name='(.*?)',\\s*" +
+                        "shortBio='(.*?)',\\s*" +
+                        "authorPhoto=(null|AuthorPhoto\\{id=(\\d+),\\s*author=null,\\s*" +
+                        "image=\\[(.*?)\\],\\s*contentType='(.*?)'\\})\\s*" +
+                        "\\}"
+        );
+
+        Matcher matcher = pattern.matcher(input);
+
+        if (matcher.find()) {
+            try {
+                // Extract basic author information
+                String name = matcher.group(1);
+                String shortBio = matcher.group(2);
+
+                Author author = new Author(name, shortBio);
+
+                // Handle AuthorPhoto if present
+                String photoString = matcher.group(3);
+                if (!"null".equals(photoString)) {
+                    Long photoId = Long.parseLong(matcher.group(4));
+                    String imageString = matcher.group(5);
+                    String contentType = matcher.group(6);
+
+                    // Parse image byte array
+                    byte[] image = null;
+                    if (!imageString.isEmpty()) {
+                        String[] imageArray = imageString.split(",");
+                        image = new byte[imageArray.length];
+                        for (int i = 0; i < imageArray.length; i++) {
+                            image[i] = Byte.parseByte(imageArray[i].trim());
+                        }
+                    }
+
+                    // Create a new AuthorPhoto instance
+                    AuthorPhoto authorPhoto = new AuthorPhoto();
+                    authorPhoto.setId(photoId); // Optional: Avoid setting ID for new entities
+                    authorPhoto.setImage(image);
+                    authorPhoto.setContentType(contentType);
+
+                    // Associate with Author
+                    author.setAuthorPhoto(authorPhoto);
+                }
+
+                return author;
+
+            } catch (IllegalArgumentException e) {
+                System.err.println("Error parsing author string: " + e.getMessage());
+                return null;
+            }
+        }
+
+        return null;
+    }
+
 }
