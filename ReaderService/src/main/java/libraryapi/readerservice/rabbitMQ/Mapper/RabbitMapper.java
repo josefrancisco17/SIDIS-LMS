@@ -22,14 +22,12 @@ public class RabbitMapper {
 
         Matcher matcher = pattern.matcher(input);
         if (matcher.find()) {
-            // Extract Reader fields
             Long id = Long.parseLong(matcher.group(1));
             String readerCode = matcher.group(2);
             long version = Long.parseLong(matcher.group(3));
             String name = matcher.group(4);
             String email = matcher.group(5);
 
-            // Handle nullable fields
             LocalDate dateOfBirth = "null".equals(matcher.group(6)) ? null : LocalDate.parse(matcher.group(6));
             Integer age = "null".equals(matcher.group(7)) || dateOfBirth == null
                     ? null
@@ -38,7 +36,6 @@ public class RabbitMapper {
             Boolean GDBRConsent = Boolean.parseBoolean(matcher.group(9));
             String interestsString = matcher.group(10);
 
-            // Parse interests
             List<String> interests = null;
             if (!"null".equals(interestsString)) {
                 interests = new ArrayList<>();
@@ -48,14 +45,12 @@ public class RabbitMapper {
                 }
             }
 
-            // Handle ReaderPhoto
             ReaderPhoto readerPhoto = null;
             if (!"null".equals(matcher.group(11))) {
                 Long photoId = Long.parseLong(matcher.group(12));
                 String imageString = matcher.group(13);
                 String contentType = matcher.group(14);
 
-                // Convert image string to byte array
                 byte[] image = null;
                 if (!imageString.isEmpty()) {
                     String[] imageArray = imageString.split(",");
@@ -65,14 +60,12 @@ public class RabbitMapper {
                     }
                 }
 
-                // Create ReaderPhoto object
                 readerPhoto = new ReaderPhoto();
                 readerPhoto.setId(photoId);
                 readerPhoto.setImage(image);
                 readerPhoto.setContentType(contentType);
             }
 
-            // Create Reader object
             Reader reader = new Reader(readerCode, name, email, dateOfBirth, phoneNumber, GDBRConsent, interests);
             reader.setId(id);
             reader.setVersion(version);

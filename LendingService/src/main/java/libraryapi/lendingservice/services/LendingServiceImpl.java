@@ -1,5 +1,6 @@
 package libraryapi.lendingservice.services;
 
+import libraryapi.lendingservice.rabbitMQ.producer.Sender;
 import libraryapi.lendingservice.repositories.BookRepositoryHTTP;
 import libraryapi.lendingservice.repositories.LendingRepositoryHTTP;
 import libraryapi.lendingservice.repositories.ReaderRepositoryHTTP;
@@ -30,6 +31,9 @@ public class LendingServiceImpl implements LendingService {
     private int daysOfLending ;
     @Value("${lending.lateFee}")
     private float lateFee;
+
+    @Autowired
+    private Sender sender;
 
     @Autowired
     public LendingServiceImpl(LendingRepository lendingRepository, LendingRepositoryHTTP lendingRepositoryHTTP, BookRepositoryHTTP bookRepositoryHTTP, ReaderRepositoryHTTP readerRepositoryHTTP ) {
@@ -137,12 +141,17 @@ public class LendingServiceImpl implements LendingService {
         lending.setDaysTillReturn((int) ChronoUnit.DAYS.between(LocalDate.now(), limitDate));
         lending.setBookTitle(book.getTitle());
 
-        lendingRepositoryHTTP.createInternalLending(lending);
+        //lendingRepositoryHTTP.manageInternalLending(lending);
+        try {
+            sender.sendSyncLending(lending);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return lendingRepository.save(lending);
     }
 
-    public Lending createInternalLending(Lending lending) {
+    public Lending manageInternalLending(Lending lending) {
         return lendingRepository.save(lending);
     }
 
@@ -183,13 +192,14 @@ public class LendingServiceImpl implements LendingService {
         returnedLending.setFine(fine);
         returnedLending.setComment(resource.getComment());
 
-        lendingRepositoryHTTP.returnInternalBook(returnedLending);
+        //lendingRepositoryHTTP.manageInternalLending(returnedLending);
+        try {
+            sender.sendSyncLending(returnedLending);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return lendingRepository.save(returnedLending);
-    }
-
-    public Lending returnInternalBook(Lending lending) {
-        return lendingRepository.save(lending);
     }
 
     private float calculateFine(long daysOverdue) {

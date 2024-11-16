@@ -114,7 +114,7 @@ public class LendingController {
     @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<LendingView> createInternalLending(@Valid @RequestBody Lending lending) {
-        Lending savedLending = lendingService.createInternalLending(lending);
+        Lending savedLending = lendingService.manageInternalLending(lending);
 
         final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(savedLending.getId().toString())
                 .build().toUri();
@@ -142,7 +142,7 @@ public class LendingController {
     @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<LendingView> returnInternalBook(@Valid @RequestBody Lending lending) {
-        Lending savedLending = lendingService.returnInternalBook(lending);
+        Lending savedLending = lendingService.manageInternalLending(lending);
 
         final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(savedLending.getId().toString())
                 .build().toUri();
