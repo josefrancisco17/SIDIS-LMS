@@ -1,6 +1,7 @@
 package libraryapi.readerservice.model;
 
 import jakarta.persistence.*;
+import libraryapi.readerservice.model.Book;
 import org.hibernate.StaleObjectStateException;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class Author {
 
     private int lents;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private AuthorPhoto authorPhoto;
 
     public Author() {}
@@ -132,6 +133,7 @@ public class Author {
         return "Author{" +
                 "name='" + name + '\'' +
                 ", shortBio='" + shortBio + '\'' +
+                ", authorPhoto=" + authorPhoto +
                 '}';
     }
 }
