@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.amqp.core.Message;
 
 import java.util.Objects;
 
@@ -19,7 +20,7 @@ public class Receiver {
     private ReaderServiceImpl readerService;
 
     @RabbitListener(queues = "#{ReaderSyncQueue.name}")
-    public void receiveSyncReader(org.springframework.amqp.core.Message message) {
+    public void receiveSyncReader(Message message) {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
         String senderInstancePort = (String) message.getMessageProperties().getHeaders().get("instancePort");
 

@@ -245,6 +245,7 @@ public class Reader {
                 ", phoneNumber=" + phoneNumber +
                 ", GDBRConsent=" + GDBRConsent +
                 ", interests=" + interests +
+                ", ReaderPhoto=" + readerPhoto +
                 '}';
     }
 }

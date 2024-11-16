@@ -22,6 +22,11 @@ public class Genre {
         this.name = name;
     }
 
+    public Genre(Long genreId, String genreName) {
+        this.id = genreId;
+        this.name = genreName;
+    }
+
     public Long getId() {
         return id;
     }

@@ -1,4 +1,4 @@
-package libraryapi.lendingservice.rabbitMQ;
+package libraryapi.authservice.rabbitMQ;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
@@ -16,22 +16,22 @@ public class RabbitMQConfig {
     @Autowired
     private Environment env;
 
-    public static final String LENDING_EXCHANGE = "lending.exchange";
-    public static final String LENDING_ROUTING_KEY_SYNC = "lending.sync";
+    public static final String AUTH_EXCHANGE = "auth.exchange";
+    public static final String AUTH_ROUTING_KEY_SYNC = "auth.sync";
 
     @Bean
-    public TopicExchange LendingSyncExchange() {
-        return new TopicExchange(LENDING_EXCHANGE);
+    public TopicExchange AuthSyncExchange() {
+        return new TopicExchange(AUTH_EXCHANGE);
     }
 
     @Bean
-    public Queue LendingSyncQueue() {
+    public Queue AuthSyncQueue() {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
-        return new Queue("lending.sync.queue." + currentPort, true);
+        return new Queue("auth.sync.queue." + currentPort, true);
     }
 
     @Bean
-    public Binding LendingSyncBinding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(LENDING_ROUTING_KEY_SYNC);
+    public Binding AuthSyncBinding(Queue queue, TopicExchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with(AUTH_ROUTING_KEY_SYNC);
     }
 }

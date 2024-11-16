@@ -198,6 +198,7 @@ public class Book {
                 ", genre='" + genre + '\'' +
                 ", description='" + description + '\'' +
                 ", authors=" + authors +
+                ", cover=" + cover +
                 '}';
     }
 }

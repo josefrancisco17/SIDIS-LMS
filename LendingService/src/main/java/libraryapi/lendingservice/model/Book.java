@@ -4,9 +4,6 @@ package libraryapi.lendingservice.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import libraryapi.lendingservice.model.Author;
-import libraryapi.lendingservice.model.BookCover;
-import libraryapi.lendingservice.model.Genre;
 import libraryapi.lendingservice.util.BookUtil;
 import org.hibernate.StaleObjectStateException;
 
@@ -201,6 +198,7 @@ public class Book {
                 ", genre='" + genre + '\'' +
                 ", description='" + description + '\'' +
                 ", authors=" + authors +
+                ", cover=" + cover +
                 '}';
     }
 }

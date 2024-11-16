@@ -1,7 +1,7 @@
-package libraryapi.lendingservice.rabbitMQ.producer;
+package libraryapi.authservice.rabbitMQ.producer;
 
-import libraryapi.lendingservice.model.Lending;
-import libraryapi.lendingservice.rabbitMQ.RabbitMQConfig;
+import libraryapi.authservice.model.User;
+import libraryapi.authservice.rabbitMQ.RabbitMQConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -21,11 +21,11 @@ public class Sender {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void sendSyncLending(Lending lending) {
-        String message = lending.toString();
+    public void sendSyncUser(User user) {
+        String message = user.toString();
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
         try {
-            rabbitTemplate.convertAndSend(RabbitMQConfig.LENDING_EXCHANGE, RabbitMQConfig.LENDING_ROUTING_KEY_SYNC, message, msg -> {
+            rabbitTemplate.convertAndSend(RabbitMQConfig.AUTH_EXCHANGE, RabbitMQConfig.AUTH_ROUTING_KEY_SYNC, message, msg -> {
                 msg.getMessageProperties().setHeader("instancePort", currentPort);
                 return msg;
             });

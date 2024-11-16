@@ -1,13 +1,13 @@
-package libraryapi.lendingservice.rabbitMQ.consumer;
+package libraryapi.authservice.rabbitMQ.consumer;
 
-import libraryapi.lendingservice.model.Lending;
-import libraryapi.lendingservice.rabbitMQ.Mapper.RabbitMapper;
-import libraryapi.lendingservice.services.LendingServiceImpl;
+import libraryapi.authservice.model.User;
+import libraryapi.authservice.rabbitMQ.Mapper.RabbitMapper;
+import libraryapi.authservice.services.UserService;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import org.springframework.amqp.core.Message;
 
 import java.util.Objects;
 
@@ -17,9 +17,9 @@ public class Receiver {
     private Environment env;
 
     @Autowired
-    private LendingServiceImpl lendingService;
+    private UserService userService;
 
-    @RabbitListener(queues = "#{LendingSyncQueue.name}")
+    @RabbitListener(queues = "#{AuthSyncQueue.name}")
     public void receiveSyncLending(Message message) {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
         String senderInstancePort = (String) message.getMessageProperties().getHeaders().get("instancePort");
@@ -29,8 +29,8 @@ public class Receiver {
             return;
         }
         String messageBody = new String(message.getBody());
-        System.out.println("[RabbitMQ]  Lending sync: " + messageBody);
-        Lending newLending = RabbitMapper.StringToLending(messageBody);
-        lendingService.manageInternalLending(newLending);
+        System.out.println("[RabbitMQ]  Auth sync: " + messageBody);
+        User newUser = RabbitMapper.StringToUser(messageBody);
+        userService.manageInternalUser(newUser);
     }
 }

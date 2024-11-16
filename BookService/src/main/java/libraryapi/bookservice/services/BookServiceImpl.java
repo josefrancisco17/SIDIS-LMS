@@ -2,6 +2,7 @@ package libraryapi.bookservice.services;
 
 import jakarta.transaction.Transactional;
 import libraryapi.bookservice.model.*;
+import libraryapi.bookservice.rabbitMQ.producer.Sender;
 import libraryapi.bookservice.repositories.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class BookServiceImpl implements BookService{
     private final FileStorageService fileStorageService;
     private final EditBookMapper editBookMapper;
     private final LendingRepositoryHTTP lendingRepositoryHTTP;
+
+    @Autowired
+    private Sender sender;
 
     @Autowired
     public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, BookRepositoryHTTP bookRepositoryHTTP, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService, LendingRepositoryHTTP lendingRepositoryHTTP) {
@@ -139,7 +143,12 @@ public class BookServiceImpl implements BookService{
             doUploadFile(book.getId().toString(), coverPhoto);
             book.setVersion(book.getVersion() - 1);
         }
-        bookRepositoryHTTP.manageInternalBook(book);
+        //bookRepositoryHTTP.manageInternalBook(book);
+        try {
+            sender.sendSyncBook(book);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return book;
     }
@@ -156,7 +165,12 @@ public class BookServiceImpl implements BookService{
         final var existingGenre = genreRepository.findById(resource.getGenre().getId()).orElseThrow(() -> new NotFoundException("[ERROR] Genre not found"));
 
         book.updateData(desiredVersion, resource.getTitle(), resource.getAuthors() ,existingGenre ,resource.getDescription());
-        bookRepositoryHTTP.manageInternalBook(book);
+        //bookRepositoryHTTP.manageInternalBook(book);
+        try {
+            sender.sendSyncBook(book);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return bookRepository.save(book);
     }
 
@@ -172,7 +186,12 @@ public class BookServiceImpl implements BookService{
 
         book.applyPatch(desiredVersion, resource.getTitle(), resource.getAuthors(), existingGenre, resource.getDescription());
 
-        bookRepositoryHTTP.manageInternalBook(book);
+        //bookRepositoryHTTP.manageInternalBook(book);
+        try {
+            sender.sendSyncBook(book);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return bookRepository.save(book);
     }
 

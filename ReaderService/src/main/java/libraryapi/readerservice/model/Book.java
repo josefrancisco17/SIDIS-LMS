@@ -1,5 +1,6 @@
 package libraryapi.readerservice.model;
 
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -197,6 +198,7 @@ public class Book {
                 ", genre='" + genre + '\'' +
                 ", description='" + description + '\'' +
                 ", authors=" + authors +
+                ", cover=" + cover +
                 '}';
     }
 }
