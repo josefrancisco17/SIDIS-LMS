@@ -132,6 +132,7 @@ public class Author {
         return "Author{" +
                 "name='" + name + '\'' +
                 ", shortBio='" + shortBio + '\'' +
+                ", authorPhoto=" + authorPhoto +
                 '}';
     }
 }
