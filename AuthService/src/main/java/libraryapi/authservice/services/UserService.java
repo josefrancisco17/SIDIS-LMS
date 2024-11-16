@@ -3,8 +3,10 @@ package libraryapi.authservice.services;
 import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
 import libraryapi.authservice.model.Role;
+import libraryapi.authservice.rabbitMQ.producer.Sender;
 import libraryapi.authservice.repositories.UserRepositoryHTTP;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,6 +37,9 @@ public class UserService implements UserDetailsService {
 
 	private final PasswordEncoder passwordEncoder;
 
+	@Autowired
+	private Sender sender;
+
 	@Transactional
 	public User create(final CreateUserRequest request) {
 		if (userRepo.findByUsername(request.getUsername()).isPresent()) {
@@ -47,7 +52,12 @@ public class UserService implements UserDetailsService {
 		final User user = userEditMapper.create(request);
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-		userRepositoryHTTP.manageInternalUser(user);
+		//userRepositoryHTTP.manageInternalUser(user);
+		try {
+			sender.sendSyncUser(user);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return userRepo.save(user);
 	}
@@ -56,7 +66,12 @@ public class UserService implements UserDetailsService {
 	public User update(final Long id, final EditUserRequest request) {
 		final User user = userRepo.getById(id);
 		userEditMapper.update(request, user);
-		userRepositoryHTTP.manageInternalUser(user);
+		//userRepositoryHTTP.manageInternalUser(user);
+		try {
+			sender.sendSyncUser(user);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return userRepo.save(user);
 	}
 
@@ -78,7 +93,12 @@ public class UserService implements UserDetailsService {
 		// user.setUsername(user.getUsername().replace("@", String.format("_%s@",
 		// user.getId().toString())));
 		user.setEnabled(false);
-		userRepositoryHTTP.manageInternalUser(user);
+		//userRepositoryHTTP.manageInternalUser(user);
+		try {
+			sender.sendSyncUser(user);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return userRepo.save(user);
 	}
 
