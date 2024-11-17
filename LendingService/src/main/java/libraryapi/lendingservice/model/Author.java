@@ -1,7 +1,6 @@
 package libraryapi.lendingservice.model;
 
 import jakarta.persistence.*;
-import libraryapi.lendingservice.model.Book;
 import org.hibernate.StaleObjectStateException;
 
 import java.util.ArrayList;
@@ -131,7 +130,8 @@ public class Author {
     @Override
     public String toString() {
         return "Author{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", shortBio='" + shortBio + '\'' +
                 ", authorPhoto=" + authorPhoto +
                 '}';

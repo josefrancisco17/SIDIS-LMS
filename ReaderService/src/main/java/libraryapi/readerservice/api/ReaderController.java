@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import libraryapi.readerservice.model.Role;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +32,8 @@ import libraryapi.readerservice.model.Reader;
 import libraryapi.readerservice.model.ReaderPhoto;
 import libraryapi.readerservice.services.EditReaderRequest;
 import libraryapi.readerservice.services.ReaderServiceImpl;
+
+import java.security.interfaces.RSAPublicKey;
 
 
 @Tag(name = "Readers", description = "Endpoints for managing Readers")
@@ -42,15 +47,16 @@ public class ReaderController {
     private final ReaderViewMapper readerViewMapper;
     private final ReaderProfileViewMapper readerProfileViewMapper ;
     private final BookViewMapper bookViewMapper;
-    //private final GenreServiceImpl genreService;
 
-    @Operation(summary = "Gets a reader profile with a funny quote based on date of birth")
     @GetMapping("/{readerId}")
     @RolesAllowed({Role.READER, Role.LIBRARIAN, Role.ADMIN})
     @ApiResponse(description = "Success", content = { @Content(mediaType = "application/json",
             schema = @Schema(implementation = ReaderProfileView.class)) })
-    public ResponseEntity<ReaderProfileView> getReaderProfileWithQuote(@PathVariable("readerId") Long id) {
-        var ReaderProfileView = readerProfileViewMapper.toReaderProfileView(readerService.getReaderByIdWithQuote(id).orElseThrow(() -> new NotFoundException(Reader.class, id)));
+    public ResponseEntity<ReaderProfileView> getReader(
+            @PathVariable("readerId") Long id,
+            HttpServletRequest request) {
+
+        var ReaderProfileView = readerProfileViewMapper.toReaderProfileView(readerService.getReader(id, request).orElseThrow(() -> new NotFoundException(Reader.class, id)));
         return ResponseEntity.ok().body(ReaderProfileView);
     }
 

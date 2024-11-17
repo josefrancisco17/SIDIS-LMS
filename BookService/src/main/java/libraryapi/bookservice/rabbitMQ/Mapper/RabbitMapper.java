@@ -97,61 +97,73 @@ public class RabbitMapper {
     }
 
     public static Author StringToAuthor(String input) {
-        Pattern pattern = Pattern.compile(
-                "Author\\{" +
-                        "name='(.*?)',\\s*" +
-                        "shortBio='(.*?)',\\s*" +
-                        "authorPhoto=(null|AuthorPhoto\\{id=(\\d+),\\s*author=null,\\s*" +
-                        "image=\\[(.*?)\\],\\s*contentType='(.*?)'\\})\\s*" +
-                        "\\}"
-        );
+        try {
+            Pattern mainPattern = Pattern.compile(
+                    "Author\\{" +
+                            "id=(\\d+),\\s*" +
+                            "name='(.*?)',\\s*" +
+                            "shortBio='(.*?)',\\s*" +
+                            "authorPhoto=(.+?)\\}"
+            );
 
-        Matcher matcher = pattern.matcher(input);
+            Matcher mainMatcher = mainPattern.matcher(input);
 
-        if (matcher.find()) {
-            try {
-                // Extract basic author information
-                String name = matcher.group(1);
-                String shortBio = matcher.group(2);
+            if (!mainMatcher.find()) {
+                System.err.println("Failed to match main author pattern: " + input);
+                return null;
+            }
 
-                Author author = new Author(name, shortBio);
+            Author author = new Author();
+            author.setId(Long.parseLong(mainMatcher.group(1)));
+            author.setName(mainMatcher.group(2));
+            author.setShortBio(mainMatcher.group(3));
 
-                // Handle AuthorPhoto if present
-                String photoString = matcher.group(3);
-                if (!"null".equals(photoString)) {
-                    Long photoId = Long.parseLong(matcher.group(4));
-                    String imageString = matcher.group(5);
-                    String contentType = matcher.group(6);
+            String photoString = mainMatcher.group(4);
 
-                    // Parse image byte array
-                    byte[] image = null;
-                    if (!imageString.isEmpty()) {
-                        String[] imageArray = imageString.split(",");
-                        image = new byte[imageArray.length];
-                        for (int i = 0; i < imageArray.length; i++) {
-                            image[i] = Byte.parseByte(imageArray[i].trim());
+            if (!"null".equals(photoString)) {
+                Pattern photoPattern = Pattern.compile(
+                        "AuthorPhoto\\{" +
+                                "id=(\\d+),\\s*" +
+                                "author=null,\\s*" +
+                                "image=\\[([^\\]]+)\\]"
+                );
+
+                Matcher photoMatcher = photoPattern.matcher(photoString);
+
+                if (photoMatcher.find()) {
+                    AuthorPhoto authorPhoto = new AuthorPhoto();
+                    authorPhoto.setId(Long.parseLong(photoMatcher.group(1)));
+
+                    String imageString = photoMatcher.group(2);
+                    String[] imageValues = imageString.split(",\\s*");
+                    byte[] imageData = new byte[imageValues.length];
+
+                    for (int i = 0; i < imageValues.length; i++) {
+                        try {
+                            imageData[i] = Byte.parseByte(imageValues[i].trim());
+                        } catch (NumberFormatException e) {
+                            byte[] truncatedData = new byte[i];
+                            System.arraycopy(imageData, 0, truncatedData, 0, i);
+                            imageData = truncatedData;
+                            break;
                         }
                     }
 
-                    // Create a new AuthorPhoto instance
-                    AuthorPhoto authorPhoto = new AuthorPhoto();
-                    authorPhoto.setId(photoId); // Optional: Avoid setting ID for new entities
-                    authorPhoto.setImage(image);
-                    authorPhoto.setContentType(contentType);
-
-                    // Associate with Author
+                    authorPhoto.setImage(imageData);
+                    authorPhoto.setContentType("image/jpeg"); // Default content type
                     author.setAuthorPhoto(authorPhoto);
+                } else {
+                    System.err.println("Failed to match photo pattern but photo was present");
                 }
-
-                return author;
-
-            } catch (IllegalArgumentException e) {
-                System.err.println("Error parsing author string: " + e.getMessage());
-                return null;
             }
-        }
 
-        return null;
+            return author;
+
+        } catch (Exception e) {
+            System.err.println("Error parsing author: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

@@ -33,12 +33,13 @@ public class BookServiceImpl implements BookService{
     private final FileStorageService fileStorageService;
     private final EditBookMapper editBookMapper;
     private final LendingRepositoryHTTP lendingRepositoryHTTP;
+    private final AuthorRepository authorRepository;
 
     @Autowired
     private Sender sender;
 
     @Autowired
-    public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, BookRepositoryHTTP bookRepositoryHTTP, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService, LendingRepositoryHTTP lendingRepositoryHTTP) {
+    public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, BookRepositoryHTTP bookRepositoryHTTP, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService, LendingRepositoryHTTP lendingRepositoryHTTP, AuthorRepository authorRepository) {
         this.bookRepository = bookRepository;
         this.bookCoverRepository = bookCoverRepository;
         this.bookRepositoryHTTP = bookRepositoryHTTP;
@@ -46,6 +47,7 @@ public class BookServiceImpl implements BookService{
         this.genreRepository = genreRepository;
         this.fileStorageService =  fileStorageService;
         this.lendingRepositoryHTTP = lendingRepositoryHTTP;
+        this.authorRepository = authorRepository;
     }
 
     public Optional<Book> getBook(final String isbn) {
@@ -155,7 +157,13 @@ public class BookServiceImpl implements BookService{
 
     @Transactional
     public Book manageInternalBook(Book book) {
-            return bookRepository.save(book);
+        List<Author> savedAuthors = new ArrayList<>();
+        for (Author author : book.getAuthors()) {
+            Author savedAuthor = authorRepository.save(author);
+            savedAuthors.add(savedAuthor);
+        }
+        book.setAuthors(savedAuthors);
+        return bookRepository.save(book);
     }
 
     @Transactional

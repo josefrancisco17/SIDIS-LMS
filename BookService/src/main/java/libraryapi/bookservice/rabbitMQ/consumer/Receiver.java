@@ -38,12 +38,6 @@ public class Receiver {
         String messageBody = new String(message.getBody());
         System.out.println("[RabbitMQ]  Book sync: " + messageBody);
         Book newBook = RabbitMapper.StringToBook(messageBody);
-        List<Author> savedAuthors = new ArrayList<>();
-        for (Author author : newBook.getAuthors()) {
-            Author savedAuthor = authorService.manageInternalAuthor(author);
-            savedAuthors.add(savedAuthor);
-        }
-        newBook.setAuthors(savedAuthors);
         bookService.manageInternalBook(newBook);
     }
 
@@ -59,7 +53,6 @@ public class Receiver {
         String messageBody = new String(message.getBody());
         System.out.println("[RabbitMQ]  Author sync: " + messageBody);
         Author newAuthor = RabbitMapper.StringToAuthor(messageBody);
-        System.out.println("[RabbitMQ]  Author: " + newAuthor);
         authorService.manageInternalAuthor(newAuthor);
     }
 }

@@ -1,13 +1,18 @@
 package libraryapi.readerservice.services;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import libraryapi.readerservice.model.*;
 import libraryapi.readerservice.repositories.*;
 import libraryapi.readerservice.rabbitMQ.producer.Sender;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -18,6 +23,7 @@ import libraryapi.readerservice.fileStorage.UploadFileResponse;
 import libraryapi.readerservice.util.ReaderUtil;
 
 import java.io.IOException;
+import java.security.interfaces.RSAPublicKey;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
@@ -35,6 +41,9 @@ public class ReaderServiceImpl implements ReaderService {
     private final ReaderRepositoryHTTP readerRepositoryHTTP;
     private final LendingRepositoryHTTP lendingRepositoryHTTP;
     private final BookRepositoryHTTP bookRepositoryHTTP;
+
+    @Value("${jwt.public.key}")
+    private RSAPublicKey rsaPublicKey;
 
     @Autowired
     private Sender sender;
@@ -89,14 +98,58 @@ public class ReaderServiceImpl implements ReaderService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<Reader> getReaderByIdWithQuote(Long id) {
-        Optional<Reader> readerOpt = readerRepository.findReaderById(id);
-        readerOpt.ifPresent(this::updateAge);
-       if (readerOpt.isEmpty()) {
-            throw new IllegalArgumentException("[ERROR] Cannot find Reader");
+    public Optional<Reader> getReader(Long id, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(this.rsaPublicKey).build();
+
+            try {
+                Jwt jwt = jwtDecoder.decode(token);
+                System.out.println("JWT Decoded: " + jwt.getClaims());
+
+                String subClaim = (String) jwt.getClaims().get("sub");
+                String email = null;
+
+                if (subClaim != null && subClaim.contains(",")) {
+                    String[] parts = subClaim.split(",");
+                    if (parts.length > 1) {
+                        email = parts[1];
+                    }
+                }
+
+                if (email == null || email.isEmpty()) {
+                    throw new IllegalArgumentException("[ERROR] Email is missing in the token.");
+                }
+
+                String role = (String) jwt.getClaims().get("roles");
+
+                if ("ADMIN".equals(role) || "LIBRARIAN".equals(role)) {
+                    return readerRepository.findReaderById(id);
+                }
+
+                Optional<Reader> reader = readerRepository.findByEmail(email);
+
+                if (reader.isEmpty()) {
+                    throw new IllegalArgumentException("[ERROR] No Reader found for the provided email.");
+                }
+
+                if ("READER".equals(role) && !Objects.equals(id, reader.get().getId())) {
+                    throw new IllegalArgumentException("[ERROR] Cannot access another Reader's information.");
+                }
+
+                return reader;
+
+            } catch (JwtException e) {
+                throw new IllegalArgumentException("[ERROR] Invalid JWT token.", e);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException(e.getMessage());
+            }
         }
-        return readerOpt;
+        throw new IllegalArgumentException("[ERROR] Authorization header is missing or invalid.");
     }
+
+
 
     public Page<Book> getSuggestedBooks(Long readerId, Pageable pageable) {
         Reader reader = readerRepository.findById(readerId).orElseThrow(() -> new NotFoundException("Reader not found with id: " + readerId));
