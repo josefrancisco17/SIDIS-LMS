@@ -1,5 +1,6 @@
 package libraryapi.readerservice.services;
 
+import jakarta.servlet.http.HttpServletRequest;
 import libraryapi.readerservice.model.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +13,7 @@ public interface ReaderService {
     Page<Reader> getReaders(Pageable pageable);
     Iterable<Reader> getAllReaders();
     Iterable<Reader> getTopReaders();
-    Optional<Reader> getReaderByIdWithQuote(Long id);
+    Optional<Reader> getReader(Long id, HttpServletRequest request);
     Page<Book> getSuggestedBooks(Long readerId, Pageable pageable);
     Page<Reader> getReadersByPhoneNumberAndEmail(final String phoneNumber, final String email, Pageable pageable);
     Page<Reader> getReadersByPhoneNumber(final String phoneNumber, Pageable pageable);
