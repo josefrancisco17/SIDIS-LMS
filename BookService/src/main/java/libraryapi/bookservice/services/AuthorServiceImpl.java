@@ -133,11 +133,11 @@ public class AuthorServiceImpl implements AuthorService{
         return authorRepository.save(author);
     }
 
-    public Author manageInternalAuthor(Author author) {
-        Author newAuthor = author;
-        System.out.println("Internal Author Photo: " + newAuthor.getAuthorPhoto());
-        return authorRepository.save(author);
+    @Transactional
+    public Author manageInternalAuthor(Author newAuthor) {
+        return authorRepository.save(newAuthor);
     }
+
 
     @Transactional
     public Author updateAuthor(final Long id, final EditAuthorRequest resource, final long desiredVersion) {

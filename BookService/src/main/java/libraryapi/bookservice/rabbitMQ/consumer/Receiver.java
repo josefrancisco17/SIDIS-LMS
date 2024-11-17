@@ -59,7 +59,6 @@ public class Receiver {
         String messageBody = new String(message.getBody());
         System.out.println("[RabbitMQ]  Author sync: " + messageBody);
         Author newAuthor = RabbitMapper.StringToAuthor(messageBody);
-        System.out.println("[RabbitMQ]  Author: " + newAuthor);
         authorService.manageInternalAuthor(newAuthor);
     }
 }
