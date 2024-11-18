@@ -33,4 +33,11 @@ public class Receiver {
         Reader newReader = RabbitMapper.StringToReader(messageBody);
         readerService.manageInternalReader(newReader);
     }
+
+    @RabbitListener(queues = "#{ReaderQueryQueue.name}")
+    public String handleReadersRequest() {
+        String readers = "[{id:1, bookId:101}, {id:2, bookId:102}]";
+        System.out.println("[RabbitMQ] Sending readers: " + readers);
+        return readers;
+    }
 }

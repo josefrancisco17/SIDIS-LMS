@@ -25,7 +25,7 @@ public class Sender {
         String message = user.toString();
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
         try {
-            rabbitTemplate.convertAndSend(RabbitMQConfig.AUTH_EXCHANGE, RabbitMQConfig.AUTH_ROUTING_KEY_SYNC, message, msg -> {
+            rabbitTemplate.convertAndSend(RabbitMQConfig.AUTH_SYNC_EXCHANGE, RabbitMQConfig.AUTH_ROUTING_KEY_SYNC, message, msg -> {
                 msg.getMessageProperties().setHeader("instancePort", currentPort);
                 return msg;
             });

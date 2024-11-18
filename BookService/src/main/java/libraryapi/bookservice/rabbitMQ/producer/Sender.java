@@ -36,7 +36,7 @@ public class Sender {
         String message = book.toString();
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
         try {
-            rabbitTemplate.convertAndSend(RabbitMQConfig.BOOK_EXCHANGE, RabbitMQConfig.BOOK_ROUTING_KEY_SYNC, message, msg -> {
+            rabbitTemplate.convertAndSend(RabbitMQConfig.BOOK_SYNC_EXCHANGE, RabbitMQConfig.BOOK_ROUTING_KEY_SYNC, message, msg -> {
                 msg.getMessageProperties().setHeader("instancePort", currentPort);
                 return msg;
             });
@@ -49,7 +49,7 @@ public class Sender {
         String message = author.toString();
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
         try {
-            rabbitTemplate.convertAndSend(RabbitMQConfig.AUTHOR_EXCHANGE, RabbitMQConfig.AUTHOR_ROUTING_KEY_SYNC, message, msg -> {
+            rabbitTemplate.convertAndSend(RabbitMQConfig.AUTHOR_SYNC_EXCHANGE, RabbitMQConfig.AUTHOR_ROUTING_KEY_SYNC, message, msg -> {
                 msg.getMessageProperties().setHeader("instancePort", currentPort);
                 return msg;
             });

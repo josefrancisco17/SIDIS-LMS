@@ -35,7 +35,7 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(LendingSyncQueue).to(LendingSyncExchange).with(LENDING_ROUTING_KEY_SYNC);
     }
 
-    // Data query from other instances
+    // Data Lending query from other instances
 
     @Bean
     public DirectExchange LendingQueryExchange() {

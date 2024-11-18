@@ -55,4 +55,11 @@ public class Receiver {
         Author newAuthor = RabbitMapper.StringToAuthor(messageBody);
         authorService.manageInternalAuthor(newAuthor);
     }
+
+    @RabbitListener(queues = "#{BookQueryQueue.name}")
+    public String handleBooksRequest() {
+        String books = "[{id:1, bookId:101}, {id:2, bookId:102}]";
+        System.out.println("[RabbitMQ] Sending books: " + books);
+        return books;
+    }
 }
