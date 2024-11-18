@@ -67,7 +67,13 @@ public class BookServiceImpl implements BookService{
     }
 
     public Iterable<Book> getTopBooks() {
-        List<Lending> lendings = lendingRepositoryHTTP.getAllLendings();
+        //List<Lending> lendings = lendingRepositoryHTTP.getAllLendings();
+        List<Lending> lendings = new ArrayList<>();
+        try {
+            lendings = sender.getLendings();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         Map<Long, Long> lendingCountMap = lendings.stream()
                 .collect(Collectors.groupingBy(
