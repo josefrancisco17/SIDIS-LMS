@@ -1,5 +1,8 @@
 package libraryapi.readerservice.rabbitMQ.producer;
 
+import io.github.cdimascio.dotenv.Dotenv;
+import libraryapi.readerservice.model.Book;
+import libraryapi.readerservice.model.Lending;
 import libraryapi.readerservice.rabbitMQ.RabbitMQConfig;
 import libraryapi.readerservice.model.Reader;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -7,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -15,6 +20,15 @@ public class Sender {
     private Environment env;
 
     private final RabbitTemplate rabbitTemplate;
+
+    private final Dotenv dotenv = Dotenv.load();
+    private final int ReaderServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("READER_PORT1")));
+    private final int ReaderServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("READER_PORT2")));
+    private final int LendingServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT1")));
+    private final int LendingServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT2")));
+    private final int BookServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_PORT1")));
+    private final int BookServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_PORT2")));
+
 
     @Autowired
     public Sender(RabbitTemplate rabbitTemplate) {
@@ -32,5 +46,51 @@ public class Sender {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public List<Lending> getLendings() {
+        List<Lending> lendings = new ArrayList<>();
+
+        int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
+        int targetPort = (currentPort == ReaderServicePort1) ? LendingServicePort1 : LendingServicePort2;
+
+        try {
+            String response = (String) rabbitTemplate.convertSendAndReceive(
+                    "lending.query.exchange",
+                    "lending.query" + targetPort,
+                    ""
+            );
+
+            if (response != null) {
+                System.out.println("[RabbitMQ] Lendings: " + response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return lendings;
+    }
+
+    public List<Book> getBooks() {
+        List<Book> books = new ArrayList<>();
+
+        int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
+        int targetPort = (currentPort == ReaderServicePort1) ? BookServicePort1 : BookServicePort2;
+
+        try {
+            String response = (String) rabbitTemplate.convertSendAndReceive(
+                    "book.query.exchange",
+                    "book.query" + targetPort,
+                    ""
+            );
+
+            if (response != null) {
+                System.out.println("[RabbitMQ] Books: " + response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return books;
     }
 }

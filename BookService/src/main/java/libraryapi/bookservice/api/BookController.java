@@ -10,10 +10,12 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import libraryapi.bookservice.model.*;
+import libraryapi.bookservice.rabbitMQ.producer.Sender;
 import libraryapi.bookservice.repositories.BookRepositoryHTTP;
 import libraryapi.bookservice.repositories.LendingRepositoryHTTP;
 import libraryapi.bookservice.services.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import libraryapi.bookservice.exceptions.NotFoundException;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "Books", description = "Endpoints for managing Books")
@@ -119,7 +123,7 @@ public class BookController {
     @ApiResponse(description = "Success", responseCode = "200", content = { @Content(mediaType = "application/json",
             array = @ArraySchema(schema = @Schema(implementation = BookView.class))) })
     public Iterable<LentBookView> getTopBooks() {
-        return lentBookViewMapper.toLentBookView(bookService.getTopBooks(), lendingRepositoryHTTP.getAllLendings());
+        return lentBookViewMapper.toLentBookView(bookService.getTopBooks());
     }
 
     @Operation(summary = "Downloads a cover of a book by id")

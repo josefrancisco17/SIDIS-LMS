@@ -1,14 +1,21 @@
 package libraryapi.bookservice.api;
 
+import libraryapi.bookservice.rabbitMQ.producer.Sender;
 import org.mapstruct.Mapper;
 import libraryapi.bookservice.model.Book;
 import libraryapi.bookservice.model.Lending;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.ArrayList;
 import java.util.List;
 import static libraryapi.bookservice.api.BookGenreViewMapper.toBookGenreView;
 
 @Mapper(componentModel = "spring")
 public class LentBookViewMapper {
+
+    @Autowired
+    private Sender sender;
+
     public LentBookView toLentBookView(Book book, Iterable<Lending> lendings) {
         if ( book == null ) {
             return null;
@@ -31,7 +38,14 @@ public class LentBookViewMapper {
 
         return lentBookView;
     }
-    public Iterable<LentBookView> toLentBookView(Iterable<Book> books, Iterable<Lending> lendings) {
+    public Iterable<LentBookView> toLentBookView(Iterable<Book> books) {
+        Iterable<Lending> lendings =  new ArrayList<>();
+        try {
+            lendings = sender.getLendings();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         if ( books == null ) {
             return null;
         }

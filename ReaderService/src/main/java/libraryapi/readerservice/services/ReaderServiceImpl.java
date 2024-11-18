@@ -79,7 +79,13 @@ public class ReaderServiceImpl implements ReaderService {
     }
 
     public Iterable<Reader> getTopReaders() {
-        List<Lending> lendings = lendingRepositoryHTTP.getAllLendings();
+        //List<Lending> lendings = lendingRepositoryHTTP.getAllLendings();
+        List<Lending> lendings =  new ArrayList<>();
+        try {
+            lendings = sender.getLendings();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Map<Long, Long> lendingCountMap = lendings.stream()
                 .collect(Collectors.groupingBy(
                         Lending::getReaderId,
@@ -159,7 +165,14 @@ public class ReaderServiceImpl implements ReaderService {
             throw new IllegalArgumentException("[ERROR] Reader does not have any interests specified.");
         }
 
-        List<Book> suggestedBooks = bookRepositoryHTTP.getAllBooks().stream().filter(book -> interests.contains(book.getGenre().getName())).toList();
+        List<Book> books =  new ArrayList<>();
+        try {
+            books = sender.getBooks();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        List<Book> suggestedBooks = books.stream().filter(book -> interests.contains(book.getGenre().getName())).toList();
         return BookUtil.toPage(suggestedBooks, pageable);
     }
 
