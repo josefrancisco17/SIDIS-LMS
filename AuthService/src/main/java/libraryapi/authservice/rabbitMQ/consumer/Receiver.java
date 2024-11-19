@@ -2,6 +2,7 @@ package libraryapi.authservice.rabbitMQ.consumer;
 
 import libraryapi.authservice.model.User;
 import libraryapi.authservice.rabbitMQ.Mapper.RabbitMapper;
+import libraryapi.authservice.repositories.UserRepository;
 import libraryapi.authservice.services.UserService;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -19,8 +20,11 @@ public class Receiver {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @RabbitListener(queues = "#{AuthSyncQueue.name}")
-    public void receiveSyncLending(Message message) {
+    public void receiveSyncAuth(Message message) {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
         String senderInstancePort = (String) message.getMessageProperties().getHeaders().get("instancePort");
 
@@ -32,5 +36,12 @@ public class Receiver {
         System.out.println("[RabbitMQ]  Auth sync: " + messageBody);
         User newUser = RabbitMapper.StringToUser(messageBody);
         userService.manageInternalUser(newUser);
+    }
+
+    @RabbitListener(queues = "#{AuthQueryQueue.name}")
+    public String handleUsersRequest() {
+        String users = userRepository.findAll().toString();
+        System.out.println("[RabbitMQ] Sending users: " + users);
+        return users;
     }
 }

@@ -1,5 +1,6 @@
 package libraryapi.lendingservice.services;
 
+import libraryapi.lendingservice.model.Genre;
 import libraryapi.lendingservice.rabbitMQ.producer.Sender;
 import libraryapi.lendingservice.repositories.BookRepositoryHTTP;
 import libraryapi.lendingservice.repositories.LendingRepositoryHTTP;
@@ -79,7 +80,14 @@ public class LendingServiceImpl implements LendingService {
     }
 
     public double AveragePerGenreInMonth(LocalDate date) {
-        int numberOfGenres = bookRepositoryHTTP.getAllGenres().size();
+        //int numberOfGenres = bookRepositoryHTTP.getAllGenres().size();
+        List<Genre> genres =  new ArrayList<>();
+        try {
+            genres = sender.getGenres();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        int numberOfGenres = genres.size();
         List<Lending> lendings = lendingRepository.findAll();
         long count = lendings.stream()
                 .filter(l -> l.getLendDate().getMonth() == date.getMonth() &&
@@ -91,7 +99,13 @@ public class LendingServiceImpl implements LendingService {
 
 
     public Lending createLending(final CreateLendingRequest resource) {
-        List<Book> books = bookRepositoryHTTP.getAllBooks();
+        //List<Book> books = bookRepositoryHTTP.getAllBooks();
+        List<Book> books =  new ArrayList<>();
+        try {
+            books = sender.getBooks();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         System.out.println(books);
         Book book = new Book();
         for (Book b : books) {
@@ -103,7 +117,14 @@ public class LendingServiceImpl implements LendingService {
             throw new IllegalArgumentException("[ERROR] Book not found with ID: " + resource.getBookId());
         }
 
-        List<Reader> readers = readerRepositoryHTTP.getAllReaders();
+        //List<Reader> readers = readerRepositoryHTTP.getAllReaders();
+        List<Reader> readers =  new ArrayList<>();
+        try {
+            readers = sender.getReaders();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Reader reader = new Reader();
         for (Reader r : readers) {
             if (Objects.equals(r.getId(), resource.getReaderId())) {

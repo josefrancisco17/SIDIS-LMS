@@ -2,6 +2,7 @@ package libraryapi.readerservice.rabbitMQ.consumer;
 
 import libraryapi.readerservice.model.Reader;
 import libraryapi.readerservice.rabbitMQ.Mapper.RabbitMapper;
+import libraryapi.readerservice.repositories.ReaderRepository;
 import libraryapi.readerservice.services.ReaderServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.amqp.core.Message;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 public class Receiver {
@@ -18,6 +21,8 @@ public class Receiver {
 
     @Autowired
     private ReaderServiceImpl readerService;
+    @Autowired
+    private ReaderRepository readerRepository;
 
     @RabbitListener(queues = "#{ReaderSyncQueue.name}")
     public void receiveSyncReader(Message message) {
@@ -32,5 +37,15 @@ public class Receiver {
         System.out.println("[RabbitMQ]  Reader sync: " + messageBody);
         Reader newReader = RabbitMapper.StringToReader(messageBody);
         readerService.manageInternalReader(newReader);
+    }
+
+    @RabbitListener(queues = "#{ReaderQueryQueue.name}")
+    public String handleReadersRequest() {
+        List<Reader> readers = readerRepository.findAll();
+        String readersAsString = readers.stream()
+                .map(Reader::toString)
+                .collect(Collectors.joining(", "));
+        System.out.println("[RabbitMQ] Sending readers: " + readersAsString);
+        return readersAsString;
     }
 }

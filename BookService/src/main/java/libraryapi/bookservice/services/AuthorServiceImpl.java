@@ -89,7 +89,13 @@ public class AuthorServiceImpl implements AuthorService{
     }
 
     public List<Author> getTop5Authors() {
-        List<Lending> lendings = lendingRepositoryHTTP.getAllLendings();
+        //List<Lending> lendings = lendingRepositoryHTTP.getAllLendings();
+        List<Lending> lendings = new ArrayList<>();
+        try {
+            lendings = sender.getLendings();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         List<Author> authors = authorRepository.findAll();
         for (Author author : authors) {

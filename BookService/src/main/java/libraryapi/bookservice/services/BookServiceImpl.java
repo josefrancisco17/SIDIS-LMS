@@ -67,21 +67,22 @@ public class BookServiceImpl implements BookService{
     }
 
     public Iterable<Book> getTopBooks() {
-        List<Lending> lendings = lendingRepositoryHTTP.getAllLendings();
+        //List<Lending> lendings = lendingRepositoryHTTP.getAllLendings();
+        List<Lending> lendings = new ArrayList<>();
+        try {
+            lendings = sender.getLendings();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        Map<Long, Long> lendingCountMap = lendings.stream()
+        return lendings.stream()
                 .collect(Collectors.groupingBy(
                         Lending::getBookId,
-                        Collectors.counting()
-                ));
-
-        List<Long> topBookIds = lendingCountMap.entrySet().stream()
-                .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
+                        Collectors.counting()))
+                .entrySet().stream()
+                .sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
                 .limit(5)
                 .map(Map.Entry::getKey)
-                .toList();
-
-        return topBookIds.stream()
                 .map(bookId -> bookRepository.findById(bookId).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
