@@ -4,6 +4,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import libraryapi.bookservice.model.Author;
 import libraryapi.bookservice.model.Book;
 import libraryapi.bookservice.model.Lending;
+import libraryapi.bookservice.rabbitMQ.Mapper.RabbitMapper;
 import libraryapi.bookservice.rabbitMQ.RabbitMQConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +74,7 @@ public class Sender {
 
             if (response != null) {
                 System.out.println("[RabbitMQ] Lendings: " + response);
+                lendings = RabbitMapper.StringToLendingList(response);
             }
         } catch (Exception e) {
             e.printStackTrace();

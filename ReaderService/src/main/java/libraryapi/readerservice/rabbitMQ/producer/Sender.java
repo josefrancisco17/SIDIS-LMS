@@ -3,6 +3,7 @@ package libraryapi.readerservice.rabbitMQ.producer;
 import io.github.cdimascio.dotenv.Dotenv;
 import libraryapi.readerservice.model.Book;
 import libraryapi.readerservice.model.Lending;
+import libraryapi.readerservice.rabbitMQ.Mapper.RabbitMapper;
 import libraryapi.readerservice.rabbitMQ.RabbitMQConfig;
 import libraryapi.readerservice.model.Reader;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -52,7 +53,7 @@ public class Sender {
         List<Lending> lendings = new ArrayList<>();
 
         int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
-        int targetPort = (currentPort == ReaderServicePort1) ? LendingServicePort1 : LendingServicePort2;
+        int targetPort = (currentPort == BookServicePort1) ? LendingServicePort1 : LendingServicePort2;
 
         try {
             String response = (String) rabbitTemplate.convertSendAndReceive(
@@ -63,6 +64,7 @@ public class Sender {
 
             if (response != null) {
                 System.out.println("[RabbitMQ] Lendings: " + response);
+                lendings = RabbitMapper.StringToLendingList(response);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,6 +88,7 @@ public class Sender {
 
             if (response != null) {
                 System.out.println("[RabbitMQ] Books: " + response);
+                books = RabbitMapper.stringToBookList(response);
             }
         } catch (Exception e) {
             e.printStackTrace();

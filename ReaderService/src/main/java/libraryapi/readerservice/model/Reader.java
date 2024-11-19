@@ -44,10 +44,11 @@ public class Reader {
     @Column(nullable = false)
     private Boolean GDBRConsent;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "reader_interests", joinColumns = @JoinColumn(name = "reader_id"))
     @Column(name = "interest", nullable = true)
     private List<String> interests;
+
 
     @OneToOne(cascade = CascadeType.ALL)
     private ReaderPhoto readerPhoto;

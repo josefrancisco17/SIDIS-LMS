@@ -5,6 +5,7 @@ import libraryapi.lendingservice.model.Book;
 import libraryapi.lendingservice.model.Genre;
 import libraryapi.lendingservice.model.Lending;
 import libraryapi.lendingservice.model.Reader;
+import libraryapi.lendingservice.rabbitMQ.Mapper.RabbitMapper;
 import libraryapi.lendingservice.rabbitMQ.RabbitMQConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,7 @@ public class Sender {
 
             if (response != null) {
                 System.out.println("[RabbitMQ] Readers: " + response);
+                readers = RabbitMapper.StringToReaderList(response);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -75,7 +77,7 @@ public class Sender {
         List<Book> books = new ArrayList<>();
 
         int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
-        int targetPort = (currentPort == LendingServicePort1) ? BookServicePort1 : BookServicePort2;
+        int targetPort = (currentPort == ReaderServicePort1) ? BookServicePort1 : BookServicePort2;
 
         try {
             String response = (String) rabbitTemplate.convertSendAndReceive(
@@ -86,6 +88,7 @@ public class Sender {
 
             if (response != null) {
                 System.out.println("[RabbitMQ] Books: " + response);
+                books = RabbitMapper.StringToBookList(response);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -102,13 +105,14 @@ public class Sender {
 
         try {
             String response = (String) rabbitTemplate.convertSendAndReceive(
-                    "book.query.exchange",
-                    "book.query" + targetPort,
+                    "genre.query.exchange",
+                    "genre.query" + targetPort,
                     ""
             );
 
             if (response != null) {
                 System.out.println("[RabbitMQ] Genres: " + response);
+                genres = RabbitMapper.stringToGenreList(response);
             }
         } catch (Exception e) {
             e.printStackTrace();

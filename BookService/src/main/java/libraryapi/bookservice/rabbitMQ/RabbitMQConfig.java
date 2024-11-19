@@ -24,6 +24,9 @@ public class RabbitMQConfig {
     public static final String AUTHOR_QUERY_EXCHANGE = "author.query.exchange";
     public static final String AUTHOR_ROUTING_KEY_QUERY = "author.query";
 
+    public static final String GENRE_QUERY_EXCHANGE = "genre.query.exchange";
+    public static final String GENRE_ROUTING_KEY_QUERY = "genre.query";
+
 
     // Book Configuration
     @Bean
@@ -95,5 +98,24 @@ public class RabbitMQConfig {
     public Binding AuthorQueryBinding(Queue AuthorQueryQueue, DirectExchange AuthorQueryExchange) {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
         return BindingBuilder.bind(AuthorQueryQueue).to(AuthorQueryExchange).with(AUTHOR_ROUTING_KEY_QUERY + currentPort);
+    }
+
+    // Data Author query from other instances
+
+    @Bean
+    public DirectExchange GenreQueryExchange() {
+        return new DirectExchange(GENRE_QUERY_EXCHANGE);
+    }
+
+    @Bean
+    public Queue GenreQueryQueue() {
+        String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
+        return new Queue("genre.query.queue." + currentPort, true);
+    }
+
+    @Bean
+    public Binding GenreQueryBinding(Queue GenreQueryQueue, DirectExchange GenreQueryExchange) {
+        String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
+        return BindingBuilder.bind(GenreQueryQueue).to(GenreQueryExchange).with(GENRE_ROUTING_KEY_QUERY + currentPort);
     }
 }

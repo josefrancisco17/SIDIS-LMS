@@ -112,8 +112,6 @@ public class ReaderServiceImpl implements ReaderService {
 
             try {
                 Jwt jwt = jwtDecoder.decode(token);
-                System.out.println("JWT Decoded: " + jwt.getClaims());
-
                 String subClaim = (String) jwt.getClaims().get("sub");
                 String email = null;
 
