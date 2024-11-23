@@ -19,6 +19,7 @@ import java.util.Objects;
 
 @Repository
 public class LendingRepositoryHTTP {
+    /*
     @Autowired
     private Environment env;
 
@@ -95,4 +96,6 @@ public class LendingRepositoryHTTP {
             throw new RuntimeException(ex);
         }
     }
+
+     */
 }

@@ -21,6 +21,7 @@ import java.util.Optional;
 
 @Repository
 public class UserRepositoryHTTP {
+    /*
     @Autowired
     private Environment env;
 
@@ -71,4 +72,5 @@ public class UserRepositoryHTTP {
         }
         return user;
     }
+     */
 }

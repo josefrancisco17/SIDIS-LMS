@@ -21,6 +21,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class ReaderRepositoryHTTP {
+    /*
     @Autowired
     private Environment env;
 
@@ -63,4 +64,6 @@ public class ReaderRepositoryHTTP {
             throw new RuntimeException(ex);
         }
     }
+
+     */
 }

@@ -19,6 +19,7 @@ import java.util.Objects;
 
 @Repository
 public class UserRepositoryHTTP {
+    /*
     @Autowired
     private Environment env;
 
@@ -61,4 +62,6 @@ public class UserRepositoryHTTP {
             throw new RuntimeException(ex);
         }
     }
+
+     */
 }

@@ -2,6 +2,11 @@ package libraryapi.readerservicecommand.services;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+import libraryapi.readerservicecommand.model.Book;
+import libraryapi.readerservicecommand.model.Lending;
+import libraryapi.readerservicecommand.model.Reader;
+import libraryapi.readerservicecommand.model.ReaderPhoto;
+import libraryapi.readerservicecommand.repositories.*;
 import libraryapi.readerservicecommand.model.*;
 import libraryapi.readerservicecommand.repositories.*;
 import libraryapi.readerservicecommand.rabbitMQ.producer.Sender;

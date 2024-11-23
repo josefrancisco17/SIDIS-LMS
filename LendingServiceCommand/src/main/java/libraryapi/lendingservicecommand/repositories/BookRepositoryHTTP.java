@@ -23,6 +23,7 @@ import java.util.Objects;
 
 @Repository
 public class BookRepositoryHTTP {
+    /*
     @Autowired
     private Environment env;
 
@@ -110,4 +111,6 @@ public class BookRepositoryHTTP {
         }
         return genres;
     }
+
+     */
 }

@@ -23,12 +23,12 @@ public class Sender {
     private final RabbitTemplate rabbitTemplate;
 
     private final Dotenv dotenv = Dotenv.load();
-    private final int ReaderServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("READER_PORT1")));
-    private final int ReaderServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("READER_PORT2")));
-    private final int LendingServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT1")));
-    private final int LendingServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("LENDING_PORT2")));
-    private final int BookServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_PORT1")));
-    private final int BookServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_PORT2")));
+    private final int ReaderServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_COMMAND_PORT1")));
+    private final int ReaderServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_COMMAND_PORT1")));
+    private final int LendingServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_COMMAND_PORT1")));
+    private final int LendingServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_COMMAND_PORT1")));
+    private final int BookServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_COMMAND_PORT1")));
+    private final int BookServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_COMMAND_PORT1")));
 
 
     @Autowired

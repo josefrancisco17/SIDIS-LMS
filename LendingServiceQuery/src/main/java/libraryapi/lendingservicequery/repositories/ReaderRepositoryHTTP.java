@@ -22,6 +22,7 @@ import java.util.Objects;
 
 @Repository
 public class ReaderRepositoryHTTP {
+    /*
     @Autowired
     private Environment env;
 
@@ -70,4 +71,6 @@ public class ReaderRepositoryHTTP {
         }
         return readers;
     }
+
+     */
 }

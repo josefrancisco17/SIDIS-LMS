@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @Repository
 public class BookRepositoryHTTP {
+    /*
     @Autowired
     private Environment env;
 
@@ -62,5 +63,7 @@ public class BookRepositoryHTTP {
             throw new RuntimeException(ex);
         }
     }
+
+     */
 }
 

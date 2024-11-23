@@ -21,6 +21,7 @@ import java.util.Objects;
 
 @Repository
 public class LendingRepositoryHTTP {
+    /*
     @Autowired
     private Environment env;
 
@@ -70,4 +71,6 @@ public class LendingRepositoryHTTP {
         }
         return lendings;
     }
+
+     */
 }

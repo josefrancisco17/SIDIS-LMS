@@ -1,6 +1,9 @@
 package libraryapi.readerservicecommand.services;
 
 import jakarta.servlet.http.HttpServletRequest;
+import libraryapi.readerservicecommand.model.Book;
+import libraryapi.readerservicecommand.model.Reader;
+import libraryapi.readerservicecommand.model.ReaderPhoto;
 import libraryapi.readerservicecommand.model.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
