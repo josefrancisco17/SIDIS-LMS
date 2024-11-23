@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/AuthService/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/BookService/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/LendingService/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/ReaderService/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/AuthServiceCommand/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/AuthServiceQuery/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/BookServiceCommand/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/BookServiceQuery/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/LendingServiceCommand/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/LendingServiceQuery/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ReaderServiceCommand/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ReaderServiceQuery/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>
