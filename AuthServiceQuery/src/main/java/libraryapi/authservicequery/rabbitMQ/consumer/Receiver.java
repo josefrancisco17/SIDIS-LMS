@@ -37,11 +37,4 @@ public class Receiver {
         User newUser = RabbitMapper.StringToUser(messageBody);
         userService.manageInternalUser(newUser);
     }
-
-    @RabbitListener(queues = "#{AuthQueryQueue.name}")
-    public String handleUsersRequest() {
-        String users = userRepository.findAll().toString();
-        System.out.println("[RabbitMQ] Sending users: " + users);
-        return users;
-    }
 }

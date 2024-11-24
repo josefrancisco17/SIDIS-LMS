@@ -53,68 +53,14 @@ public class UserService implements UserDetailsService {
 		return userRepo.save(user);
 	}
 
-	@Transactional
-	public User update(final Long id, final EditUserRequest request) {
-		final User user = userRepo.getById(id);
-		userEditMapper.update(request, user);
-		//userRepositoryHTTP.manageInternalUser(user);
-		try {
-			sender.sendSyncUser(user);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return userRepo.save(user);
-	}
-
-	@Transactional
-	public User upsert(final CreateUserRequest request) {
-		final Optional<User> optionalUser = userRepo.findByUsername(request.getUsername());
-
-		if (optionalUser.isEmpty()) {
-			return create(request);
-		}
-		final EditUserRequest updateUserRequest = new EditUserRequest(request.getFullName(), request.getAuthorities());
-		return update(optionalUser.get().getId(), updateUserRequest);
-	}
-
-	@Transactional
-	public User delete(final Long id) {
-		final User user = userRepo.getById(id);
-
-		// user.setUsername(user.getUsername().replace("@", String.format("_%s@",
-		// user.getId().toString())));
-		user.setEnabled(false);
-		//userRepositoryHTTP.manageInternalUser(user);
-		try {
-			sender.sendSyncUser(user);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return userRepo.save(user);
-	}
-
 	@Override
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
 		return userRepo.findByUsername(username).orElseThrow(
 				() -> new UsernameNotFoundException(String.format("User with username - %s, not found", username)));
 	}
 
-	public boolean usernameExists(final String username) {
-		return userRepo.findByUsername(username).isPresent();
-	}
-
 	public User getUser(final Long id) {
 		return userRepo.getById(id);
-	}
-
-	public List<User> searchUsers(Page page, SearchUsersQuery query) {
-		if (page == null) {
-			page = new Page(1, 10);
-		}
-		if (query == null) {
-			query = new SearchUsersQuery("", "");
-		}
-		return userRepo.searchUsers(page, query);
 	}
 
 	public Optional<User> getUserByUsername(String username) {

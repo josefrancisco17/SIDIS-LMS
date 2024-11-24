@@ -43,38 +43,6 @@ public class AuthApi {
 
 	private final UserService userService;
 
-	@PostMapping("login")
-	public ResponseEntity<UserView> login(@RequestBody @Valid final AuthRequest request) {
-		try {
-			final Authentication authentication = authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-
-			final User user = (User) authentication.getPrincipal();
-
-			final Instant now = Instant.now();
-			//final long expiry = 36000L; // 1 hour is usually too long for a token to be valid. adjust for production
-			//final long expiry = 2592000L; // 1 month
-
-			final String scope = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-					.collect(joining(" "));
-
-			final JwtClaimsSet claims = JwtClaimsSet.builder().issuer("example.io").issuedAt(now)
-					.subject(format("%s,%s", user.getId(), user.getUsername()))
-					.claim("roles", scope).build();
-			final String token = this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-
-			return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, token).body(userViewMapper.toUserView(user));
-		} catch (final BadCredentialsException ex) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		}
-	}
-
-	@PostMapping("register")
-	public UserView register(@RequestBody @Valid final CreateUserRequest request) {
-		final var user = userService.create(request);
-		return userViewMapper.toUserView(user);
-	}
-
 	@Operation(summary = "Get user data given its bearer token")
 	@GetMapping("/internal/{username}")
 	public Optional<User> getUserByUsername(@PathVariable("username") String username) {
@@ -83,18 +51,5 @@ public class AuthApi {
 			throw new NotFoundException(User.class, username);
 		}
 		return user;
-	}
-
-	@Operation(summary = "Handles Creation, Update and Patch of Users in another instances")
-	@PutMapping("/internal")
-	@ResponseStatus(HttpStatus.CREATED)
-	public ResponseEntity<UserView> manageInternalReader(@Valid @RequestBody User user) {
-		User newUser = userService.manageInternalUser(user);
-
-		final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(newUser.getId().toString())
-				.build().toUri();
-
-		return ResponseEntity.created(newbarUri).eTag(Long.toString(newUser.getVersion()))
-				.body(userViewMapper.toUserView(newUser));
 	}
 }

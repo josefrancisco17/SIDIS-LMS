@@ -99,14 +99,6 @@ public class UserService implements UserDetailsService {
 				() -> new UsernameNotFoundException(String.format("User with username - %s, not found", username)));
 	}
 
-	public boolean usernameExists(final String username) {
-		return userRepo.findByUsername(username).isPresent();
-	}
-
-	public User getUser(final Long id) {
-		return userRepo.getById(id);
-	}
-
 	public List<User> searchUsers(Page page, SearchUsersQuery query) {
 		if (page == null) {
 			page = new Page(1, 10);
@@ -115,10 +107,6 @@ public class UserService implements UserDetailsService {
 			query = new SearchUsersQuery("", "");
 		}
 		return userRepo.searchUsers(page, query);
-	}
-
-	public Optional<User> getUserByUsername(String username) {
-		return userRepo.findByUsername(username);
 	}
 
 	public User manageInternalUser(User user) {

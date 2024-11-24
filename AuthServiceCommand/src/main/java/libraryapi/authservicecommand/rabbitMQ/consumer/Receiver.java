@@ -20,9 +20,6 @@ public class Receiver {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private UserRepository userRepository;
-
     @RabbitListener(queues = "#{AuthSyncQueue.name}")
     public void receiveSyncAuth(Message message) {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
@@ -36,12 +33,5 @@ public class Receiver {
         System.out.println("[RabbitMQ]  Auth sync: " + messageBody);
         User newUser = RabbitMapper.StringToUser(messageBody);
         userService.manageInternalUser(newUser);
-    }
-
-    @RabbitListener(queues = "#{AuthQueryQueue.name}")
-    public String handleUsersRequest() {
-        String users = userRepository.findAll().toString();
-        System.out.println("[RabbitMQ] Sending users: " + users);
-        return users;
     }
 }

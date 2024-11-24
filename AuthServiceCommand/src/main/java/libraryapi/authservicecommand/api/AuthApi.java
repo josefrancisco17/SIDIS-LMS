@@ -75,15 +75,6 @@ public class AuthApi {
 		return userViewMapper.toUserView(user);
 	}
 
-	@Operation(summary = "Get user data given its bearer token")
-	@GetMapping("/internal/{username}")
-	public Optional<User> getUserByUsername(@PathVariable("username") String username) {
-		Optional<User> user = userService.getUserByUsername(username);
-		if (user.isEmpty()) {
-			throw new NotFoundException(User.class, username);
-		}
-		return user;
-	}
 
 	@Operation(summary = "Handles Creation, Update and Patch of Users in another instances")
 	@PutMapping("/internal")

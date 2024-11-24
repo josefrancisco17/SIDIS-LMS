@@ -40,12 +40,6 @@ public class UserAdminApi {
 		return userViewMapper.toUserView(user);
 	}
 
-	@GetMapping("{id}")
-	public UserView get(@PathVariable final Long id) {
-		final var user = userService.getUser(id);
-		return userViewMapper.toUserView(user);
-	}
-
 	@PostMapping("search")
 	public ListResponse<UserView> search(@RequestBody final SearchRequest<SearchUsersQuery> request) {
 		final List<User> searchUsers = userService.searchUsers(request.getPage(), request.getQuery());
