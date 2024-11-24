@@ -40,13 +40,15 @@ public class ReaderServiceImpl implements ReaderService {
     private final ReaderRepositoryHTTP readerRepositoryHTTP;
     private final LendingRepositoryHTTP lendingRepositoryHTTP;
     private final BookRepositoryHTTP bookRepositoryHTTP;
+    private final LendingRepository lendingRepository;
+    private final BookRepository bookRepository;
 
     @Value("${jwt.public.key}")
     private RSAPublicKey rsaPublicKey;
 
 
     @Autowired
-    public ReaderServiceImpl(ReaderRepository readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService, ReaderRepositoryHTTP readerRepositoryHTTP, LendingRepositoryHTTP lendingRepositoryHTTP, BookRepositoryHTTP bookRepositoryHTTP) {
+    public ReaderServiceImpl(ReaderRepository readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService, ReaderRepositoryHTTP readerRepositoryHTTP, LendingRepositoryHTTP lendingRepositoryHTTP, BookRepositoryHTTP bookRepositoryHTTP, LendingRepository lendingRepository, BookRepository bookRepository) {
         this.readerRepository = readerRepository;
         this.editReaderMapper = editReaderMapper;
         this.fileStorageService = fileStorageService;
@@ -54,6 +56,8 @@ public class ReaderServiceImpl implements ReaderService {
         this.readerRepositoryHTTP = readerRepositoryHTTP;
         this.lendingRepositoryHTTP = lendingRepositoryHTTP;
         this.bookRepositoryHTTP = bookRepositoryHTTP;
+        this.lendingRepository = lendingRepository;
+        this.bookRepository = bookRepository;
     }
 
     public Page<Reader> getReadersByName(final String name, Pageable pageable) {
@@ -76,13 +80,7 @@ public class ReaderServiceImpl implements ReaderService {
     }
 
     public Iterable<Reader> getTopReaders() {
-        //List<Lending> lendings = lendingRepositoryHTTP.getAllLendings();
-        List<Lending> lendings =  new ArrayList<>();
-        try {
-            //lendings = sender.getLendings();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        List<Lending> lendings =  lendingRepository.findAll();
         Map<Long, Long> lendingCountMap = lendings.stream()
                 .collect(Collectors.groupingBy(
                         Lending::getReaderId,
@@ -158,12 +156,7 @@ public class ReaderServiceImpl implements ReaderService {
             throw new IllegalArgumentException("[ERROR] Reader does not have any interests specified.");
         }
 
-        List<Book> books =  new ArrayList<>();
-        try {
-            //books = sender.getBooks();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        List<Book> books =  bookRepository.findAll();
 
         List<Book> suggestedBooks = books.stream().filter(book -> interests.contains(book.getGenre().getName())).toList();
         return BookUtil.toPage(suggestedBooks, pageable);

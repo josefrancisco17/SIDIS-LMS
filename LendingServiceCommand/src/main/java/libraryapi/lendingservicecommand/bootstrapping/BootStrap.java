@@ -1,10 +1,7 @@
 package libraryapi.lendingservicecommand.bootstrapping;
 
-import libraryapi.lendingservicecommand.model.Lending;
-import libraryapi.lendingservicecommand.repositories.GenreRepository;
-import libraryapi.lendingservicecommand.repositories.LendingRepository;
-import libraryapi.lendingservicecommand.model.Book;
-import libraryapi.lendingservicecommand.model.Genre;
+import libraryapi.lendingservicecommand.model.*;
+import libraryapi.lendingservicecommand.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -14,6 +11,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -22,6 +20,9 @@ import java.util.Map;
 public class BootStrap implements CommandLineRunner {
     private final LendingRepository lendingRepository;
     private final GenreRepository genreRepository;
+    private final BookRepository bookRepository;
+    private final ReaderRepository readerRepository;
+    private final AuthorRepository authorRepository;
 
     public static final Map<Month, String> funnyQuotes = new HashMap<>();
 
@@ -59,8 +60,51 @@ public class BootStrap implements CommandLineRunner {
                 genre1, genre2, genre3, genre4, genre5, genre6, genre7, genre8, genre9, genre10
         ));
 
+        // Reader Mock Data
+        Reader reader1 = new Reader("2024/1", "Ricardo Costa", "ricardocosta@gmail.com", LocalDate.of(1998, 2, 27), 910787100, true, Arrays.asList("Science Fiction", "Fantasy"));
+        Reader reader2 = new Reader("2024/2", "Joao Fonsenca", "joao1236@isep.ipp.pt", LocalDate.of(2000, 9, 20), 987654321, true, Arrays.asList("Mystery", "Thriller"));
+        Reader reader3 = new Reader("2024/3", "Victor Barbosa", "victorbarbosa@gmail.com", LocalDate.of(2005, 1, 11), 933342550, true, null);
+        Reader reader4 = new Reader("2024/4", "Guilherme Gouveia", "guilhermeGouveia@outlook.com", LocalDate.of(1969, 3, 12), 917584125, true, Arrays.asList("Romance", "Non-Fiction"));
+        Reader reader5 = new Reader("2024/5", "Tiago Martins", "tiagomartins@gmail.com", LocalDate.of(1978, 3, 15), 916625978, true, Arrays.asList("Biography", "History"));
+        Reader reader6 = new Reader("2024/6", "Ana Silva", "ana.silva@gmail.com", LocalDate.of(1985, 5, 25), 912345678, true, Arrays.asList("Children's", "Self-Improvement"));
+        Reader reader7 = new Reader("2024/7", "Carlos Santos", "carlos.santos@hotmail.com", LocalDate.of(1992, 8, 10), 913456789, true, null);
+        Reader reader8 = new Reader("2024/8", "Mariana Pereira", "mariana.pereira@yahoo.com", LocalDate.of(1980, 11, 22), 914567890, true, Arrays.asList("Science Fiction", "Mystery"));
+        Reader reader9 = new Reader("2024/9", "José Ferreira", "jose.ferreira@gmail.com", LocalDate.of(1975, 6, 30), 915678901, true, null);
+        Reader reader10 = new Reader("2024/10", "Sara Gomes", "sara.gomes@outlook.com", LocalDate.of(1999, 7, 18), 916789012, true, Arrays.asList("Fantasy", "Romance"));
+        Reader reader11 = new Reader("2024/11", "Miguel Rocha", "miguel.rocha@gmail.com", LocalDate.of(2002, 2, 2), 917890123, true, null);
+        Reader reader12 = new Reader("2024/12", "Luisa Marques", "luisa.marques@isep.ipp.pt", LocalDate.of(1994, 12, 15), 918901234, true, Arrays.asList("Non-Fiction", "Thriller"));
+        Reader reader13 = new Reader("2024/13", "Rui Almeida", "rui.almeida@gmail.com", LocalDate.of(1988, 4, 27), 919012345, true, null);
+        Reader reader14 = new Reader("2024/14", "Beatriz Sousa", "beatriz.sousa@hotmail.com", LocalDate.of(1970, 9, 9), 910123456, true, Arrays.asList("Biography", "Self-Improvement"));
+        Reader reader15 = new Reader("2024/15", "Pedro Mendes", "pedro.mendes@yahoo.com", LocalDate.of(1991, 1, 19), 911234567, true, Arrays.asList("Children's", "Science Fiction"));
+        Reader reader16 = new Reader("2024/16", "Clara Oliveira", "clara.oliveira@gmail.com", LocalDate.of(1983, 8, 5), 912345678, true, null);
+        Reader reader17 = new Reader("2024/17", "André Ribeiro", "andre.ribeiro@outlook.com", LocalDate.of(1995, 3, 14), 913456789, true, Arrays.asList("Mystery", "Fantasy"));
+        Reader reader18 = new Reader("2024/18", "Teresa Lopes", "teresa.lopes@gmail.com", LocalDate.of(2001, 7, 29), 914567890, true, Arrays.asList("Romance", "Non-Fiction"));
+        Reader reader19 = new Reader("2024/19", "Hugo Cunha", "hugo.cunha@gmail.com", LocalDate.of(1972, 10, 21), 915678901, true, Arrays.asList("Thriller", "Biography"));
+        Reader reader20 = new Reader("2024/20", "Marta Faria", "marta.faria@yahoo.com", LocalDate.of(1986, 12, 3), 916789012, true, Arrays.asList("History", "Self-Improvement"));
+
+        readerRepository.saveAll(Arrays.asList(
+                reader1, reader2, reader3, reader4, reader5, reader6, reader7, reader8, reader9, reader10,
+                reader11, reader12, reader13, reader14, reader15, reader16, reader17, reader18, reader19, reader20
+        ));
+
+        //Authors Mock Data
+        Author author1 = new Author("Stephen R. Covey", "An American educator, author, businessman, and keynote speaker.");
+        Author author2 = new Author("James Clear", "An author and speaker focused on habits, decision-making, and continuous improvement.");
+        Author author3 = new Author("Dale Carnegie", "An American writer and lecturer known for self-improvement courses.");
+        Author author4 = new Author("Frank Herbert", "An American science fiction writer best known for the novel Dune.");
+        Author author5 = new Author("Eckhart Tolle", "A spiritual teacher and author best known for his books The Power of Now and A New Earth.");
+        Author author6 = new Author("Robert T. Kiyosaki", "An American businessman and author of Rich Dad Poor Dad.");
+        Author author7 = new Author("J.D. Salinger", "An American writer known for his novel The Catcher in the Rye.");
+        Author author8 = new Author("William Gibson", "An American-Canadian speculative fiction writer and essayist widely credited with pioneering the cyberpunk genre.");
+        Author author9 = new Author("F. Scott Fitzgerald", "An American novelist and short story writer, widely regarded as one of the greatest writers of the 20th century.");
+        Author author10 = new Author("J.K. Rowling", "A British author, best known for writing the Harry Potter fantasy series.");
+
+        authorRepository.saveAll(Arrays.asList(
+                author1, author2, author3, author4, author5, author6, author7, author8, author9, author10
+        ));
+
         //Books Mock Data
-        Book book1 = new Book("9781982137274", "The 7 Habits of Highly Effective People", genre1, null, "Powerful lessons in personal change.");
+        Book book1 = new Book("9781982137274", "The 7 Habits of Highly Effective People", genre1,null, "Powerful lessons in personal change.");
         Book book2 = new Book("9780735211292", "Atomic Habits", genre1, null, "Tiny Changes, Remarkable Results");
         Book book3 = new Book("9780671027032", "How to Win Friends and Influence People", genre1, null, "Timeless advice on building successful relationships.");
         Book book4 = new Book("9780345472328", "Mindset: The New Psychology of Success", genre2, null, "Discover the power of our mindset.");
@@ -68,7 +112,7 @@ public class BootStrap implements CommandLineRunner {
         Book book6 = new Book("9781612681139", "Rich Dad Poor Dad", genre1, null, "What the Rich Teach Their Kids About Money That the Poor and Middle Class Do Not!");
         Book book7 = new Book("9780743273565", "The Great Gatsby", genre5, null, "A novel of the Jazz Age.");
         Book book8 = new Book("9780441172719", "Dune", genre4, null, "Science fiction novel about the son of a noble family.");
-        Book book9 = new Book("9780316769488", "The Catcher in the Rye", genre6, null, "A story about teenage rebellion.");
+        Book book9 = new Book("9780316769488", "The Catcher in the Rye", genre6,null, "A story about teenage rebellion.");
         Book book10 = new Book("9780451524935", "1984", genre7, null, "A dystopian social science fiction novel.");
         Book book11 = new Book("9781400032716", "The Road", genre8, null, "A post-apocalyptic novel.");
         Book book12 = new Book("9780618640157", "The Hobbit", genre9, null, "A fantasy novel and children's book.");
@@ -81,6 +125,31 @@ public class BootStrap implements CommandLineRunner {
         Book book19 = new Book("9780316015844", "Twilight", genre10, null, "A young adult vampire-romance novel.");
         Book book20 = new Book("9780140283334", "Siddhartha", genre3, null, "A novel about the spiritual journey of self-discovery.");
 
+        book1.setAuthors(Arrays.asList(author3, author4));
+        book2.setAuthors(List.of(author3));
+        book3.setAuthors(List.of(author2));
+        book4.setAuthors(List.of(author3));
+        book5.setAuthors(List.of(author4));
+        book6.setAuthors(List.of(author10));
+        book7.setAuthors(List.of(author10));
+        book8.setAuthors(Arrays.asList(author1, author2));
+        book9.setAuthors(List.of(author7));
+        book10.setAuthors(List.of(author8));
+        book11.setAuthors(List.of(author6));
+        book12.setAuthors(Arrays.asList(author1, author2));
+        book13.setAuthors(List.of(author9));
+        book14.setAuthors(List.of(author1));
+        book15.setAuthors(List.of(author5));
+        book16.setAuthors(Arrays.asList(author1, author2));
+        book17.setAuthors(Arrays.asList(author3, author2));
+        book18.setAuthors(Arrays.asList(author1, author2));
+        book19.setAuthors(Arrays.asList(author5, author9));
+        book20.setAuthors(Arrays.asList(author5, author10));
+
+        bookRepository.saveAll(Arrays.asList(
+                book1, book2, book3, book4, book5, book6, book7, book8, book9, book10,
+                book11, book12, book13, book14, book15, book16, book17, book18, book19, book20
+        ));
         //Lending Mock data
         Lending lending1 = new Lending("2024/1", 1L, 1L, book1.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 10), true, 0.0f, "");
         Lending lending2 = new Lending("2024/2", 2L, 2L, book2.getTitle(), LocalDate.of(2024, 5, 3), LocalDate.of(2024, 5, 18), LocalDate.of(2024, 5, 7), true, 0.0f, "");
