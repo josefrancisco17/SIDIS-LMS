@@ -117,99 +117,9 @@ public class AuthorServiceImpl implements AuthorService{
         return authors.subList(0, Math.min(5, authors.size()));
     }
 
-
-
-    public Author createAuthor(final EditAuthorRequest resource, MultipartFile authorPhoto) {
-        validateCreateAuthorRequest(resource);
-
-        Author author = editAuthorMapper.create(resource);
-
-        authorRepository.save(author);
-
-        if (authorPhoto != null) {
-            doUploadFile(author.getId().toString(), authorPhoto);
-        }
-
-        //Gets new author after with or without the photo for being sent to another instances
-        Author newAuthor = authorRepository.getById(author.getId());
-        //authorRepositoryHTTP.manageInternalAuthor(newAuthor);
-        try {
-            sender.sendSyncAuthor(newAuthor);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return authorRepository.save(author);
-    }
-
     @Transactional
     public Author manageInternalAuthor(Author newAuthor) {
         return authorRepository.save(newAuthor);
-    }
-
-
-    @Transactional
-    public Author updateAuthor(final Long id, final EditAuthorRequest resource, final long desiredVersion) {
-        final var author = authorRepository.findById(id).orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
-        validateCreateAuthorRequest(resource);
-        author.updateData(desiredVersion, resource.getName(), resource.getShortBio());
-        //Gets new author after with or without the photo for being sent to another instances
-        Author newAuthor = authorRepository.getById(author.getId());
-        //authorRepositoryHTTP.manageInternalAuthor(newAuthor);
-        try {
-            sender.sendSyncAuthor(newAuthor);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return authorRepository.save(author);
-    }
-
-    public Author partialUpdateAuthor(final Long id, final EditAuthorRequest resource, final long desiredVersion) {
-        final var author = authorRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
-
-        author.applyPatch(desiredVersion, resource.getName(), resource.getShortBio());
-        //Gets new author after with or without the photo for being sent to another instances
-        Author newAuthor = authorRepository.getById(author.getId());
-        //authorRepositoryHTTP.manageInternalAuthor(newAuthor);
-        try {
-            sender.sendSyncAuthor(newAuthor);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return authorRepository.save(author);
-    }
-
-    public UploadFileResponse doUploadFile(final String id, final MultipartFile file) {
-        if (isValidAuthorPhoto(file)) {
-            AuthorPhoto authorPhoto = new AuthorPhoto();
-            try {
-                authorPhoto.setImage(file.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-            authorPhoto.setContentType(file.getContentType());
-            authorPhotoRepository.save(authorPhoto);
-            Author author = authorRepository.getById(Long.parseLong(id));
-            author.setAuthorPhoto(authorPhoto);
-            authorRepository.save(author);
-        }
-
-        final String fileName = fileStorageService.storeFile(id, file);
-
-        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(fileName)
-                .toUriString();
-
-        fileDownloadUri = fileDownloadUri.replace("/photos/", "/photo/");
-
-        return new UploadFileResponse(fileName, fileDownloadUri, file.getContentType(), file.getSize());
-    }
-
-    public void validateCreateAuthorRequest(final EditAuthorRequest request) {
-        if (StringUtils.isBlank(request.getName()) || StringUtils.isBlank(request.getShortBio())) {
-            throw new IllegalArgumentException("[ERROR] Name and shortBio are mandatory.");
-        }
     }
 
     public List<Book> getCoAuthorsBooks(Long authorId) {

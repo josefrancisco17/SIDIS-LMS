@@ -133,63 +133,6 @@ public class AuthorController {
                 .body(resource);
     }
 
-    @Operation(summary = "Creates a new Author")
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public ResponseEntity<AuthorView> createAuthor(@Valid @RequestPart("author") final EditAuthorRequest resource,
-                                                   @RequestPart(value = "authorPhoto", required = false) MultipartFile authorPhoto) {
-
-        final var author = authorService.createAuthor(resource, authorPhoto);
-
-        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(author.getId().toString())
-                .build().toUri();
-
-        return ResponseEntity.created(newbarUri).eTag(Long.toString(author.getVersion()))
-                .body(authorViewMapper.toAuthorView(author));
-    }
-
-    @Operation(summary = "Handles Creation, Update and Patch of Author in another instances")
-    @PutMapping("/internal")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<AuthorView> manageInternalReader(@Valid @RequestBody Author author) {
-        Author newAuthor = authorService.manageInternalAuthor(author);
-
-        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(newAuthor.getId().toString())
-                .build().toUri();
-
-        return ResponseEntity.created(newbarUri).eTag(Long.toString(newAuthor.getVersion()))
-                .body(authorViewMapper.toAuthorView(newAuthor));
-    }
-
-    @Operation(summary = "Fully replaces an existing author")
-    @PutMapping(path = "{authorId}")
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public ResponseEntity<AuthorView> updateAuthor(final WebRequest request,
-                                                   @PathVariable("authorId") Long id,
-                                                   @Valid @RequestBody final EditAuthorRequest resource) {
-        final String ifMatchValue = request.getHeader(IF_MATCH);
-        if (ifMatchValue == null || ifMatchValue.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-        Author author = authorService.updateAuthor(id, resource, getVersionFromIfMatchHeader(ifMatchValue));
-        return ResponseEntity.ok().eTag(Long.toString(author.getVersion())).body(authorViewMapper.toAuthorView(author));
-    }
-
-    @Operation(summary = "Partially updates an existing author")
-    @PatchMapping(path = "{authorId}")
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public ResponseEntity<AuthorView> partialUpdateAuthor(final WebRequest request,
-                                                          @PathVariable("authorId") Long id,
-                                                          @Valid @RequestBody final EditAuthorRequest resource) {
-        final String ifMatchValue = request.getHeader(IF_MATCH);
-        if (ifMatchValue == null || ifMatchValue.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-        Author author = authorService.partialUpdateAuthor(id, resource, getVersionFromIfMatchHeader(ifMatchValue));
-        return ResponseEntity.ok().eTag(Long.toString(author.getVersion())).body(authorViewMapper.toAuthorView(author));
-    }
-
     @NotNull
     private List<BookView> getBookViews(Pageable pageable, List<Book> booksList) {
         int start = Math.min((int) pageable.getOffset(), booksList.size());
@@ -198,12 +141,5 @@ public class AuthorController {
 
         Page<Book> booksPage = new PageImpl<>(paginatedBooks, pageable, booksList.size());
         return booksPage.map(bookViewMapper::toBookView).getContent();
-    }
-
-    private Long getVersionFromIfMatchHeader(final String ifMatchHeader) {
-        if (ifMatchHeader.startsWith("\"")) {
-            return Long.parseLong(ifMatchHeader.substring(1, ifMatchHeader.length() - 1));
-        }
-        return Long.parseLong(ifMatchHeader);
     }
 }

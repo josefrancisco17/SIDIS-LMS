@@ -22,10 +22,6 @@ public interface BookService {
     Page<Book> getBooksByAuthor(String author, Pageable pageable);
     Page<Book> getBooksByTitleAndGenreAndAuthor(String genre, String title, String author, Pageable pageable);
     BookCover getBookCover(String bookId);
-    Book createBook(CreateBookRequest resource, MultipartFile coverPhoto);
     Book manageInternalBook(Book book);
-    Book updateBook(Long id, EditBookRequest resource, long desiredVersion);
-    Book partialUpdateBook(Long id, EditBookRequest resource, long desiredVersion);
-    UploadFileResponse doUploadFile(String id, MultipartFile file);
     List<Book> getBooksByAuthorId(Long id);
 }

@@ -138,26 +138,6 @@ public class BookServiceImpl implements BookService{
         return existingBook.getCover();
     }
 
-    public Book createBook(final CreateBookRequest resource, MultipartFile coverPhoto) {
-        validateCreateBookRequest(resource);
-
-        Book book = editBookMapper.create(resource);
-        bookRepository.save(book);
-
-        if (coverPhoto != null) {
-            doUploadFile(book.getId().toString(), coverPhoto);
-            book.setVersion(book.getVersion() - 1);
-        }
-        //bookRepositoryHTTP.manageInternalBook(book);
-        try {
-            sender.sendSyncBook(book);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return book;
-    }
-
     @Transactional
     public Book manageInternalBook(Book book) {
         List<Author> savedAuthors = new ArrayList<>();
@@ -167,96 +147,5 @@ public class BookServiceImpl implements BookService{
         }
         book.setAuthors(savedAuthors);
         return bookRepository.save(book);
-    }
-
-    @Transactional
-    public Book updateBook(final Long id, final EditBookRequest resource, final long desiredVersion) {
-        final var book = bookRepository.findById(id).orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
-
-        final var existingGenre = genreRepository.findById(resource.getGenre().getId()).orElseThrow(() -> new NotFoundException("[ERROR] Genre not found"));
-
-        book.updateData(desiredVersion, resource.getTitle(), resource.getAuthors() ,existingGenre ,resource.getDescription());
-        //bookRepositoryHTTP.manageInternalBook(book);
-        try {
-            sender.sendSyncBook(book);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return bookRepository.save(book);
-    }
-
-    @Transactional
-    public Book partialUpdateBook(final Long id, final EditBookRequest resource, final long desiredVersion) {
-        final var book = bookRepository.findById(id).orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
-
-        Genre existingGenre = null;
-
-        if (resource.getGenre() != null) {
-            existingGenre = genreRepository.findById(resource.getGenre().getId()).orElseThrow(() -> new NotFoundException("[ERROR] Genre not found"));
-        }
-
-        book.applyPatch(desiredVersion, resource.getTitle(), resource.getAuthors(), existingGenre, resource.getDescription());
-
-        //bookRepositoryHTTP.manageInternalBook(book);
-        try {
-            sender.sendSyncBook(book);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return bookRepository.save(book);
-    }
-
-    private void validateCreateBookRequest(final CreateBookRequest request) {
-        String bookTitle = request.getTitle();
-        String trimmedTitle = bookTitle.trim();
-
-        if(!bookTitle.equals(trimmedTitle)) {
-            throw new IllegalArgumentException("[ERROR] Book Title cannot start or end with spaces.");
-        }
-
-        if (!BookUtil.isValidISBN(request.getIsbn())) {
-            throw new IllegalArgumentException("[ERROR] ISBN-10 or ISBN-13 invalid ISBN.");
-        }
-
-        if (bookRepository.findBookByIsbn(request.getIsbn()).isPresent()) {
-            throw new IllegalArgumentException("[ERROR] Book with that ISBN is already registered.");
-        }
-
-        if (StringUtils.isBlank(request.getTitle()) ||
-                StringUtils.isWhitespace(Character.toString(request.getTitle().charAt(0))) ||
-                StringUtils.isWhitespace(Character.toString(request.getTitle().charAt(request.getTitle().length() - 1)))) {
-            throw new IllegalArgumentException("[ERROR] Book title is mandatory and cannot start or end with spaces.");
-        }
-
-        if (StringUtils.isBlank(request.getGenre().getName()) || StringUtils.isBlank(request.getAuthors().toString())) {
-            throw new IllegalArgumentException("[ERROR] Genre and author fields are mandatory.");
-        }
-    }
-
-    public UploadFileResponse doUploadFile(final String id, final MultipartFile file) {
-        if (isValidBookCover(file)) {
-            BookCover cover = new BookCover();
-            try {
-                cover.setImage(file.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-            cover.setContentType(file.getContentType());
-            bookCoverRepository.save(cover);
-            Book book = bookRepository.getById(Long.parseLong(id));
-            book.setCover(cover);
-            book.setVersion(book.getVersion() - 1);
-            bookRepository.save(book);
-        }
-
-        final String fileName = fileStorageService.storeFile(id, file);
-
-        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(fileName)
-                .toUriString();
-
-        fileDownloadUri = fileDownloadUri.replace("/covers/", "/cover/");
-
-        return new UploadFileResponse(fileName, fileDownloadUri, file.getContentType(), file.getSize());
     }
 }
