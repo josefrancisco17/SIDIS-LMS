@@ -34,11 +34,4 @@ public class Receiver {
         Lending newLending = RabbitMapper.StringToLending(messageBody);
         lendingRepository.save(newLending);
     }
-
-    @RabbitListener(queues = "#{LendingQueryQueue.name}")
-    public String handleLendingsRequest() {
-        String lendings = lendingRepository.findAll().toString();
-        System.out.println("[RabbitMQ] Sending lendings: " + lendings);
-        return lendings;
-    }
 }

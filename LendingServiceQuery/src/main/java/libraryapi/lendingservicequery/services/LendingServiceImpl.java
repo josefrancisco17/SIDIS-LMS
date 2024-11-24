@@ -1,10 +1,7 @@
 package libraryapi.lendingservicequery.services;
 
 import libraryapi.lendingservicequery.model.Genre;
-import libraryapi.lendingservicequery.rabbitMQ.producer.Sender;
-import libraryapi.lendingservicequery.repositories.BookRepositoryHTTP;
-import libraryapi.lendingservicequery.repositories.LendingRepositoryHTTP;
-import libraryapi.lendingservicequery.repositories.ReaderRepositoryHTTP;
+import libraryapi.lendingservicequery.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -13,7 +10,6 @@ import org.springframework.stereotype.Service;
 import libraryapi.lendingservicequery.model.Book;
 import libraryapi.lendingservicequery.exceptions.NotFoundException;
 import libraryapi.lendingservicequery.model.Lending;
-import libraryapi.lendingservicequery.repositories.LendingRepository;
 import libraryapi.lendingservicequery.model.Reader;
 
 import java.time.LocalDate;
@@ -29,7 +25,7 @@ public class LendingServiceImpl implements LendingService {
     private final ReaderRepositoryHTTP readerRepositoryHTTP;
 
     @Autowired
-    private Sender sender;
+    private GenreRepository genreRepository;
 
     @Autowired
     public LendingServiceImpl(LendingRepository lendingRepository, LendingRepositoryHTTP lendingRepositoryHTTP, BookRepositoryHTTP bookRepositoryHTTP, ReaderRepositoryHTTP readerRepositoryHTTP ) {
@@ -75,13 +71,7 @@ public class LendingServiceImpl implements LendingService {
     }
 
     public double AveragePerGenreInMonth(LocalDate date) {
-        //int numberOfGenres = bookRepositoryHTTP.getAllGenres().size();
-        List<Genre> genres =  new ArrayList<>();
-        try {
-            genres = sender.getGenres();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        List<Genre> genres =  genreRepository.findAll();
         int numberOfGenres = genres.size();
         List<Lending> lendings = lendingRepository.findAll();
         long count = lendings.stream()

@@ -6,7 +6,6 @@ import libraryapi.bookservicequery.model.Author;
 import libraryapi.bookservicequery.model.AuthorPhoto;
 import libraryapi.bookservicequery.model.Book;
 import libraryapi.bookservicequery.model.Lending;
-import libraryapi.bookservicequery.rabbitMQ.producer.Sender;
 import libraryapi.bookservicequery.repositories.*;
 import libraryapi.bookservicequery.repositories.*;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +38,7 @@ public class AuthorServiceImpl implements AuthorService{
     private final LendingRepositoryHTTP lendingRepositoryHTTP;
 
     @Autowired
-    private Sender sender;
+    private LendingRepository lendingRepository;
 
     @Autowired
     public AuthorServiceImpl(AuthorRepository authorRepository, EditAuthorMapper editAuthorMapper, AuthorPhotoRepository authorPhotoRepository, FileStorageService fileStorageService, BookService bookService, BookRepository bookRepository, BookRepositoryHTTP bookRepositoryHTTP, AuthorRepositoryHTTP authorRepositoryHTTP, LendingRepositoryHTTP lendingRepositoryHTTP) {
@@ -52,11 +51,6 @@ public class AuthorServiceImpl implements AuthorService{
         this.bookRepositoryHTTP = bookRepositoryHTTP;
         this.authorRepositoryHTTP = authorRepositoryHTTP;
         this.lendingRepositoryHTTP = lendingRepositoryHTTP;
-    }
-
-    public int getTotalPages() {
-        long totalAuthors = authorRepository.count();
-        return (int) Math.ceil((double) totalAuthors / 5);
     }
 
     public Page<Author> getAuthors(Pageable pageable) {
@@ -92,13 +86,7 @@ public class AuthorServiceImpl implements AuthorService{
     }
 
     public List<Author> getTop5Authors() {
-        //List<Lending> lendings = lendingRepositoryHTTP.getAllLendings();
-        List<Lending> lendings = new ArrayList<>();
-        try {
-            lendings = sender.getLendings();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        List<Lending> lendings = lendingRepository.findAll();
 
         List<Author> authors = authorRepository.findAll();
         for (Author author : authors) {
@@ -115,11 +103,6 @@ public class AuthorServiceImpl implements AuthorService{
         }
         authors.sort((a1, a2) -> Integer.compare(a2.getLents(), a1.getLents()));
         return authors.subList(0, Math.min(5, authors.size()));
-    }
-
-    @Transactional
-    public Author manageInternalAuthor(Author newAuthor) {
-        return authorRepository.save(newAuthor);
     }
 
     public List<Book> getCoAuthorsBooks(Long authorId) {

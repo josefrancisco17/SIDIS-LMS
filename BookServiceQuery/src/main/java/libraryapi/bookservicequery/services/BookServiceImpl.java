@@ -3,7 +3,6 @@ package libraryapi.bookservicequery.services;
 import jakarta.transaction.Transactional;
 import libraryapi.bookservicequery.model.*;
 import libraryapi.bookservicequery.model.*;
-import libraryapi.bookservicequery.rabbitMQ.producer.Sender;
 import libraryapi.bookservicequery.repositories.*;
 import libraryapi.bookservicequery.repositories.*;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +37,7 @@ public class BookServiceImpl implements BookService{
     private final AuthorRepository authorRepository;
 
     @Autowired
-    private Sender sender;
+    private LendingRepository lendingRepository;
 
     @Autowired
     public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, BookRepositoryHTTP bookRepositoryHTTP, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService, LendingRepositoryHTTP lendingRepositoryHTTP, AuthorRepository authorRepository) {
@@ -69,13 +68,7 @@ public class BookServiceImpl implements BookService{
     }
 
     public Iterable<Book> getTopBooks() {
-        //List<Lending> lendings = lendingRepositoryHTTP.getAllLendings();
-        List<Lending> lendings = new ArrayList<>();
-        try {
-            lendings = sender.getLendings();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        List<Lending> lendings = lendingRepository.findAll();
 
         return lendings.stream()
                 .collect(Collectors.groupingBy(

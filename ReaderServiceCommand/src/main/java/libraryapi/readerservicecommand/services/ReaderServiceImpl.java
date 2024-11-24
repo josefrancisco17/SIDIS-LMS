@@ -79,7 +79,6 @@ public class ReaderServiceImpl implements ReaderService {
         }
 
         Reader newReader = readerRepository.getById(reader.getId());
-        //readerRepositoryHTTP.manageInternalReader(newReader);
         try {
             sender.sendSyncReader(newReader);
         } catch (Exception e) {
@@ -92,7 +91,6 @@ public class ReaderServiceImpl implements ReaderService {
     public Reader updateReader(final Long id, final EditReaderRequest resource, final long desiredVersion) {
         final var reader = readerRepository.findById(id).orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
         reader.updateData(desiredVersion, resource.getName(), resource.getEmail(), resource.getDateOfBirth(), resource.getPhoneNumber(), resource.getGDBRConsent(), resource.getInterests());
-        //readerRepositoryHTTP.manageInternalReader(reader);
         try {
             sender.sendSyncReader(reader);
         } catch (Exception e) {
@@ -105,7 +103,6 @@ public class ReaderServiceImpl implements ReaderService {
         final var reader = readerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("[ERROR] Cannot update an object that does not yet exist"));
         reader.applyPatch(desiredVersion, resource.getName(), resource.getEmail(), resource.getDateOfBirth(), resource.getPhoneNumber(), resource.getGDBRConsent(), resource.getInterests());
-        //readerRepositoryHTTP.manageInternalReader(reader);
         try {
             sender.sendSyncReader(reader);
         } catch (Exception e) {

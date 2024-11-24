@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import libraryapi.readerservicequery.model.*;
 import libraryapi.readerservicequery.repositories.*;
-import libraryapi.readerservicequery.rabbitMQ.producer.Sender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -45,8 +44,6 @@ public class ReaderServiceImpl implements ReaderService {
     @Value("${jwt.public.key}")
     private RSAPublicKey rsaPublicKey;
 
-    @Autowired
-    private Sender sender;
 
     @Autowired
     public ReaderServiceImpl(ReaderRepository readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService, ReaderRepositoryHTTP readerRepositoryHTTP, LendingRepositoryHTTP lendingRepositoryHTTP, BookRepositoryHTTP bookRepositoryHTTP) {

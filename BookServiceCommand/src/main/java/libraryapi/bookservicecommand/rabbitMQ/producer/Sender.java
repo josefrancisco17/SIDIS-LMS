@@ -22,12 +22,6 @@ public class Sender {
 
     private final RabbitTemplate rabbitTemplate;
 
-    private final Dotenv dotenv = Dotenv.load();
-    private final int BookServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_COMMAND_PORT1")));
-    private final int BookServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_COMMAND_PORT1")));
-    private final int LendingServicePort1 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_COMMAND_PORT1")));
-    private final int LendingServicePort2 = Integer.parseInt(Objects.requireNonNull(dotenv.get("BOOK_COMMAND_PORT1")));
-
     @Autowired
     public Sender(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
@@ -57,29 +51,5 @@ public class Sender {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public List<Lending> getLendings() {
-        List<Lending> lendings = new ArrayList<>();
-
-        int currentPort = Integer.parseInt(Objects.requireNonNull(env.getProperty("server.port")));
-        int targetPort = (currentPort == BookServicePort1) ? LendingServicePort1 : LendingServicePort2;
-
-        try {
-            String response = (String) rabbitTemplate.convertSendAndReceive(
-                    "lending.query.exchange",
-                    "lending.query" + targetPort,
-                    ""
-            );
-
-            if (response != null) {
-                System.out.println("[RabbitMQ] Lendings: " + response);
-                lendings = RabbitMapper.StringToLendingList(response);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return lendings;
     }
 }

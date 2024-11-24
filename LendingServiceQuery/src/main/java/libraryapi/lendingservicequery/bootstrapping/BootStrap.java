@@ -1,6 +1,7 @@
 package libraryapi.lendingservicequery.bootstrapping;
 
 import libraryapi.lendingservicequery.model.Lending;
+import libraryapi.lendingservicequery.repositories.GenreRepository;
 import libraryapi.lendingservicequery.repositories.LendingRepository;
 import libraryapi.lendingservicequery.model.Book;
 import libraryapi.lendingservicequery.model.Genre;
@@ -20,6 +21,7 @@ import java.util.Map;
 @Profile("bootstrap")
 public class BootStrap implements CommandLineRunner {
     private final LendingRepository lendingRepository;
+    private final GenreRepository genreRepository;
 
     public static final Map<Month, String> funnyQuotes = new HashMap<>();
 
@@ -52,6 +54,10 @@ public class BootStrap implements CommandLineRunner {
         Genre genre8 = new Genre("Biography");
         Genre genre9 = new Genre("History");
         Genre genre10 = new Genre("Children's");
+
+        genreRepository.saveAll(Arrays.asList(
+                genre1, genre2, genre3, genre4, genre5, genre6, genre7, genre8, genre9, genre10
+        ));
 
         //Books Mock Data
         Book book1 = new Book("9781982137274", "The 7 Habits of Highly Effective People", genre1, null, "Powerful lessons in personal change.");

@@ -3,10 +3,12 @@ package libraryapi.bookservicecommand.rabbitMQ.consumer;
 import libraryapi.bookservicecommand.model.Author;
 import libraryapi.bookservicecommand.model.Book;
 import libraryapi.bookservicecommand.model.Genre;
+import libraryapi.bookservicecommand.model.Lending;
 import libraryapi.bookservicecommand.rabbitMQ.Mapper.RabbitMapper;
 import libraryapi.bookservicecommand.repositories.AuthorRepository;
 import libraryapi.bookservicecommand.repositories.BookRepository;
 import libraryapi.bookservicecommand.repositories.GenreRepository;
+import libraryapi.bookservicecommand.repositories.LendingRepository;
 import libraryapi.bookservicecommand.services.AuthorServiceImpl;
 import libraryapi.bookservicecommand.services.BookServiceImpl;
 import org.springframework.amqp.core.Message;
@@ -30,12 +32,9 @@ public class Receiver {
 
     @Autowired
     private AuthorServiceImpl authorService;
+
     @Autowired
-    private AuthorRepository authorRepository;
-    @Autowired
-    private BookRepository bookRepository;
-    @Autowired
-    private GenreRepository genreRepository;
+    private LendingRepository lendingRepository;
 
     @RabbitListener(queues = "#{BookSyncQueue.name}")
     public void receiveSyncBook(Message message) {
@@ -67,35 +66,12 @@ public class Receiver {
         authorService.manageInternalAuthor(newAuthor);
     }
 
-    @RabbitListener(queues = "#{BookQueryQueue.name}")
-    @Transactional
-    public String handleBooksRequest() {
-        List<Book> books = bookRepository.findAll();
-        String booksAsString = books.stream()
-                .map(Book::toString)
-                .collect(Collectors.joining(", "));
-        System.out.println("[RabbitMQ] Sending books: " + booksAsString);
-        return booksAsString;
+    @RabbitListener(queues = "#{LendingSyncQueue.name}")
+    public void receiveSyncLending(Message message) {
+        String messageBody = new String(message.getBody());
+        System.out.println("[RabbitMQ] Received lending: " + messageBody);
+        Lending newLending = RabbitMapper.StringToLending(messageBody);
+        lendingRepository.save(newLending);
     }
 
-
-    @RabbitListener(queues = "#{AuthorQueryQueue.name}")
-    public String handleAuthorsRequest() {
-        List<Author> authors = authorRepository.findAll();
-        String authorsAsString = authors.stream()
-                .map(Author::toString)
-                .collect(Collectors.joining(", "));
-        System.out.println("[RabbitMQ] Sending authors: " + authorsAsString);
-        return authorsAsString;
-    }
-
-    @RabbitListener(queues = "#{GenreQueryQueue.name}")
-    public String handleGenresRequest() {
-        List<Genre> genres = genreRepository.findAll();
-        String genresAsString = genres.stream()
-                .map(Genre::toString)
-                .collect(Collectors.joining(", "));
-        System.out.println("[RabbitMQ] Sending genres: " + genresAsString);
-        return genresAsString;
-    }
 }

@@ -60,7 +60,7 @@ public class BookServiceImpl implements BookService{
             doUploadFile(book.getId().toString(), coverPhoto);
             book.setVersion(book.getVersion() - 1);
         }
-        //bookRepositoryHTTP.manageInternalBook(book);
+
         try {
             sender.sendSyncBook(book);
         } catch (Exception e) {
@@ -88,12 +88,13 @@ public class BookServiceImpl implements BookService{
         final var existingGenre = genreRepository.findById(resource.getGenre().getId()).orElseThrow(() -> new NotFoundException("[ERROR] Genre not found"));
 
         book.updateData(desiredVersion, resource.getTitle(), resource.getAuthors() ,existingGenre ,resource.getDescription());
-        //bookRepositoryHTTP.manageInternalBook(book);
+
         try {
             sender.sendSyncBook(book);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return bookRepository.save(book);
     }
 
@@ -109,12 +110,12 @@ public class BookServiceImpl implements BookService{
 
         book.applyPatch(desiredVersion, resource.getTitle(), resource.getAuthors(), existingGenre, resource.getDescription());
 
-        //bookRepositoryHTTP.manageInternalBook(book);
         try {
             sender.sendSyncBook(book);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return bookRepository.save(book);
     }
 

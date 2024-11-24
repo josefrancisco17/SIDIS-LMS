@@ -20,7 +20,6 @@ public class RabbitMQConfig {
     public static final String AUTHOR_ROUTING_KEY_SYNC = "author.sync";
     public static final String LENDING_ROUTING_KEY_SYNC = "lending.sync";
 
-
     // Sync Books
     @Bean
     public TopicExchange BookSyncExchange() {

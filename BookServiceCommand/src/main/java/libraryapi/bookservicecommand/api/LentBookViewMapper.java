@@ -1,6 +1,7 @@
 package libraryapi.bookservicecommand.api;
 
 import libraryapi.bookservicecommand.rabbitMQ.producer.Sender;
+import libraryapi.bookservicecommand.repositories.LendingRepository;
 import org.mapstruct.Mapper;
 import libraryapi.bookservicecommand.model.Book;
 import libraryapi.bookservicecommand.model.Lending;
@@ -15,6 +16,8 @@ public class LentBookViewMapper {
 
     @Autowired
     private Sender sender;
+    @Autowired
+    private LendingRepository lendingRepository;
 
     public LentBookView toLentBookView(Book book, Iterable<Lending> lendings) {
         if ( book == null ) {
@@ -39,12 +42,7 @@ public class LentBookViewMapper {
         return lentBookView;
     }
     public Iterable<LentBookView> toLentBookView(Iterable<Book> books) {
-        Iterable<Lending> lendings =  new ArrayList<>();
-        try {
-            lendings = sender.getLendings();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Iterable<Lending> lendings =  lendingRepository.findAll();
 
         if ( books == null ) {
             return null;

@@ -2,9 +2,7 @@ package libraryapi.lendingservicecommand.services;
 
 import libraryapi.lendingservicecommand.model.Genre;
 import libraryapi.lendingservicecommand.rabbitMQ.producer.Sender;
-import libraryapi.lendingservicecommand.repositories.BookRepositoryHTTP;
-import libraryapi.lendingservicecommand.repositories.LendingRepositoryHTTP;
-import libraryapi.lendingservicecommand.repositories.ReaderRepositoryHTTP;
+import libraryapi.lendingservicecommand.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 import libraryapi.lendingservicecommand.model.Book;
 import libraryapi.lendingservicecommand.exceptions.NotFoundException;
 import libraryapi.lendingservicecommand.model.Lending;
-import libraryapi.lendingservicecommand.repositories.LendingRepository;
 import libraryapi.lendingservicecommand.model.Reader;
 
 import java.time.LocalDate;
@@ -35,6 +32,10 @@ public class LendingServiceImpl implements LendingService {
 
     @Autowired
     private Sender sender;
+    @Autowired
+    private BookRepository bookRepository;
+    @Autowired
+    private ReaderRepository readerRepository;
 
     @Autowired
     public LendingServiceImpl(LendingRepository lendingRepository, LendingRepositoryHTTP lendingRepositoryHTTP, BookRepositoryHTTP bookRepositoryHTTP, ReaderRepositoryHTTP readerRepositoryHTTP ) {
@@ -45,13 +46,7 @@ public class LendingServiceImpl implements LendingService {
     }
 
     public Lending createLending(final CreateLendingRequest resource) {
-        //List<Book> books = bookRepositoryHTTP.getAllBooks();
-        List<Book> books =  new ArrayList<>();
-        try {
-            books = sender.getBooks();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        List<Book> books =  bookRepository.findAll();
         System.out.println(books);
         Book book = new Book();
         for (Book b : books) {
@@ -63,13 +58,7 @@ public class LendingServiceImpl implements LendingService {
             throw new IllegalArgumentException("[ERROR] Book not found with ID: " + resource.getBookId());
         }
 
-        //List<Reader> readers = readerRepositoryHTTP.getAllReaders();
-        List<Reader> readers =  new ArrayList<>();
-        try {
-            readers = sender.getReaders();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        List<Reader> readers = readerRepository.findAll();
 
         Reader reader = new Reader();
         for (Reader r : readers) {
@@ -159,7 +148,6 @@ public class LendingServiceImpl implements LendingService {
         returnedLending.setFine(fine);
         returnedLending.setComment(resource.getComment());
 
-        //lendingRepositoryHTTP.manageInternalLending(returnedLending);
         try {
             sender.sendSyncLending(returnedLending);
         } catch (Exception e) {

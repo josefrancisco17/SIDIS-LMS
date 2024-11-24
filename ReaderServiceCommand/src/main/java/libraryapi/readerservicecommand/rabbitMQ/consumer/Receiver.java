@@ -38,14 +38,4 @@ public class Receiver {
         Reader newReader = RabbitMapper.StringToReader(messageBody);
         readerRepository.save(newReader);
     }
-
-    @RabbitListener(queues = "#{ReaderQueryQueue.name}")
-    public String handleReadersRequest() {
-        List<Reader> readers = readerRepository.findAll();
-        String readersAsString = readers.stream()
-                .map(Reader::toString)
-                .collect(Collectors.joining(", "));
-        System.out.println("[RabbitMQ] Sending readers: " + readersAsString);
-        return readersAsString;
-    }
 }
