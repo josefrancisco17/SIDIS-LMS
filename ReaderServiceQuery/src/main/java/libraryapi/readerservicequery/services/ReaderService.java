@@ -19,5 +19,4 @@ public interface ReaderService {
     Page<Reader> getReadersByPhoneNumber(final String phoneNumber, Pageable pageable);
     Page<Reader> getReadersByEmail(final String email, Pageable pageable);
     ReaderPhoto getReaderPhoto(final String readerId);
-    Reader manageInternalReader(Reader reader);
 }

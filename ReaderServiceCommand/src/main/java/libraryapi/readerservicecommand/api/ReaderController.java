@@ -43,92 +43,6 @@ public class ReaderController {
     private final ReaderProfileViewMapper readerProfileViewMapper ;
     private final BookViewMapper bookViewMapper;
 
-    @GetMapping("/{readerId}")
-    @RolesAllowed({Role.READER, Role.LIBRARIAN, Role.ADMIN})
-    @ApiResponse(description = "Success", content = { @Content(mediaType = "application/json",
-            schema = @Schema(implementation = ReaderProfileView.class)) })
-    public ResponseEntity<ReaderProfileView> getReader(
-            @PathVariable("readerId") Long id,
-            HttpServletRequest request) {
-
-        var ReaderProfileView = readerProfileViewMapper.toReaderProfileView(readerService.getReader(id, request).orElseThrow(() -> new NotFoundException(Reader.class, id)));
-        return ResponseEntity.ok().body(ReaderProfileView);
-    }
-
-    @Operation(summary = "Gets Readers")
-    @GetMapping
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    @ApiResponse(description = "Success", responseCode = "200", content = { @Content(mediaType = "application/json",
-            array = @ArraySchema(schema = @Schema(implementation = ReaderView.class))) })
-    public Iterable<ReaderView> getReaders(@RequestParam(value = "phoneNumber", required = false) String phoneNumber,
-                                           @RequestParam(value = "email", required = false) String email,
-                                           @RequestParam(value = "name", required = false) String name,
-                                           @RequestParam(defaultValue = "0", required = false) int page,
-                                           @RequestParam(defaultValue = "100", required = false) int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Reader> readersPage;
-
-        if (name != null) {
-            readersPage = readerService.getReadersByName(name, pageable);
-        } else if (phoneNumber != null && email != null) {
-            readersPage = readerService.getReadersByPhoneNumberAndEmail(phoneNumber, email, pageable);
-        } else if (phoneNumber != null) {
-            readersPage = readerService.getReadersByPhoneNumber(phoneNumber, pageable);
-        } else if (email != null) {
-            readersPage = readerService.getReadersByEmail(email, pageable);
-        } else {
-            readersPage = readerService.getReaders(pageable);
-        }
-
-        return  readersPage.map(readerViewMapper::toReaderView).getContent();
-    }
-
-    @Operation(summary = "Gets all Readers for other services")
-    @GetMapping("/internal")
-    @ApiResponse(description = "Success", responseCode = "200", content = {
-            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Reader.class)))
-    })
-    public Iterable<Reader> getAllReaders() {
-        return readerService.getAllReaders();
-    }
-
-    @Operation(summary = "Gets the Top 5 Readers")
-    @GetMapping("/top-readers")
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
-    @ApiResponse(description = "Success", content = { @Content(mediaType = "application/json",
-            array = @ArraySchema(schema = @Schema(implementation = ReaderView.class))) })
-    public Iterable<ReaderView> getTopReaders() {
-        return readerViewMapper.toReaderView(readerService.getTopReaders());
-    }
-
-    @Operation(summary = "Gets book suggestions based on reader's interest list")
-    @GetMapping("/{readerId}/suggestions")
-    @RolesAllowed({Role.READER, Role.LIBRARIAN, Role.ADMIN})
-    public Iterable<BookView> getSuggestedBooks(@PathVariable("readerId") Long readerId,
-                                                @RequestParam(defaultValue = "0", required = false) int page,
-                                                @RequestParam(defaultValue = "100", required = false) int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return bookViewMapper.toBookView(readerService.getSuggestedBooks(readerId, pageable));
-    }
-
-    @Operation(summary = "Downloads a cover of a reader by id")
-    @GetMapping("/{readerId}/photo")
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
-    public ResponseEntity<Resource> getReaderPhoto(@PathVariable("readerId") final String readerId,
-                                                 final HttpServletRequest request) {
-
-        ReaderPhoto readerPhoto = readerService.getReaderPhoto(readerId);
-
-        final Resource resource = new ByteArrayResource(readerPhoto.getImage());
-
-        String contentType = readerPhoto.getContentType();
-
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
-    }
-
     @Operation(summary = "Creates a new Reader")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -141,19 +55,6 @@ public class ReaderController {
 
         return ResponseEntity.created(newbarUri).eTag(Long.toString(reader.getVersion()))
                 .body(readerViewMapper.toReaderView(reader));
-    }
-
-    @Operation(summary = "Handles Creation, Update and Patch of Readers in another instances")
-    @PutMapping("/internal")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ReaderView> manageInternalReader(@Valid @RequestBody Reader reader) {
-        Reader newReader = readerService.manageInternalReader(reader);
-
-        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(newReader.getId().toString())
-                .build().toUri();
-
-        return ResponseEntity.created(newbarUri).eTag(Long.toString(newReader.getVersion()))
-                .body(readerViewMapper.toReaderView(newReader));
     }
 
     @Operation(summary = "Fully replaces an existing reader. If the specified id does not exist does nothing and returns 400.")

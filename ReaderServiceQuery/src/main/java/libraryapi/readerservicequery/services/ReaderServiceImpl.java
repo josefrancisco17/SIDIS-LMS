@@ -209,10 +209,6 @@ public class ReaderServiceImpl implements ReaderService {
         return existingReader.getReaderPhoto();
     }
 
-    public Reader manageInternalReader(Reader reader) {
-        return readerRepository.save(reader);
-    }
-
     private Page<Reader> toPage(List<Reader> readers, Pageable pageable) {
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), readers.size());

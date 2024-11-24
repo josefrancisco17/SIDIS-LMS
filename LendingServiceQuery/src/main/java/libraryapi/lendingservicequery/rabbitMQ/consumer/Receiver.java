@@ -18,8 +18,6 @@ public class Receiver {
     private Environment env;
 
     @Autowired
-    private LendingServiceImpl lendingService;
-    @Autowired
     private LendingRepository lendingRepository;
 
     @RabbitListener(queues = "#{LendingSyncQueue.name}")
@@ -34,7 +32,7 @@ public class Receiver {
         String messageBody = new String(message.getBody());
         System.out.println("[RabbitMQ]  Lending sync: " + messageBody);
         Lending newLending = RabbitMapper.StringToLending(messageBody);
-        lendingService.manageInternalLending(newLending);
+        lendingRepository.save(newLending);
     }
 
     @RabbitListener(queues = "#{LendingQueryQueue.name}")

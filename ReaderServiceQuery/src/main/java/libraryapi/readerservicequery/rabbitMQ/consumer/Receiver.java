@@ -48,7 +48,7 @@ public class Receiver {
         String messageBody = new String(message.getBody());
         System.out.println("[RabbitMQ]  Reader sync: " + messageBody);
         Reader newReader = RabbitMapper.StringToReader(messageBody);
-        readerService.manageInternalReader(newReader);
+        readerRepository.save(newReader);
     }
 
     @RabbitListener(queues = "#{BookSyncQueue.name}")

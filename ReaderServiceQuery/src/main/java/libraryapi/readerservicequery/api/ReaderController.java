@@ -128,17 +128,4 @@ public class ReaderController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
-
-    @Operation(summary = "Handles Creation, Update and Patch of Readers in another instances")
-    @PutMapping("/internal")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ReaderView> manageInternalReader(@Valid @RequestBody Reader reader) {
-        Reader newReader = readerService.manageInternalReader(reader);
-
-        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(newReader.getId().toString())
-                .build().toUri();
-
-        return ResponseEntity.created(newbarUri).eTag(Long.toString(newReader.getVersion()))
-                .body(readerViewMapper.toReaderView(newReader));
-    }
 }

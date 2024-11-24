@@ -47,9 +47,6 @@ public class ReaderServiceImpl implements ReaderService {
     private final LendingRepositoryHTTP lendingRepositoryHTTP;
     private final BookRepositoryHTTP bookRepositoryHTTP;
 
-    @Value("${jwt.public.key}")
-    private RSAPublicKey rsaPublicKey;
-
     @Autowired
     private Sender sender;
 
@@ -62,158 +59,6 @@ public class ReaderServiceImpl implements ReaderService {
         this.readerRepositoryHTTP = readerRepositoryHTTP;
         this.lendingRepositoryHTTP = lendingRepositoryHTTP;
         this.bookRepositoryHTTP = bookRepositoryHTTP;
-    }
-
-    public Page<Reader> getReadersByName(final String name, Pageable pageable) {
-        List<Reader> filteredReaders =  readerRepository.findAll()
-                .stream()
-                .filter(reader -> reader.getName().toLowerCase().contains(name.toLowerCase()))
-                .collect(Collectors.toList());
-        return toPage(filteredReaders, pageable);
-    }
-
-    public Page<Reader> getReaders(Pageable pageable) {
-        List<Reader> readers = readerRepository.findAll(pageable).getContent();
-        readers.forEach(this::updateAge);
-        return new PageImpl<>(readers, pageable, readerRepository.count());    }
-
-    public Iterable<Reader> getAllReaders() {
-        List<Reader> readers = readerRepository.findAll();
-        readers.forEach(this::updateAge);
-        return readers;
-    }
-
-    public Iterable<Reader> getTopReaders() {
-        //List<Lending> lendings = lendingRepositoryHTTP.getAllLendings();
-        List<Lending> lendings =  new ArrayList<>();
-        try {
-            lendings = sender.getLendings();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Map<Long, Long> lendingCountMap = lendings.stream()
-                .collect(Collectors.groupingBy(
-                        Lending::getReaderId,
-                        Collectors.counting()
-                ));
-
-        List<Long> topReaderIds = lendingCountMap.entrySet().stream()
-                .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
-                .limit(6)
-                .map(Map.Entry::getKey)
-                .toList();
-
-        return topReaderIds.stream()
-                .map(readerId -> readerRepository.findById(readerId).orElse(null))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    public Optional<Reader> getReader(Long id, HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(this.rsaPublicKey).build();
-
-            try {
-                Jwt jwt = jwtDecoder.decode(token);
-                String subClaim = (String) jwt.getClaims().get("sub");
-                String email = null;
-
-                if (subClaim != null && subClaim.contains(",")) {
-                    String[] parts = subClaim.split(",");
-                    if (parts.length > 1) {
-                        email = parts[1];
-                    }
-                }
-
-                if (email == null || email.isEmpty()) {
-                    throw new IllegalArgumentException("[ERROR] Email is missing in the token.");
-                }
-
-                String role = (String) jwt.getClaims().get("roles");
-
-                if ("ADMIN".equals(role) || "LIBRARIAN".equals(role)) {
-                    return readerRepository.findReaderById(id);
-                }
-
-                Optional<Reader> reader = readerRepository.findByEmail(email);
-
-                if (reader.isEmpty()) {
-                    throw new IllegalArgumentException("[ERROR] No Reader found for the provided email.");
-                }
-
-                if ("READER".equals(role) && !Objects.equals(id, reader.get().getId())) {
-                    throw new IllegalArgumentException("[ERROR] Cannot access another Reader's information.");
-                }
-
-                return reader;
-
-            } catch (JwtException e) {
-                throw new IllegalArgumentException("[ERROR] Invalid JWT token.", e);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException(e.getMessage());
-            }
-        }
-        throw new IllegalArgumentException("[ERROR] Authorization header is missing or invalid.");
-    }
-
-
-
-    public Page<Book> getSuggestedBooks(Long readerId, Pageable pageable) {
-        Reader reader = readerRepository.findById(readerId).orElseThrow(() -> new NotFoundException("Reader not found with id: " + readerId));
-        List<String> interests = reader.getInterests();
-
-        if (interests == null || interests.isEmpty()) {
-            throw new IllegalArgumentException("[ERROR] Reader does not have any interests specified.");
-        }
-
-        List<Book> books =  new ArrayList<>();
-        try {
-            books = sender.getBooks();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        List<Book> suggestedBooks = books.stream().filter(book -> interests.contains(book.getGenre().getName())).toList();
-        return BookUtil.toPage(suggestedBooks, pageable);
-    }
-
-    public Page<Reader> getReadersByPhoneNumberAndEmail(final String phoneNumber, final String email, Pageable pageable) {
-        List<Reader> filteredReaders = readerRepository.findAll().stream()
-                .filter(reader -> reader.getPhoneNumber().toString().toLowerCase().contains(phoneNumber.toLowerCase()) &&
-                        reader.getEmail().toLowerCase().contains(email.toLowerCase()))
-                .collect(Collectors.toList());
-        filteredReaders.forEach(this::updateAge);
-        return toPage(filteredReaders, pageable);
-    }
-
-    public Page<Reader> getReadersByPhoneNumber(final String phoneNumber, Pageable pageable) {
-        List<Reader> filteredReaders = readerRepository.findAll()
-                .stream()
-                .filter(reader -> reader.getPhoneNumber().toString().contains(phoneNumber))
-                .collect(Collectors.toList());
-        filteredReaders.forEach(this::updateAge);
-        return toPage(filteredReaders, pageable);
-    }
-
-    public Page<Reader> getReadersByEmail(final String email, Pageable pageable) {
-        List<Reader> filteredReaders =  readerRepository.findAll()
-                .stream()
-                .filter(reader -> reader.getEmail().contains(email))
-                .collect(Collectors.toList());
-        filteredReaders.forEach(this::updateAge);
-        return toPage(filteredReaders, pageable);
-    }
-
-    public ReaderPhoto getReaderPhoto(final String readerId) {
-        final var existingReader = readerRepository.findById(Long.parseLong(readerId)).orElseThrow(() -> new NotFoundException("[ERROR] Reader not found"));
-
-        if (existingReader.getReaderPhoto() == null) {
-            throw new IllegalArgumentException("[ERROR] Reader Photo not found with ID: " + existingReader.getId());
-        }
-
-        return existingReader.getReaderPhoto();
     }
 
     public Reader createReader(final EditReaderRequest resource, MultipartFile photo) {
@@ -240,10 +85,6 @@ public class ReaderServiceImpl implements ReaderService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return readerRepository.save(reader);
-    }
-
-    public Reader manageInternalReader(Reader reader) {
         return readerRepository.save(reader);
     }
 

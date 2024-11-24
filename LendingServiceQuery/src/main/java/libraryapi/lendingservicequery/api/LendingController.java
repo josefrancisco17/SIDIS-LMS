@@ -94,69 +94,6 @@ public class LendingController {
     public double getAveragePerGenreInMonth(@PathVariable("date") LocalDate date) {
         return lendingService.AveragePerGenreInMonth(date);
     }
-
-    @Operation(summary = "Creates a new Lending")
-    @PostMapping
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<LendingView> createLending(@Valid @RequestBody final CreateLendingRequest resource) {
-        Lending lending = lendingService.createLending(resource);
-
-        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(lending.getId().toString())
-                .build().toUri();
-
-        return ResponseEntity.created(newbarUri).eTag(Long.toString(lending.getVersion()))
-                .body(lendingViewMapper.toLendingView(lending));
-    }
-
-    @Operation(summary = "Saves a new Lending created in another instance")
-    @PostMapping("/internal")
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<LendingView> createInternalLending(@Valid @RequestBody Lending lending) {
-        Lending savedLending = lendingService.manageInternalLending(lending);
-
-        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(savedLending.getId().toString())
-                .build().toUri();
-
-        return ResponseEntity.created(newbarUri).eTag(Long.toString(savedLending.getVersion()))
-                .body(lendingViewMapper.toLendingView(savedLending));
-    }
-
-    @Operation(summary = "Return a Book")
-    @PostMapping("/return")
-    @RolesAllowed({Role.ADMIN, Role.READER})
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<LendingView> returnBook(@Valid @RequestBody final EditLendingRequest resource) {
-        Lending lending = lendingService.returnBook(resource);
-
-        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(lending.getId().toString())
-                .build().toUri();
-
-        return ResponseEntity.created(newbarUri).eTag(Long.toString(lending.getVersion()))
-                .body(lendingViewMapper.toLendingView(lending));
-    }
-
-    @Operation(summary = "Returns a Lending that was returned in another instance")
-    @PostMapping("/internal/return")
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<LendingView> returnInternalBook(@Valid @RequestBody Lending lending) {
-        Lending savedLending = lendingService.manageInternalLending(lending);
-
-        final var newbarUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(savedLending.getId().toString())
-                .build().toUri();
-
-        return ResponseEntity.created(newbarUri).eTag(Long.toString(savedLending.getVersion()))
-                .body(lendingViewMapper.toLendingView(savedLending));
-    }
-    
-    private Long getVersionFromIfMatchHeader(final String ifMatchHeader) {
-        if (ifMatchHeader.startsWith("\"")) {
-            return Long.parseLong(ifMatchHeader.substring(1, ifMatchHeader.length() - 1));
-        }
-        return Long.parseLong(ifMatchHeader);
-    }
 }
 
 

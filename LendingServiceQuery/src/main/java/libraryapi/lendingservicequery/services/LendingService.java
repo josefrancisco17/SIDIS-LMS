@@ -12,11 +12,7 @@ public interface LendingService {
     Optional<Lending> getLending(Long lendingId);
     Page<Lending> getLendings(Pageable pageable);
     Iterable<Lending> getAllLendings();
-    List<Lending> getLentBook(Long bookId);
     Page<Lending> getOverdueLendings(Pageable pageable);
     double getAverageLendingDuration();
     double AveragePerGenreInMonth(LocalDate date);
-    Lending createLending(CreateLendingRequest resource);
-    Lending manageInternalLending(Lending lending);
-    Lending returnBook(EditLendingRequest resource);
 }
