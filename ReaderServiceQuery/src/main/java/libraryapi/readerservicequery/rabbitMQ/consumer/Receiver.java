@@ -1,8 +1,10 @@
 package libraryapi.readerservicequery.rabbitMQ.consumer;
 
+import libraryapi.readerservicequery.model.Book;
+import libraryapi.readerservicequery.model.Lending;
 import libraryapi.readerservicequery.model.Reader;
 import libraryapi.readerservicequery.rabbitMQ.Mapper.RabbitMapper;
-import libraryapi.readerservicequery.repositories.ReaderRepository;
+import libraryapi.readerservicequery.repositories.*;
 import libraryapi.readerservicequery.services.ReaderServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,16 @@ public class Receiver {
     @Autowired
     private ReaderRepository readerRepository;
 
+    @Autowired
+    private BookRepository bookRepository;
+
+    @Autowired
+    private LendingRepository lendingRepository;
+    @Autowired
+    private GenreRepository genreRepository;
+    @Autowired
+    private BookCoverRepository bookCoverRepository;
+
     @RabbitListener(queues = "#{ReaderSyncQueue.name}")
     public void receiveSyncReader(Message message) {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
@@ -39,13 +51,25 @@ public class Receiver {
         readerService.manageInternalReader(newReader);
     }
 
-    @RabbitListener(queues = "#{ReaderQueryQueue.name}")
-    public String handleReadersRequest() {
-        List<Reader> readers = readerRepository.findAll();
-        String readersAsString = readers.stream()
-                .map(Reader::toString)
-                .collect(Collectors.joining(", "));
-        System.out.println("[RabbitMQ] Sending readers: " + readersAsString);
-        return readersAsString;
+    @RabbitListener(queues = "#{BookSyncQueue.name}")
+    public void receiveSyncBook(Message message) {
+        String messageBody = new String(message.getBody());
+        System.out.println("[RabbitMQ] Received book: " + messageBody);
+        Book newBook = RabbitMapper.StringToBook(messageBody);
+        if (newBook.getGenre() != null) {
+            genreRepository.save(newBook.getGenre());
+        }
+        if (newBook.getCover() != null) {
+            bookCoverRepository.save(newBook.getCover());
+        }
+        bookRepository.save(newBook);
+    }
+
+    @RabbitListener(queues = "#{LendingSyncQueue.name}")
+    public void receiveSyncLending(Message message) {
+        String messageBody = new String(message.getBody());
+        System.out.println("[RabbitMQ] Received lending: " + messageBody);
+        Lending newLending = RabbitMapper.StringToLending(messageBody);
+        lendingRepository.save(newLending);
     }
 }

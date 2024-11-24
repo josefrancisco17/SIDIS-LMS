@@ -19,9 +19,5 @@ public interface ReaderService {
     Page<Reader> getReadersByPhoneNumber(final String phoneNumber, Pageable pageable);
     Page<Reader> getReadersByEmail(final String email, Pageable pageable);
     ReaderPhoto getReaderPhoto(final String readerId);
-    Reader createReader(final EditReaderRequest resource, MultipartFile photo);
     Reader manageInternalReader(Reader reader);
-    Reader updateReader(final Long id, final EditReaderRequest resource, final long desiredVersion);
-    Reader partialUpdateReader(final Long id, final EditReaderRequest resource, final long desiredVersion);
-    UploadFileResponse doUploadFile(final String id, final MultipartFile file);
 }

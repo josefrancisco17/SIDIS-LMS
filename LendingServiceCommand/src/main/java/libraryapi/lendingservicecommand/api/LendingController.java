@@ -36,65 +36,6 @@ public class LendingController {
     private final LendingServiceImpl lendingService;
     private final LendingViewMapper lendingViewMapper;
 
-    @Operation(summary = "Gets all Lendings")
-    @GetMapping
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    @ApiResponse(description = "Success", responseCode = "200", content = {
-            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = LendingView.class)))})
-    public List<LendingView> getLendings(
-            @RequestParam(defaultValue = "0", required = false) int page,
-            @RequestParam(defaultValue = "100", required = false) int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Lending> lendingsPage = lendingService.getLendings(pageable);
-        return lendingsPage.map(lendingViewMapper::toLendingView).getContent();
-    }
-
-    @Operation(summary = "Gets all Lendings for other services")
-    @GetMapping("/internal")
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    @ApiResponse(description = "Success", responseCode = "200", content = {
-            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Lending.class)))})
-    public Iterable<Lending> getAllLendings() {
-        return lendingService.getAllLendings();
-    }
-
-
-    @Operation(summary = "Gets a specific Lending")
-    @GetMapping("/{lendingId}")
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN, Role.READER})
-    public ResponseEntity<LendingView> getLending(@PathVariable("lendingId") Long id) {
-        final var lending = lendingService.getLending(id).orElseThrow(() -> new NotFoundException(Lending.class, id));
-
-        return ResponseEntity.ok().eTag(Long.toString(lending.getVersion())).body(lendingViewMapper.toLendingView(lending));
-    }
-
-    @Operation(summary = "Gets a list of overdue lending sorted by their tardiness")
-    @GetMapping("/overdue")
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public List<LendingView> getOverdue(
-            @RequestParam(defaultValue = "0", required = false) int page,
-            @RequestParam(defaultValue = "100", required = false) int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Lending> overdueLendingsPage = lendingService.getOverdueLendings(pageable);
-        return overdueLendingsPage.map(lendingViewMapper::toLendingView).getContent();
-    }
-
-    @Operation(summary = "Gets average lending duration")
-    @GetMapping("/average")
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public double getAverageLendingDuration() {
-        return lendingService.getAverageLendingDuration();
-    }
-
-    @Operation(summary = "Gets the average number of lending per genre of a certain month\n")
-    @GetMapping("/average-per-genre/{date}")
-    @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})
-    public double getAveragePerGenreInMonth(@PathVariable("date") LocalDate date) {
-        return lendingService.AveragePerGenreInMonth(date);
-    }
-
     @Operation(summary = "Creates a new Lending")
     @PostMapping
     @RolesAllowed({Role.LIBRARIAN, Role.ADMIN})

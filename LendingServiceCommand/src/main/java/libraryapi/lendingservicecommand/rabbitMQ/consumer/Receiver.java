@@ -1,8 +1,12 @@
 package libraryapi.lendingservicecommand.rabbitMQ.consumer;
 
+import libraryapi.lendingservicecommand.model.Book;
 import libraryapi.lendingservicecommand.model.Lending;
 import libraryapi.lendingservicecommand.rabbitMQ.Mapper.RabbitMapper;
 import libraryapi.lendingservicecommand.rabbitMQ.RabbitMQConfig;
+import libraryapi.lendingservicecommand.repositories.BookCoverRepository;
+import libraryapi.lendingservicecommand.repositories.BookRepository;
+import libraryapi.lendingservicecommand.repositories.GenreRepository;
 import libraryapi.lendingservicecommand.repositories.LendingRepository;
 import libraryapi.lendingservicecommand.services.LendingServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -22,7 +26,11 @@ public class Receiver {
     @Autowired
     private LendingServiceImpl lendingService;
     @Autowired
-    private LendingRepository lendingRepository;
+    private GenreRepository genreRepository;
+    @Autowired
+    private BookCoverRepository bookCoverRepository;
+    @Autowired
+    private BookRepository bookRepository;
 
     @RabbitListener(queues = "#{LendingSyncQueue.name}")
     public void receiveSyncLending(Message message) {
@@ -39,10 +47,18 @@ public class Receiver {
         lendingService.manageInternalLending(newLending);
     }
 
-    @RabbitListener(queues = "#{LendingQueryQueue.name}")
-    public String handleLendingsRequest() {
-        String lendings = lendingRepository.findAll().toString();
-        System.out.println("[RabbitMQ] Sending lendings: " + lendings);
-        return lendings;
+    @RabbitListener(queues = "#{BookSyncQueue.name}")
+    public void receiveSyncBook(Message message) {
+        String messageBody = new String(message.getBody());
+        System.out.println("[RabbitMQ] Received book: " + messageBody);
+        Book newBook = RabbitMapper.StringToBook(messageBody);
+        if (newBook.getGenre() != null) {
+            genreRepository.save(newBook.getGenre());
+        }
+        if (newBook.getCover() != null) {
+            bookCoverRepository.save(newBook.getCover());
+        }
+        bookRepository.save(newBook);
     }
+
 }

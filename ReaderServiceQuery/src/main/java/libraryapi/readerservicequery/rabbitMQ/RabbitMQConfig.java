@@ -14,10 +14,11 @@ public class RabbitMQConfig {
     private Environment env;
 
     public static final String READER_SYNC_EXCHANGE = "reader.sync.exchange";
+    public static final String BOOK_SYNC_EXCHANGE = "book.sync.exchange";
+    public static final String LENDING_SYNC_EXCHANGE = "lending.sync.exchange";
     public static final String READER_ROUTING_KEY_SYNC = "reader.sync";
-
-    public static final String READER_QUERY_EXCHANGE = "reader.query.exchange";
-    public static final String READER_ROUTING_KEY_QUERY = "reader.query";
+    public static final String BOOK_ROUTING_KEY_SYNC = "book.sync";
+    public static final String LENDING_ROUTING_KEY_SYNC = "lending.sync";
 
     @Bean
     public TopicExchange ReaderSyncExchange() {
@@ -35,22 +36,39 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(ReaderSyncQueue).to(ReaderSyncExchange).with(READER_ROUTING_KEY_SYNC);
     }
 
-    // Data Author query from other instances
+    //Sync Books
 
     @Bean
-    public DirectExchange ReaderQueryExchange() {
-        return new DirectExchange(READER_QUERY_EXCHANGE);
+    public TopicExchange BookSyncExchange() {
+        return new TopicExchange(BOOK_SYNC_EXCHANGE);
     }
 
     @Bean
-    public Queue ReaderQueryQueue() {
+    public Queue BookSyncQueue() {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
-        return new Queue("author.query.queue." + currentPort, true);
+        return new Queue("book.sync.queue." + currentPort, true);
     }
 
     @Bean
-    public Binding ReaderQueryBinding(Queue ReaderQueryQueue, DirectExchange ReaderQueryExchange) {
+    public Binding BookSyncBinding(Queue BookSyncQueue, TopicExchange BookSyncExchange) {
+        return BindingBuilder.bind(BookSyncQueue).to(BookSyncExchange).with(BOOK_ROUTING_KEY_SYNC);
+    }
+
+    //Sync Lendings
+
+    @Bean
+    public TopicExchange LendingSyncExchange() {
+        return new TopicExchange(LENDING_SYNC_EXCHANGE);
+    }
+
+    @Bean
+    public Queue LendingSyncQueue() {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
-        return BindingBuilder.bind(ReaderQueryQueue).to(ReaderQueryExchange).with(READER_ROUTING_KEY_QUERY + currentPort);
+        return new Queue("lending.sync.queue." + currentPort, true);
+    }
+
+    @Bean
+    public Binding LendingSyncBinding(Queue LendingSyncQueue, TopicExchange LendingSyncExchange) {
+        return BindingBuilder.bind(LendingSyncQueue).to(LendingSyncExchange).with(LENDING_ROUTING_KEY_SYNC);
     }
 }

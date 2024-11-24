@@ -14,10 +14,9 @@ public class RabbitMQConfig {
     private Environment env;
 
     public static final String LENDING_SYNC_EXCHANGE = "lending.sync.exchange";
+    public static final String BOOK_SYNC_EXCHANGE = "book.sync.exchange";
     public static final String LENDING_ROUTING_KEY_SYNC = "lending.sync";
-
-    public static final String LENDING_QUERY_EXCHANGE = "lending.query.exchange";
-    public static final String LENDING_ROUTING_KEY_QUERY = "lending.query";
+    public static final String BOOK_ROUTING_KEY_SYNC = "book.sync";
 
     @Bean
     public TopicExchange LendingSyncExchange() {
@@ -35,22 +34,21 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(LendingSyncQueue).to(LendingSyncExchange).with(LENDING_ROUTING_KEY_SYNC);
     }
 
-    // Data Lending query from other instances
+    //Sync Books
 
     @Bean
-    public DirectExchange LendingQueryExchange() {
-        return new DirectExchange(LENDING_QUERY_EXCHANGE);
+    public TopicExchange BookSyncExchange() {
+        return new TopicExchange(BOOK_SYNC_EXCHANGE);
     }
 
     @Bean
-    public Queue LendingQueryQueue() {
+    public Queue BookSyncQueue() {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
-        return new Queue("lending.query.queue." + currentPort, true);
+        return new Queue("book.sync.queue." + currentPort, true);
     }
 
     @Bean
-    public Binding LendingQueryBinding(Queue LendingQueryQueue, DirectExchange LendingQueryExchange) {
-        String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
-        return BindingBuilder.bind(LendingQueryQueue).to(LendingQueryExchange).with(LENDING_ROUTING_KEY_QUERY + currentPort);
+    public Binding BookSyncBinding(Queue BookSyncQueue, TopicExchange BookSyncExchange) {
+        return BindingBuilder.bind(BookSyncQueue).to(BookSyncExchange).with(BOOK_ROUTING_KEY_SYNC);
     }
 }
