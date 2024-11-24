@@ -2,12 +2,10 @@ package libraryapi.lendingservicecommand.rabbitMQ.consumer;
 
 import libraryapi.lendingservicecommand.model.Book;
 import libraryapi.lendingservicecommand.model.Lending;
+import libraryapi.lendingservicecommand.model.Reader;
 import libraryapi.lendingservicecommand.rabbitMQ.Mapper.RabbitMapper;
 import libraryapi.lendingservicecommand.rabbitMQ.RabbitMQConfig;
-import libraryapi.lendingservicecommand.repositories.BookCoverRepository;
-import libraryapi.lendingservicecommand.repositories.BookRepository;
-import libraryapi.lendingservicecommand.repositories.GenreRepository;
-import libraryapi.lendingservicecommand.repositories.LendingRepository;
+import libraryapi.lendingservicecommand.repositories.*;
 import libraryapi.lendingservicecommand.services.LendingServiceImpl;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -31,6 +29,10 @@ public class Receiver {
     private BookCoverRepository bookCoverRepository;
     @Autowired
     private BookRepository bookRepository;
+    @Autowired
+    private ReaderPhotoRepository readerPhotoRepository;
+    @Autowired
+    private ReaderRepository readerRepository;
 
     @RabbitListener(queues = "#{LendingSyncQueue.name}")
     public void receiveSyncLending(Message message) {
@@ -59,6 +61,17 @@ public class Receiver {
             bookCoverRepository.save(newBook.getCover());
         }
         bookRepository.save(newBook);
+    }
+
+    @RabbitListener(queues = "#{ReaderSyncQueue.name}")
+    public void receiveSyncReader(Message message) {
+        String messageBody = new String(message.getBody());
+        System.out.println("[RabbitMQ] Received reader: " + messageBody);
+        Reader newReader = RabbitMapper.StringToReader(messageBody);
+        if (newReader.getReaderPhoto() != null) {
+            readerPhotoRepository.save(newReader.getReaderPhoto());
+        }
+        readerRepository.save(newReader);
     }
 
 }

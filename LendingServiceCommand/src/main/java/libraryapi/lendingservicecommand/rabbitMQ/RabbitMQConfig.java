@@ -15,8 +15,10 @@ public class RabbitMQConfig {
 
     public static final String LENDING_SYNC_EXCHANGE = "lending.sync.exchange";
     public static final String BOOK_SYNC_EXCHANGE = "book.sync.exchange";
+    public static final String READER_SYNC_EXCHANGE = "reader.sync.exchange";
     public static final String LENDING_ROUTING_KEY_SYNC = "lending.sync";
     public static final String BOOK_ROUTING_KEY_SYNC = "book.sync";
+    public static final String READER_ROUTING_KEY_SYNC = "reader.sync";
 
     @Bean
     public TopicExchange LendingSyncExchange() {
@@ -50,5 +52,23 @@ public class RabbitMQConfig {
     @Bean
     public Binding BookSyncBinding(Queue BookSyncQueue, TopicExchange BookSyncExchange) {
         return BindingBuilder.bind(BookSyncQueue).to(BookSyncExchange).with(BOOK_ROUTING_KEY_SYNC);
+    }
+
+    //Sync Lendings
+
+    @Bean
+    public TopicExchange ReaderSyncExchange() {
+        return new TopicExchange(READER_SYNC_EXCHANGE);
+    }
+
+    @Bean
+    public Queue ReaderSyncQueue() {
+        String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
+        return new Queue("reader.sync.queue." + currentPort, true);
+    }
+
+    @Bean
+    public Binding ReaderSyncBinding(Queue ReaderSyncQueue, TopicExchange ReaderSyncExchange) {
+        return BindingBuilder.bind(ReaderSyncQueue).to(ReaderSyncExchange).with(READER_ROUTING_KEY_SYNC);
     }
 }
