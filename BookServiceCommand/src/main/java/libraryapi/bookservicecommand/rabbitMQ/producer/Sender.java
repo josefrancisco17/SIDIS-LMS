@@ -1,18 +1,13 @@
 package libraryapi.bookservicecommand.rabbitMQ.producer;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import libraryapi.bookservicecommand.model.Author;
 import libraryapi.bookservicecommand.model.Book;
-import libraryapi.bookservicecommand.model.Lending;
-import libraryapi.bookservicecommand.rabbitMQ.Mapper.RabbitMapper;
 import libraryapi.bookservicecommand.rabbitMQ.RabbitMQConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Component

@@ -1,30 +1,20 @@
 package libraryapi.lendingservicecommand.api;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import libraryapi.lendingservicecommand.model.Role;
 import libraryapi.lendingservicecommand.services.LendingServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import libraryapi.lendingservicecommand.exceptions.NotFoundException;
 import libraryapi.lendingservicecommand.model.Lending;
 import libraryapi.lendingservicecommand.services.CreateLendingRequest;
 import libraryapi.lendingservicecommand.services.EditLendingRequest;
 
-import java.time.LocalDate;
-import java.util.List;
 
 @Tag(name = "Lendings", description = "Endpoints for managing Lendings")
 @RestController
@@ -90,13 +80,6 @@ public class LendingController {
 
         return ResponseEntity.created(newbarUri).eTag(Long.toString(savedLending.getVersion()))
                 .body(lendingViewMapper.toLendingView(savedLending));
-    }
-    
-    private Long getVersionFromIfMatchHeader(final String ifMatchHeader) {
-        if (ifMatchHeader.startsWith("\"")) {
-            return Long.parseLong(ifMatchHeader.substring(1, ifMatchHeader.length() - 1));
-        }
-        return Long.parseLong(ifMatchHeader);
     }
 }
 

@@ -7,21 +7,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.validation.Valid;
 import libraryapi.lendingservicequery.model.Role;
 import libraryapi.lendingservicequery.services.LendingServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import libraryapi.lendingservicequery.exceptions.NotFoundException;
 import libraryapi.lendingservicequery.model.Lending;
-import libraryapi.lendingservicequery.services.CreateLendingRequest;
-import libraryapi.lendingservicequery.services.EditLendingRequest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -31,8 +26,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping(path = "api/lendings")
 public class LendingController {
-
-    private static final String IF_MATCH = "If-Match";
     private final LendingServiceImpl lendingService;
     private final LendingViewMapper lendingViewMapper;
 

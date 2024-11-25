@@ -2,12 +2,8 @@ package libraryapi.bookservicecommand.rabbitMQ.consumer;
 
 import libraryapi.bookservicecommand.model.Author;
 import libraryapi.bookservicecommand.model.Book;
-import libraryapi.bookservicecommand.model.Genre;
 import libraryapi.bookservicecommand.model.Lending;
 import libraryapi.bookservicecommand.rabbitMQ.Mapper.RabbitMapper;
-import libraryapi.bookservicecommand.repositories.AuthorRepository;
-import libraryapi.bookservicecommand.repositories.BookRepository;
-import libraryapi.bookservicecommand.repositories.GenreRepository;
 import libraryapi.bookservicecommand.repositories.LendingRepository;
 import libraryapi.bookservicecommand.services.AuthorServiceImpl;
 import libraryapi.bookservicecommand.services.BookServiceImpl;
@@ -16,25 +12,25 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Component
 public class Receiver {
-    @Autowired
-    private Environment env;
+    private final Environment env;
 
-    @Autowired
-    private BookServiceImpl bookService;
+    private final BookServiceImpl bookService;
 
-    @Autowired
-    private AuthorServiceImpl authorService;
+    private final AuthorServiceImpl authorService;
 
-    @Autowired
-    private LendingRepository lendingRepository;
+    private final LendingRepository lendingRepository;
+
+    public Receiver(Environment env, BookServiceImpl bookService, AuthorServiceImpl authorService, LendingRepository lendingRepository) {
+        this.env = env;
+        this.bookService = bookService;
+        this.authorService = authorService;
+        this.lendingRepository = lendingRepository;
+    }
 
     @RabbitListener(queues = "#{BookSyncQueue.name}")
     public void receiveSyncBook(Message message) {

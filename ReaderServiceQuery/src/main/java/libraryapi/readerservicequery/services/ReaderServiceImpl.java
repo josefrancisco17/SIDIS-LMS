@@ -1,7 +1,6 @@
 package libraryapi.readerservicequery.services;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
 import libraryapi.readerservicequery.model.*;
 import libraryapi.readerservicequery.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,33 +12,20 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import libraryapi.readerservicequery.util.BookUtil;
 import libraryapi.readerservicequery.exceptions.NotFoundException;
 import libraryapi.readerservicequery.fileStorage.FileStorageService;
-import libraryapi.readerservicequery.fileStorage.UploadFileResponse;
-import libraryapi.readerservicequery.util.ReaderUtil;
 
-import java.io.IOException;
 import java.security.interfaces.RSAPublicKey;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static libraryapi.readerservicequery.util.ReaderUtil.isValidReaderPhoto;
-
 @Service
 public class ReaderServiceImpl implements ReaderService {
 
     private final ReaderRepository readerRepository;
-    private final EditReaderMapper editReaderMapper;
-    private final FileStorageService fileStorageService;
-    private final ReaderPhotoRepository readerPhotoRepository;
-    private final ReaderRepositoryHTTP readerRepositoryHTTP;
-    private final LendingRepositoryHTTP lendingRepositoryHTTP;
-    private final BookRepositoryHTTP bookRepositoryHTTP;
     private final LendingRepository lendingRepository;
     private final BookRepository bookRepository;
 
@@ -48,14 +34,8 @@ public class ReaderServiceImpl implements ReaderService {
 
 
     @Autowired
-    public ReaderServiceImpl(ReaderRepository readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService, ReaderRepositoryHTTP readerRepositoryHTTP, LendingRepositoryHTTP lendingRepositoryHTTP, BookRepositoryHTTP bookRepositoryHTTP, LendingRepository lendingRepository, BookRepository bookRepository) {
+    public ReaderServiceImpl(ReaderRepository readerRepository, LendingRepository lendingRepository, BookRepository bookRepository) {
         this.readerRepository = readerRepository;
-        this.editReaderMapper = editReaderMapper;
-        this.fileStorageService = fileStorageService;
-        this.readerPhotoRepository = readerPhotoRepository;
-        this.readerRepositoryHTTP = readerRepositoryHTTP;
-        this.lendingRepositoryHTTP = lendingRepositoryHTTP;
-        this.bookRepositoryHTTP = bookRepositoryHTTP;
         this.lendingRepository = lendingRepository;
         this.bookRepository = bookRepository;
     }

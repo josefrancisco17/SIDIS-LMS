@@ -1,8 +1,6 @@
 package libraryapi.bookservicequery.rabbitMQ.Mapper;
 
 import libraryapi.bookservicequery.model.*;
-import libraryapi.bookservicequery.model.*;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;

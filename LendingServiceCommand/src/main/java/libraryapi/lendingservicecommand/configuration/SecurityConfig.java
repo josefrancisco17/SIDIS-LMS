@@ -8,7 +8,6 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import libraryapi.lendingservicecommand.model.Role;
 import libraryapi.lendingservicecommand.model.User;
-import libraryapi.lendingservicecommand.repositories.UserRepositoryHTTP;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -54,8 +53,6 @@ import static java.lang.String.format;
 @EnableConfigurationProperties
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-	private final UserRepositoryHTTP userRepositoryHTTP;
 
 	@Value("${jwt.public.key}")
 	private RSAPublicKey rsaPublicKey;

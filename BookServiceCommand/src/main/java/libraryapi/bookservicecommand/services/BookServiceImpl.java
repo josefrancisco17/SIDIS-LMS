@@ -28,25 +28,21 @@ public class BookServiceImpl implements BookService{
 
     private final BookRepository bookRepository;
     private final BookCoverRepository bookCoverRepository;
-    private final BookRepositoryHTTP bookRepositoryHTTP;
     private final GenreRepository genreRepository;
     private final FileStorageService fileStorageService;
     private final EditBookMapper editBookMapper;
-    private final LendingRepositoryHTTP lendingRepositoryHTTP;
     private final AuthorRepository authorRepository;
 
     @Autowired
     private Sender sender;
 
     @Autowired
-    public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, BookRepositoryHTTP bookRepositoryHTTP, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService, LendingRepositoryHTTP lendingRepositoryHTTP, AuthorRepository authorRepository) {
+    public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService, AuthorRepository authorRepository) {
         this.bookRepository = bookRepository;
         this.bookCoverRepository = bookCoverRepository;
-        this.bookRepositoryHTTP = bookRepositoryHTTP;
         this.editBookMapper = editBookMapper;
         this.genreRepository = genreRepository;
         this.fileStorageService =  fileStorageService;
-        this.lendingRepositoryHTTP = lendingRepositoryHTTP;
         this.authorRepository = authorRepository;
     }
 

@@ -20,29 +20,22 @@ import java.util.*;
 @Service
 public class LendingServiceImpl implements LendingService {
 
-    private final LendingRepository lendingRepository;
-    private final LendingRepositoryHTTP lendingRepositoryHTTP;
-    private final BookRepositoryHTTP bookRepositoryHTTP;
-    private final ReaderRepositoryHTTP readerRepositoryHTTP;
-
     @Value("${lending.days}")
     private int daysOfLending ;
     @Value("${lending.lateFee}")
     private float lateFee;
 
-    @Autowired
-    private Sender sender;
-    @Autowired
-    private BookRepository bookRepository;
-    @Autowired
-    private ReaderRepository readerRepository;
+    private final LendingRepository lendingRepository;
+    private final Sender sender;
+    private final BookRepository bookRepository;
+    private final ReaderRepository readerRepository;
 
     @Autowired
-    public LendingServiceImpl(LendingRepository lendingRepository, LendingRepositoryHTTP lendingRepositoryHTTP, BookRepositoryHTTP bookRepositoryHTTP, ReaderRepositoryHTTP readerRepositoryHTTP ) {
+    public LendingServiceImpl(LendingRepository lendingRepository, Sender sender, BookRepository bookRepository, ReaderRepository readerRepository) {
         this.lendingRepository = lendingRepository;
-        this.lendingRepositoryHTTP = lendingRepositoryHTTP;
-        this.bookRepositoryHTTP = bookRepositoryHTTP;
-        this.readerRepositoryHTTP = readerRepositoryHTTP;
+        this.sender = sender;
+        this.bookRepository = bookRepository;
+        this.readerRepository = readerRepository;
     }
 
     public Lending createLending(final CreateLendingRequest resource) {

@@ -28,27 +28,14 @@ import static libraryapi.bookservicequery.util.BookUtil.*;
 public class BookServiceImpl implements BookService{
 
     private final BookRepository bookRepository;
-    private final BookCoverRepository bookCoverRepository;
-    private final BookRepositoryHTTP bookRepositoryHTTP;
-    private final GenreRepository genreRepository;
-    private final FileStorageService fileStorageService;
-    private final EditBookMapper editBookMapper;
-    private final LendingRepositoryHTTP lendingRepositoryHTTP;
     private final AuthorRepository authorRepository;
+    private final LendingRepository lendingRepository;
 
     @Autowired
-    private LendingRepository lendingRepository;
-
-    @Autowired
-    public BookServiceImpl(BookRepository bookRepository, BookCoverRepository bookCoverRepository, BookRepositoryHTTP bookRepositoryHTTP, EditBookMapper editBookMapper, GenreRepository genreRepository, FileStorageService fileStorageService, LendingRepositoryHTTP lendingRepositoryHTTP, AuthorRepository authorRepository) {
+    public BookServiceImpl(BookRepository bookRepository, AuthorRepository authorRepository, LendingRepository lendingRepository) {
         this.bookRepository = bookRepository;
-        this.bookCoverRepository = bookCoverRepository;
-        this.bookRepositoryHTTP = bookRepositoryHTTP;
-        this.editBookMapper = editBookMapper;
-        this.genreRepository = genreRepository;
-        this.fileStorageService =  fileStorageService;
-        this.lendingRepositoryHTTP = lendingRepositoryHTTP;
         this.authorRepository = authorRepository;
+        this.lendingRepository = lendingRepository;
     }
 
     public Optional<Book> getBook(final String isbn) {

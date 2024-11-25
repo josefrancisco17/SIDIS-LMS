@@ -24,17 +24,20 @@ import java.util.stream.Collectors;
 
 @Component
 public class Receiver {
-    @Autowired
-    private Environment env;
+    private final Environment env;
 
-    @Autowired
-    private BookServiceImpl bookService;
+    private final BookServiceImpl bookService;
 
-    @Autowired
-    private AuthorRepository authorRepository;
+    private final AuthorRepository authorRepository;
 
-    @Autowired
-    private LendingRepository lendingRepository;
+    private final LendingRepository lendingRepository;
+
+    public Receiver(Environment env, BookServiceImpl bookService, AuthorRepository authorRepository, LendingRepository lendingRepository) {
+        this.env = env;
+        this.bookService = bookService;
+        this.authorRepository = authorRepository;
+        this.lendingRepository = lendingRepository;
+    }
 
     @RabbitListener(queues = "#{BookSyncQueue.name}")
     public void receiveSyncBook(Message message) {

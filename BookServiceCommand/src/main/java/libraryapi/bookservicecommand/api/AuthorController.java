@@ -1,25 +1,16 @@
 package libraryapi.bookservicecommand.api;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import libraryapi.bookservicecommand.model.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
@@ -27,8 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import libraryapi.bookservicecommand.services.AuthorServiceImpl;
 import libraryapi.bookservicecommand.services.EditAuthorRequest;
-import libraryapi.bookservicecommand.services.BookServiceImpl;
-import libraryapi.bookservicecommand.exceptions.NotFoundException;
 import java.util.List;
 
 @Tag(name = "Authors", description = "Endpoints for managing Authors")
@@ -39,10 +28,8 @@ public class AuthorController {
 
     private static final String IF_MATCH = "If-Match";
     private final AuthorServiceImpl authorService;
-    private final BookServiceImpl bookService;
     private final AuthorViewMapper authorViewMapper;
     private final BookViewMapper bookViewMapper;
-    private final AuthorLentsViewMapper authorLentsViewMapper;
 
     @Operation(summary = "Creates a new Author")
     @PostMapping

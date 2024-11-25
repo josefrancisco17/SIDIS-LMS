@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import libraryapi.readerservicequery.model.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -17,17 +16,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import libraryapi.readerservicequery.exceptions.NotFoundException;
 import libraryapi.readerservicequery.model.Reader;
 import libraryapi.readerservicequery.model.ReaderPhoto;
-import libraryapi.readerservicequery.services.EditReaderRequest;
 import libraryapi.readerservicequery.services.ReaderServiceImpl;
 
 
@@ -37,7 +31,6 @@ import libraryapi.readerservicequery.services.ReaderServiceImpl;
 @RequestMapping(path = "api/readers")
 public class ReaderController {
 
-    private static final String IF_MATCH = "If-Match";
     private final ReaderServiceImpl readerService;
     private final ReaderViewMapper readerViewMapper;
     private final ReaderProfileViewMapper readerProfileViewMapper ;

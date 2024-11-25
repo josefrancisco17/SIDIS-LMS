@@ -1,56 +1,35 @@
 package libraryapi.bookservicequery.services;
 
-import jakarta.transaction.Transactional;
-import libraryapi.bookservicequery.model.*;
+
 import libraryapi.bookservicequery.model.Author;
 import libraryapi.bookservicequery.model.AuthorPhoto;
 import libraryapi.bookservicequery.model.Book;
 import libraryapi.bookservicequery.model.Lending;
 import libraryapi.bookservicequery.repositories.*;
-import libraryapi.bookservicequery.repositories.*;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import libraryapi.bookservicequery.exceptions.NotFoundException;
-import libraryapi.bookservicequery.fileStorage.FileStorageService;
-import libraryapi.bookservicequery.fileStorage.UploadFileResponse;
-
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static libraryapi.bookservicequery.util.AuthorUtil.isValidAuthorPhoto;
+
 
 @Service
 public class AuthorServiceImpl implements AuthorService{
     private final AuthorRepository authorRepository;
-    private final EditAuthorMapper editAuthorMapper;
-    private final AuthorPhotoRepository authorPhotoRepository;
-    private final FileStorageService fileStorageService;
     private final BookService bookService;
     private final BookRepository bookRepository;
-    private final BookRepositoryHTTP bookRepositoryHTTP;
-    private final AuthorRepositoryHTTP authorRepositoryHTTP;
-    private final LendingRepositoryHTTP lendingRepositoryHTTP;
 
     @Autowired
     private LendingRepository lendingRepository;
 
     @Autowired
-    public AuthorServiceImpl(AuthorRepository authorRepository, EditAuthorMapper editAuthorMapper, AuthorPhotoRepository authorPhotoRepository, FileStorageService fileStorageService, BookService bookService, BookRepository bookRepository, BookRepositoryHTTP bookRepositoryHTTP, AuthorRepositoryHTTP authorRepositoryHTTP, LendingRepositoryHTTP lendingRepositoryHTTP) {
+    public AuthorServiceImpl(AuthorRepository authorRepository, BookService bookService, BookRepository bookRepository) {
         this.authorRepository = authorRepository;
-        this.editAuthorMapper = editAuthorMapper;
-        this.authorPhotoRepository = authorPhotoRepository;
-        this.fileStorageService = fileStorageService;
         this.bookService = bookService;
         this.bookRepository = bookRepository;
-        this.bookRepositoryHTTP = bookRepositoryHTTP;
-        this.authorRepositoryHTTP = authorRepositoryHTTP;
-        this.lendingRepositoryHTTP = lendingRepositoryHTTP;
     }
 
     public Page<Author> getAuthors(Pageable pageable) {

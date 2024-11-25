@@ -3,14 +3,10 @@ package libraryapi.lendingservicequery.services;
 import libraryapi.lendingservicequery.model.Genre;
 import libraryapi.lendingservicequery.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import libraryapi.lendingservicequery.model.Book;
-import libraryapi.lendingservicequery.exceptions.NotFoundException;
 import libraryapi.lendingservicequery.model.Lending;
-import libraryapi.lendingservicequery.model.Reader;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -20,19 +16,12 @@ import java.util.*;
 public class LendingServiceImpl implements LendingService {
 
     private final LendingRepository lendingRepository;
-    private final LendingRepositoryHTTP lendingRepositoryHTTP;
-    private final BookRepositoryHTTP bookRepositoryHTTP;
-    private final ReaderRepositoryHTTP readerRepositoryHTTP;
+    private final GenreRepository genreRepository;
 
     @Autowired
-    private GenreRepository genreRepository;
-
-    @Autowired
-    public LendingServiceImpl(LendingRepository lendingRepository, LendingRepositoryHTTP lendingRepositoryHTTP, BookRepositoryHTTP bookRepositoryHTTP, ReaderRepositoryHTTP readerRepositoryHTTP ) {
+    public LendingServiceImpl(LendingRepository lendingRepository, GenreRepository genreRepository) {
         this.lendingRepository = lendingRepository;
-        this.lendingRepositoryHTTP = lendingRepositoryHTTP;
-        this.bookRepositoryHTTP = bookRepositoryHTTP;
-        this.readerRepositoryHTTP = readerRepositoryHTTP;
+        this.genreRepository = genreRepository;
     }
 
     public Optional<Lending> getLending(final Long lendingId) {

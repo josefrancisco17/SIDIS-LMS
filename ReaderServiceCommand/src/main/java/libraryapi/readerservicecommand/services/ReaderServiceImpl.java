@@ -1,34 +1,23 @@
 package libraryapi.readerservicecommand.services;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
-import libraryapi.readerservicecommand.model.Book;
-import libraryapi.readerservicecommand.model.Lending;
 import libraryapi.readerservicecommand.model.Reader;
 import libraryapi.readerservicecommand.model.ReaderPhoto;
 import libraryapi.readerservicecommand.repositories.*;
-import libraryapi.readerservicecommand.model.*;
-import libraryapi.readerservicecommand.repositories.*;
 import libraryapi.readerservicecommand.rabbitMQ.producer.Sender;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import libraryapi.readerservicecommand.util.BookUtil;
 import libraryapi.readerservicecommand.exceptions.NotFoundException;
 import libraryapi.readerservicecommand.fileStorage.FileStorageService;
 import libraryapi.readerservicecommand.fileStorage.UploadFileResponse;
 import libraryapi.readerservicecommand.util.ReaderUtil;
 
 import java.io.IOException;
-import java.security.interfaces.RSAPublicKey;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
@@ -43,22 +32,16 @@ public class ReaderServiceImpl implements ReaderService {
     private final EditReaderMapper editReaderMapper;
     private final FileStorageService fileStorageService;
     private final ReaderPhotoRepository readerPhotoRepository;
-    private final ReaderRepositoryHTTP readerRepositoryHTTP;
-    private final LendingRepositoryHTTP lendingRepositoryHTTP;
-    private final BookRepositoryHTTP bookRepositoryHTTP;
 
     @Autowired
     private Sender sender;
 
     @Autowired
-    public ReaderServiceImpl(ReaderRepository readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService, ReaderRepositoryHTTP readerRepositoryHTTP, LendingRepositoryHTTP lendingRepositoryHTTP, BookRepositoryHTTP bookRepositoryHTTP) {
+    public ReaderServiceImpl(ReaderRepository readerRepository, EditReaderMapper editReaderMapper, ReaderPhotoRepository readerPhotoRepository, FileStorageService fileStorageService) {
         this.readerRepository = readerRepository;
         this.editReaderMapper = editReaderMapper;
         this.fileStorageService = fileStorageService;
         this.readerPhotoRepository = readerPhotoRepository;
-        this.readerRepositoryHTTP = readerRepositoryHTTP;
-        this.lendingRepositoryHTTP = lendingRepositoryHTTP;
-        this.bookRepositoryHTTP = bookRepositoryHTTP;
     }
 
     public Reader createReader(final EditReaderRequest resource, MultipartFile photo) {
@@ -173,14 +156,6 @@ public class ReaderServiceImpl implements ReaderService {
         fileDownloadUri = fileDownloadUri.replace("/photos/", "/photo/");
 
         return new UploadFileResponse(fileName, fileDownloadUri, file.getContentType(), file.getSize());
-    }
-
-    private Page<Reader> toPage(List<Reader> readers, Pageable pageable) {
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), readers.size());
-        List<Reader> sublist = readers.subList(start, end);
-        sublist.forEach(this::updateAge);
-        return new PageImpl<>(sublist, pageable, readers.size());
     }
 
     private void updateAge(Reader reader) {

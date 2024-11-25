@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import libraryapi.lendingservicequery.model.Lending;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 public interface LendingService {

@@ -3,7 +3,6 @@ package libraryapi.authservicecommand.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import libraryapi.authservicecommand.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,6 @@ import libraryapi.authservicecommand.services.UserService;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.Instant;
-import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;

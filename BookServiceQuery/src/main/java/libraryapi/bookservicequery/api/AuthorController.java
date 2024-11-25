@@ -7,9 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import libraryapi.bookservicequery.model.*;
 import libraryapi.bookservicequery.model.Author;
 import libraryapi.bookservicequery.model.AuthorPhoto;
 import libraryapi.bookservicequery.model.Book;
@@ -22,16 +20,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import libraryapi.bookservicequery.services.AuthorServiceImpl;
-import libraryapi.bookservicequery.services.EditAuthorRequest;
-import libraryapi.bookservicequery.services.BookServiceImpl;
 import libraryapi.bookservicequery.exceptions.NotFoundException;
 import java.util.List;
 
@@ -41,9 +33,7 @@ import java.util.List;
 @RequestMapping(path = "api/authors")
 public class AuthorController {
 
-    private static final String IF_MATCH = "If-Match";
     private final AuthorServiceImpl authorService;
-    private final BookServiceImpl bookService;
     private final AuthorViewMapper authorViewMapper;
     private final BookViewMapper bookViewMapper;
     private final AuthorLentsViewMapper authorLentsViewMapper;

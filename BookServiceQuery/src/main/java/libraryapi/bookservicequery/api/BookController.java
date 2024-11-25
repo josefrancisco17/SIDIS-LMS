@@ -39,14 +39,11 @@ import java.util.List;
 @RequestMapping(path = "api/books")
 public class BookController {
 
-    private static final String IF_MATCH = "If-Match";
     private final BookServiceImpl bookService;
     private final BookViewMapper bookViewMapper;
     private final GenreViewMapper genreViewMapper;
     private final LentBookViewMapper lentBookViewMapper;
-    private final BookRepositoryHTTP bookRepositoryHTTP;
     private final GenreServiceImpl genreService;
-    private final LendingRepositoryHTTP lendingRepositoryHTTP;
 
     @Operation(summary = "Gets a specific Book")
     @GetMapping("/{bookIsbn}")
