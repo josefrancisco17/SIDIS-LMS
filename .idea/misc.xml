@@ -7,6 +7,7 @@
         <option value="$PROJECT_DIR$/AuthService/pom.xml" />
         <option value="$PROJECT_DIR$/LendingService/pom.xml" />
         <option value="$PROJECT_DIR$/ReaderService/pom.xml" />
+        <option value="$PROJECT_DIR$/ReaderServiceCommand/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

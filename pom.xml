@@ -9,9 +9,13 @@
   <name>SIDIS-LMS</name>
 
   <modules>
-    <module>AuthService</module>
-    <module>BookService</module>
-    <module>LendingService</module>
-    <module>ReaderService</module>
+    <module>AuthServiceQuery</module>
+    <module>AuthServiceCommand</module>
+    <module>BookServiceQuery</module>
+    <module>BookServiceCommand</module>
+    <module>LendingServiceQuery</module>
+    <module>LendingServiceCommand</module>
+    <module>ReaderServiceQuery</module>
+    <module>ReaderServiceCommand</module>
   </modules>
 </project>

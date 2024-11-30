@@ -1,12 +1,48 @@
 #!/usr/bin/env zsh
 
+# ------------------------------
+#  Library Management System
+#  Database Startup Script
+# ------------------------------
+
+# Color definitions
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+BOLD='\033[1m'
+
+# Pretty print function
+print_header() {
+    echo "\n${BOLD}${BLUE}== $1 ==${NC}\n"
+}
+
+print_success() {
+    echo "${GREEN}✓ $1${NC}"
+}
+
+print_info() {
+    echo "${CYAN}ℹ $1${NC}"
+}
+
+print_separator() {
+    echo "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+}
+
 # Clean up existing database files
-echo "🧹 Cleaning up old database files..."
-rm -f db/Auth/*.db db/Auth/*.mv.db
-rm -f db/Book/*.db db/Book/*.mv.db
-rm -f db/Lending/*.db db/Lending/*.mv.db
-rm -f db/Reader/*.db db/Reader/*.mv.db
-echo "✅ Cleanup complete"
+print_header "Database Cleanup"
+echo "${YELLOW}🧹 Cleaning up old database files...${NC}"
+rm -f db/Auth/authquerydb*.db db/Auth/authquerydb*.mv.db
+rm -f db/Auth/authcommanddb*.db db/Auth/authcommanddb*.mv.db
+rm -f db/Book/bookquerydb*.db db/Book/bookquerydb*.mv.db
+rm -f db/Book/bookcommanddb*.db db/Book/bookcommanddb*.mv.db
+rm -f db/Lending/lendingquerydb*.db db/Lending/lendingquerydb*.mv.db
+rm -f db/Lending/lendingcommanddb*.db db/Lending/lendingcommanddb*.mv.db
+rm -f db/Reader/readerquerydb*.db db/Reader/readerquerydb*.mv.db
+rm -f db/Reader/readercommanddb*.db db/Reader/readercommanddb*.mv.db
+print_success "Cleanup complete"
 
 # Define the exact path to the H2 jar file
 H2_JAR_PATH="/home/josef/Programming/IntellijProjects/SIDIS-LMS/db/h2-2.3.232.jar"
@@ -14,26 +50,22 @@ H2_JAR_PATH="/home/josef/Programming/IntellijProjects/SIDIS-LMS/db/h2-2.3.232.ja
 # Array to store PIDs of H2 processes
 declare -a H2_PIDS
 
-# Function to print a separator line
-print_separator() {
-    echo "----------------------------------------"
-}
-
 # Function to start an H2 instance with verbose output
 start_h2_instance() {
     local service=$1
-    local tcp_port=$2
-    local web_port=$3
+    local db_name=$2
+    local tcp_port=$3
 
-    echo "📦 Starting $service:"
-    echo "   ├─ TCP Port: $tcp_port"
-    echo "   └─ Web Port: $web_port"
+    echo "${CYAN}📦 Starting ${BOLD}$service${NC}${CYAN}:${NC}"
+    echo "   └─ TCP Port: ${YELLOW}$tcp_port${NC}"
+    echo "   └─ Database: ${YELLOW}$db_name${NC}"
 
-    # Start H2 in-memory database
+    # Start H2 in-memory database (TCP only, no web interface)
     java -cp "$H2_JAR_PATH" org.h2.tools.Server \
-        -web -webAllowOthers -webPort "$web_port" \
         -tcp -tcpAllowOthers -tcpPort "$tcp_port" \
-        -ifNotExists &
+        -ifNotExists \
+        -baseDir "./db/$service" \
+        -key "$db_name" "$db_name" &
 
     local pid=$!
     H2_PIDS+=($pid)
@@ -43,7 +75,7 @@ start_h2_instance() {
 
     # Check if process is still running
     if ! kill -0 $pid 2>/dev/null; then
-        echo "   ❌ Database failed to start"
+        echo "   ${RED}❌ Database failed to start${NC}"
         return 1
     fi
 }
@@ -51,16 +83,16 @@ start_h2_instance() {
 # Function to cleanup all H2 processes
 cleanup() {
     print_separator
-    echo "🛑 Shutting down H2 databases"
+    echo "${YELLOW}🛑 Shutting down H2 databases${NC}"
     print_separator
     for pid in "${H2_PIDS[@]}"; do
         if kill -0 $pid 2>/dev/null; then
-            echo "Stopping process $pid"
+            echo "${CYAN}↪ Stopping process ${BOLD}$pid${NC}"
             kill $pid
             wait $pid
         fi
     done
-    echo "✅ All databases stopped"
+    print_success "All databases stopped"
     exit 0
 }
 
@@ -68,33 +100,41 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 print_separator
-echo "🚀 Starting H2 Database Instances"
+print_header "Starting H2 Database Instances"
 print_separator
 
 # Start each service's databases
-echo "🔐 Authentication Service"
-start_h2_instance "auth1" 9005 9006 || exit 1
-start_h2_instance "auth2" 9007 9008 || exit 1
+echo "${BOLD}${BLUE}🔐 Authentication Service${NC}"
+start_h2_instance "Auth" "authquerydb1" 9005 || exit 1
+start_h2_instance "Auth" "authquerydb2" 9006 || exit 1
+start_h2_instance "Auth" "authcommanddb1" 9007 || exit 1
+start_h2_instance "Auth" "authcommanddb2" 9008 || exit 1
 echo
 
-echo "📚 Book Service"
-start_h2_instance "book1" 9015 9016 || exit 1
-start_h2_instance "book2" 9017 9018 || exit 1
+echo "${BOLD}${BLUE}📚 Book Service${NC}"
+start_h2_instance "Book" "bookquerydb1" 9015 || exit 1
+start_h2_instance "Book" "bookquerydb2" 9016 || exit 1
+start_h2_instance "Book" "bookcommanddb1" 9017 || exit 1
+start_h2_instance "Book" "bookcommanddb2" 9018 || exit 1
 echo
 
-echo "📋 Lending Service"
-start_h2_instance "lending1" 9025 9026 || exit 1
-start_h2_instance "lending2" 9027 9028 || exit 1
+echo "${BOLD}${BLUE}📋 Lending Service${NC}"
+start_h2_instance "Lending" "lendingquerydb1" 9025 || exit 1
+start_h2_instance "Lending" "lendingquerydb2" 9026 || exit 1
+start_h2_instance "Lending" "lendingcommanddb1" 9027 || exit 1
+start_h2_instance "Lending" "lendingcommanddb2" 9028 || exit 1
 echo
 
-echo "👤 Reader Service"
-start_h2_instance "reader1" 9035 9036 || exit 1
-start_h2_instance "reader2" 9037 9038 || exit 1
+echo "${BOLD}${BLUE}👤 Reader Service${NC}"
+start_h2_instance "Reader" "readerquerydb1" 9035 || exit 1
+start_h2_instance "Reader" "readerquerydb2" 9036 || exit 1
+start_h2_instance "Reader" "readercommanddb1" 9037 || exit 1
+start_h2_instance "Reader" "readercommanddb2" 9038 || exit 1
 echo
 
 print_separator
-echo "✅ All H2 database instances are running and ready"
-echo "ℹ️  Press Ctrl+C to stop all instances"
+print_success "All H2 database instances are running and ready"
+print_info "Press Ctrl+C to stop all instances"
 print_separator
 
 # Wait for all background processes
