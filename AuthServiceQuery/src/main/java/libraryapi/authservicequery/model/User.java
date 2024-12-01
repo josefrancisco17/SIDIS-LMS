@@ -125,6 +125,14 @@ public class User implements UserDetails {
 		this.authorities = authorities;
 	}
 
+	public User(String email, String password, String name, String role) {
+		this.username = email;
+		this.password = password;
+		this.fullName = name;
+		this.authorities = new HashSet<>();
+		this.authorities.add(new Role(role));
+	}
+
 	public static User newUser(final String username, final String password, final String fullName) {
 		final var u = new User(username, password);
 		u.setFullName(fullName);
