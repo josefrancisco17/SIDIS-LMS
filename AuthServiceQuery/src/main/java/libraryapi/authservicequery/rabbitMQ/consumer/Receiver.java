@@ -21,6 +21,8 @@ public class Receiver {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
 
     @RabbitListener(queues = "#{AuthSyncQueue.name}")
     public void receiveSyncAuth(Message message) {
@@ -54,6 +56,10 @@ public class Receiver {
         String password = "password";
 
         User newUser = User.newUser(email, password, name, Role.READER);
-        userService.manageInternalUser(newUser);
+        if (userRepository.findByUsername(newUser.getUsername()).isEmpty()) {
+            userService.manageInternalUser(newUser);
+        } else {
+            System.out.println("[RabbitMQ] User already exists: " + newUser.getUsername());
+        }
     }
 }
