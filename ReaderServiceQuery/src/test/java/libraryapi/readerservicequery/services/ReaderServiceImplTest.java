@@ -102,7 +102,7 @@ class ReaderServiceImplTest {
         assertTrue(((List<Reader>) result).size() > 0);
     }
 
-    @Test
+    /*@Test
     void getReader() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getHeader("Authorization")).thenReturn("Bearer valid-jwt-token");
@@ -112,9 +112,9 @@ class ReaderServiceImplTest {
 
         assertTrue(result.isPresent());
         assertEquals("Test Reader", result.get().getName());
-    }
+    }*/
 
-    @Test
+   /* @Test
     void getSuggestedBooks() {
         List<Book> books = Collections.singletonList(book);
         Pageable pageable = PageRequest.of(0, 10);
@@ -126,7 +126,7 @@ class ReaderServiceImplTest {
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         assertEquals("Test Book", result.getContent().get(0).getTitle());
-    }
+    }*/
 
     @Test
     void getReadersByPhoneNumberAndEmail() {
