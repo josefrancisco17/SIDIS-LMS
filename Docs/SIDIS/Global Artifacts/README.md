@@ -182,7 +182,7 @@ Each service has two instances configured in IntelliJ IDEA with specific VM run 
 2. BookServiceQuery2
    ```
    -Dserver.port=9011
-   -Dspring.datasource.url=jdbc:h2:tcp://localhost:9017/~/Programming/IntelliJProjects/SIDIS-LMS/db/Book/bookdb2
+   -Dspring.datasource.url=jdbc:h2:tcp://localhost:9017//bookqueryd2
    ```
 3. BookServiceCommand1
    ```
