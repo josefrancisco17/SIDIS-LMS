@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class EditLendingRequest {
     private Long id;
     private String lendingCode;
+    private Boolean recommend;
     private String comment;
 }

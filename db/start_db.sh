@@ -42,6 +42,7 @@ rm -f db/Lending/lendingquerydb*.db db/Lending/lendingquerydb*.mv.db
 rm -f db/Lending/lendingcommanddb*.db db/Lending/lendingcommanddb*.mv.db
 rm -f db/Reader/readerquerydb*.db db/Reader/readerquerydb*.mv.db
 rm -f db/Reader/readercommanddb*.db db/Reader/readercommanddb*.mv.db
+rm -f db/Recommendation/recommendationcommanddb*.db db/Recommendation/recommendationcommanddb*.mv.db
 print_success "Cleanup complete"
 
 # Define the exact path to the H2 jar file
@@ -130,6 +131,11 @@ start_h2_instance "Reader" "readerquerydb1" 9035 || exit 1
 start_h2_instance "Reader" "readerquerydb2" 9036 || exit 1
 start_h2_instance "Reader" "readercommanddb1" 9037 || exit 1
 start_h2_instance "Reader" "readercommanddb2" 9038 || exit 1
+echo
+
+echo "${BOLD}${BLUE}🎯 Recommendation Service${NC}"
+start_h2_instance "Recommendation" "recommendationcommanddb1" 9065 || exit 1
+start_h2_instance "Recommendation" "recommendationcommanddb2" 9066 || exit 1
 echo
 
 print_separator

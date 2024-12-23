@@ -17,5 +17,6 @@
     <module>LendingServiceCommand</module>
     <module>ReaderServiceQuery</module>
     <module>ReaderServiceCommand</module>
+    <module>RecommendationServiceCommand</module>
   </modules>
 </project>
