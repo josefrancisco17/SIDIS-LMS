@@ -104,10 +104,10 @@ public class Receiver {
 
         if (optionalTempLending.isPresent()) {
             TempLending tempLending = optionalTempLending.get();
-            Lending newLending = new Lending(tempLending);
-            lendingService.manageInternalLending(newLending);
+            Optional<Lending> newLending = lendingRepository.findByLendingCode(tempLending.getLendingCode());
+            newLending.ifPresent(lending -> lendingRepository.save(lending));
             tempLendingRepository.delete(tempLending);
-            sender.sendSyncLending(newLending);
+            newLending.ifPresent(lending -> sender.sendSyncLending(lending));
         } else {
             throw new EntityNotFoundException("TempLending not found for the given lending code.");
         }

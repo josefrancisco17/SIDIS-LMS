@@ -140,8 +140,6 @@ public class LendingServiceImpl implements LendingService {
         returnedLending.setFine(fine);
         returnedLending.setComment(resource.getComment());
 
-        System.out.println(resource.getRecommend());
-
         TempLending tempLending = new TempLending(returnedLending, resource.getRecommend());
 
         tempLendingRepository.save(tempLending);
