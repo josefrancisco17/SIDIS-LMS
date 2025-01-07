@@ -1,0 +1,17 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+participant "//«system»//\nlms:LMS" as LMS
+
+note left LMS
+    Reader is authenticated
+end note
+
+[o-> LMS: POST /api/lendings/return {:id, :recommend , :comment(optional)}
+activate LMS
+    LMS -> LMS : validate()
+    LMS -> LMS : return()
+[<-- LMS: 201
+deactivate LMS
+
+@enduml
