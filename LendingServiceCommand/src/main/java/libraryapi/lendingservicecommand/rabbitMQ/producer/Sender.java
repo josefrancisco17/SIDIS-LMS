@@ -1,10 +1,7 @@
 package libraryapi.lendingservicecommand.rabbitMQ.producer;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import libraryapi.lendingservicecommand.model.Book;
-import libraryapi.lendingservicecommand.model.Genre;
-import libraryapi.lendingservicecommand.model.Lending;
-import libraryapi.lendingservicecommand.model.Reader;
+import libraryapi.lendingservicecommand.model.*;
 import libraryapi.lendingservicecommand.rabbitMQ.Mapper.RabbitMapper;
 import libraryapi.lendingservicecommand.rabbitMQ.RabbitMQConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -15,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Component
 public class Sender {
@@ -33,6 +31,19 @@ public class Sender {
         String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
         try {
             rabbitTemplate.convertAndSend(RabbitMQConfig.LENDING_SYNC_EXCHANGE, RabbitMQConfig.LENDING_ROUTING_KEY_SYNC, message, msg -> {
+                msg.getMessageProperties().setHeader("instancePort", currentPort);
+                return msg;
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendTempReturnedLending(TempLending tempReturnedLending) {
+        String message = tempReturnedLending.toString();
+        String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
+        try {
+            rabbitTemplate.convertAndSend(RabbitMQConfig.TEMP_LENDING_SYNC_EXCHANGE, RabbitMQConfig.TEMP_LENDING_ROUTING_KEY_SYNC, message, msg -> {
                 msg.getMessageProperties().setHeader("instancePort", currentPort);
                 return msg;
             });

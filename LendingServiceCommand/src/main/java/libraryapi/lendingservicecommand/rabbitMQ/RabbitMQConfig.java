@@ -16,9 +16,14 @@ public class RabbitMQConfig {
     public static final String LENDING_SYNC_EXCHANGE = "lending.sync.exchange";
     public static final String BOOK_SYNC_EXCHANGE = "book.sync.exchange";
     public static final String READER_SYNC_EXCHANGE = "reader.sync.exchange";
+    public static final String TEMP_LENDING_SYNC_EXCHANGE = "temp.lending.sync.exchange";
+    public static final String RECOMMENDATION_SYNC_EXCHANGE = "recommendation.sync.exchange";
+
     public static final String LENDING_ROUTING_KEY_SYNC = "lending.sync";
     public static final String BOOK_ROUTING_KEY_SYNC = "book.sync";
     public static final String READER_ROUTING_KEY_SYNC = "reader.sync";
+    public static final String TEMP_LENDING_ROUTING_KEY_SYNC = "temp.lending.sync";
+    public static final String RECOMMENDATION_ROUTING_KEY_SYNC = "recommendation.lending.sync";
 
     @Bean
     public TopicExchange LendingSyncExchange() {
@@ -70,5 +75,41 @@ public class RabbitMQConfig {
     @Bean
     public Binding ReaderSyncBinding(Queue ReaderSyncQueue, TopicExchange ReaderSyncExchange) {
         return BindingBuilder.bind(ReaderSyncQueue).to(ReaderSyncExchange).with(READER_ROUTING_KEY_SYNC);
+    }
+
+
+    //Temp Lendings
+
+    @Bean
+    public TopicExchange TempLendingSyncExchange() {
+        return new TopicExchange(TEMP_LENDING_SYNC_EXCHANGE);
+    }
+
+    @Bean
+    public Queue TempLendingSyncQueue() {
+        return new Queue("temp.lending.sync.queue", true);
+    }
+
+    @Bean
+    public Binding TempLendingSyncBinding(Queue TempLendingSyncQueue, TopicExchange TempLendingSyncExchange) {
+        return BindingBuilder.bind(TempLendingSyncQueue).to(TempLendingSyncExchange).with(TEMP_LENDING_ROUTING_KEY_SYNC);
+    }
+
+    //Recommendation
+
+    @Bean
+    public TopicExchange RecommendationSyncExchange() {
+        return new TopicExchange(RECOMMENDATION_SYNC_EXCHANGE);
+    }
+
+    @Bean
+    public Queue RecommendationSyncQueue() {
+        String currentPort = Objects.requireNonNull(env.getProperty("server.port"));
+        return new Queue("recommendation.sync.queue." + currentPort, true);
+    }
+
+    @Bean
+    public Binding RecommendationSyncBinding(Queue RecommendationSyncQueue, TopicExchange RecommendationSyncExchange) {
+        return BindingBuilder.bind(RecommendationSyncQueue).to(RecommendationSyncExchange).with(RECOMMENDATION_ROUTING_KEY_SYNC);
     }
 }

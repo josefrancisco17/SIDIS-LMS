@@ -1,0 +1,66 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+participant "//«component»//\nlendC1:LendingsC" as LendingsC1
+participant "//«component»//\nlendC2:LendingsC" as LendingsC2
+participant "//«component»//\nrecC1:RecommendationsC" as RecommendationsC1
+participant "//«component»//\nrecC2:RecommendationsC" as RecommendationsC2
+participant "//«component»//\nmb:MB" as MB
+
+note left LendingsC1
+    Reader is authenticated
+end note
+
+[o-> LendingsC1: POST /api/lendings/return\n{:id, :recommend, :comment (optional)}
+    activate LendingsC1
+    LendingsC1 -> LendingsC1 : validate()
+    LendingsC1 -> LendingsC1 : saveTempLending()
+    LendingsC1 -> MB : publish(tempLending, headers: serverPort)
+    activate MB
+[<-- LendingsC1: 202
+    deactivate LendingsC1
+            note over MB :  only one instance consumes the message, because they are in the same queue
+            MB -> RecommendationsC1 : notify(tempLending, headers: serverPort)
+            activate RecommendationsC1
+            RecommendationsC1 -> RecommendationsC1 : createRecommendation()
+            RecommendationsC1 -> RecommendationsC1 : save()
+            RecommendationsC1 -> MB : publish(recommendation, headers: serverPort)
+            note over MB :  if recommendService checkExistence. if LendingServiceCommand checkPort
+            deactivate RecommendationsC1
+                MB -> RecommendationsC1 : notify(recommendation)
+                activate RecommendationsC1
+                RecommendationsC1 -> RecommendationsC1 : checkExistence()
+                note over RecommendationsC1 :  recommendation already exists,\nprocess aborted
+                deactivate RecommendationsC1
+                MB -> RecommendationsC2 : notify(recommendation)
+                activate RecommendationsC2
+                RecommendationsC2 -> RecommendationsC2 : checkExistence()
+                RecommendationsC2 -> RecommendationsC2 : save()
+                deactivate RecommendationsC2
+
+        MB -> LendingsC2 : notify(recommendation)
+        note over LendingsC2 :  serverPort doesn't match,\nprocess aborted
+        activate LendingsC2
+        destroy LendingsC2
+    MB -> LendingsC1 : notify(recommendation)
+    activate LendingsC1
+    LendingsC1 -> LendingsC1 : save(returned_lending)
+    LendingsC1 -> LendingsC1 : deleteTempLending()
+    LendingsC1 -> MB : publish(returned_lending)
+    deactivate LendingsC1
+        MB -> LendingsC2 : notify(returned_lending)
+        activate LendingsC2
+        LendingsC2 -> LendingsC2 : save(returned_lending)
+        deactivate LendingsC2
+                MB -> RecommendationsC1 : notify(returned_lending)
+                activate RecommendationsC1
+
+                RecommendationsC1 -> RecommendationsC1 : save(returned_lending)
+                deactivate RecommendationsC1
+                        MB -> RecommendationsC2 : notify(returned_lending)
+                        deactivate MB
+                        activate RecommendationsC2
+                        RecommendationsC2 -> RecommendationsC2 : save(returned_lending)
+                        deactivate RecommendationsC2
+
+@enduml

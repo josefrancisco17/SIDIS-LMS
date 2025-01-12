@@ -1,6 +1,6 @@
 package libraryapi.lendingservicecommand.services;
 
-import libraryapi.lendingservicecommand.model.Genre;
+import libraryapi.lendingservicecommand.model.*;
 import libraryapi.lendingservicecommand.rabbitMQ.producer.Sender;
 import libraryapi.lendingservicecommand.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import libraryapi.lendingservicecommand.model.Book;
 import libraryapi.lendingservicecommand.exceptions.NotFoundException;
-import libraryapi.lendingservicecommand.model.Lending;
-import libraryapi.lendingservicecommand.model.Reader;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -20,6 +17,7 @@ import java.util.*;
 @Service
 public class LendingServiceImpl implements LendingService {
 
+    private final TempLendingRepository tempLendingRepository;
     @Value("${lending.days}")
     private int daysOfLending ;
     @Value("${lending.lateFee}")
@@ -31,11 +29,12 @@ public class LendingServiceImpl implements LendingService {
     private final ReaderRepository readerRepository;
 
     @Autowired
-    public LendingServiceImpl(LendingRepository lendingRepository, Sender sender, BookRepository bookRepository, ReaderRepository readerRepository) {
+    public LendingServiceImpl(LendingRepository lendingRepository, Sender sender, BookRepository bookRepository, ReaderRepository readerRepository, TempLendingRepository tempLendingRepository) {
         this.lendingRepository = lendingRepository;
         this.sender = sender;
         this.bookRepository = bookRepository;
         this.readerRepository = readerRepository;
+        this.tempLendingRepository = tempLendingRepository;
     }
 
     public Lending createLending(final CreateLendingRequest resource) {
@@ -141,13 +140,17 @@ public class LendingServiceImpl implements LendingService {
         returnedLending.setFine(fine);
         returnedLending.setComment(resource.getComment());
 
+        TempLending tempLending = new TempLending(returnedLending, resource.getRecommend());
+
+        tempLendingRepository.save(tempLending);
+
         try {
-            sender.sendSyncLending(returnedLending);
+            sender.sendTempReturnedLending(tempLending);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return lendingRepository.save(returnedLending);
+        return returnedLending;
     }
 
     private float calculateFine(long daysOverdue) {

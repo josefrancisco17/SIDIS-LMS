@@ -79,6 +79,21 @@ public class Lending {
         }
     }
 
+    public Lending(TempLending tempLending) {
+        this.lendingCode = tempLending.getLendingCode();
+        this.readerId = tempLending.getReaderId();
+        this.bookId = tempLending.getBookId();
+        this.bookTitle = tempLending.getBookTitle();
+        this.lendDate = tempLending.getLendDate();
+        this.limitDate = tempLending.getLimitDate();
+        this.returnedDate = tempLending.getReturnedDate();
+        this.returned = tempLending.isReturned();
+        this.fine = tempLending.getFine();
+        this.daysTillReturn = tempLending.getDaysTillReturn();
+        this.daysOverdue = tempLending.getDaysOverdue();
+        this.comment = tempLending.getComment();
+    }
+
     public Long getId() {
         return id;
     }

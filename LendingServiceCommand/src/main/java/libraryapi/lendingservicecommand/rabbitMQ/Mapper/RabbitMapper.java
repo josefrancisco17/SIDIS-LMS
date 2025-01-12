@@ -316,4 +316,26 @@ public class RabbitMapper {
 
         return genres;
     }
+
+    public static Recommendation StringToRecommendation(String input) {
+        Pattern pattern = Pattern.compile(
+                "Recommendation\\{id=(null|\\d+),\\s*lendingCode='(.*?)',\\s*recommended=(true|false)\\}"
+        );
+
+        Matcher matcher = pattern.matcher(input);
+        if (matcher.find()) {
+            Long id = "null".equals(matcher.group(1)) ? null : Long.parseLong(matcher.group(1));
+            String lendingCode = matcher.group(2);
+            boolean recommended = Boolean.parseBoolean(matcher.group(3));
+
+            Recommendation recommendation = new Recommendation();
+            recommendation.setId(id);
+            recommendation.setLendingCode(lendingCode);
+            recommendation.setRecommended(recommended);
+
+            return recommendation;
+        }
+
+        return null;
+    }
 }
