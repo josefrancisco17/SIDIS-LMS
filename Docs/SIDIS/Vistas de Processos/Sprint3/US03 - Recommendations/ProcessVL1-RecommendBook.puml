@@ -11,7 +11,7 @@ end note
 activate LMS
     LMS -> LMS : validate()
     LMS -> LMS : return()
-[<-- LMS: 201
+[<-- LMS: 202
 deactivate LMS
 
 @enduml

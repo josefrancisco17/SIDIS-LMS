@@ -82,12 +82,12 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:9012/api/books",
+							"raw": "http://localhost:9013/api/books",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "9012",
+							"port": "9013",
 							"path": [
 								"api",
 								"books"
@@ -404,16 +404,16 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:9010/api/books/9780062316110",
+							"raw": "http://localhost:9011/api/books/9780241472903",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "9010",
+							"port": "9011",
 							"path": [
 								"api",
 								"books",
-								"9780062316110"
+								"9780241472903"
 							]
 						}
 					},
@@ -2114,7 +2114,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"readerId\": 2,\n  \"bookId\": 5\n}",
+							"raw": "{\n  \"readerId\": 1,\n  \"bookId\": 2\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2198,7 +2198,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"id\": 42,\n  \"comment\": \"liked it\"\n}",
+							"raw": "{\n  \"id\": 42,\n  \"recommend\" : true,\n  \"comment\": \"liked it\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2362,7 +2362,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:9020/api/lendings/40",
+							"raw": "http://localhost:9020/api/lendings/43",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -2371,7 +2371,7 @@
 							"path": [
 								"api",
 								"lendings",
-								"40"
+								"43"
 							]
 						}
 					},
@@ -3361,7 +3361,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:9030/api/readers/7",
+									"raw": "http://localhost:9030/api/readers/11",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -3370,7 +3370,7 @@
 									"path": [
 										"api",
 										"readers",
-										"7"
+										"11"
 									]
 								}
 							},

@@ -17,7 +17,7 @@ end note
     LendingsC1 -> LendingsC1 : saveTempLending()
     LendingsC1 -> MB : publish(tempLending, headers: serverPort)
     activate MB
-[<-- LendingsC1: 201
+[<-- LendingsC1: 202
     deactivate LendingsC1
             note over MB :  only one instance consumes the message, because they are in the same queue
             MB -> RecommendationsC1 : notify(tempLending, headers: serverPort)
