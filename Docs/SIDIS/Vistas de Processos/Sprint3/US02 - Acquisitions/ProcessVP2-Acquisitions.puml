@@ -1,0 +1,66 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+participant "//«component»//\nbookC1:BookC" as BooksC1
+participant "//«component»//\nbookC2:BookC" as BooksC2
+participant "//«component»//\nacqC1:AcquisitionC" as AcquisitionsC1
+participant "//«component»//\nacqC2:AcquisitionC" as AcquisitionsC2
+participant "//«component»//\nmb:MB" as MB
+
+note left BooksC1
+    Reader is authenticated
+end note
+
+[o-> BooksC1: POST /api/books/acquire\n{:isbn, :title}
+    activate BooksC1
+    BooksC1 -> BooksC1 : validate()
+    BooksC1 -> BooksC1 : saveTempBook()
+    BooksC1 -> MB : publish(tempBook, headers: serverPort)
+    activate MB
+[<-- BooksC1: 202
+    deactivate BooksC1
+            note over MB :  only one instance consumes the message, because they are in the same queue
+            MB -> AcquisitionsC1 : notify(tempBook, headers: serverPort)
+            activate AcquisitionsC1
+            AcquisitionsC1 -> AcquisitionsC1 : createAcquisition()
+            AcquisitionsC1 -> AcquisitionsC1 : save()
+            AcquisitionsC1 -> MB : publish(acquisition, headers: serverPort)
+            note over MB :  if acquisitionService --> checkExistence. if BookServiceCommand checkPort
+            deactivate AcquisitionsC1
+                MB -> AcquisitionsC1 : notify(acquisition)
+                activate AcquisitionsC1
+                AcquisitionsC1 -> AcquisitionsC1 : checkExistence()
+                note over AcquisitionsC1 :  acquisition already exists,\nprocess aborted
+                deactivate AcquisitionsC1
+                MB -> AcquisitionsC2 : notify(acquisition)
+                activate AcquisitionsC2
+                AcquisitionsC2 -> AcquisitionsC2 : checkExistence()
+                AcquisitionsC2 -> AcquisitionsC2 : save()
+                deactivate AcquisitionsC2
+
+        MB -> BooksC2 : notify(acquisition)
+        note over BooksC2 :  serverPort doesn't match,\nprocess aborted
+        activate BooksC2
+        destroy BooksC2
+    MB -> BooksC1 : notify(acquisition))
+    activate BooksC1
+    BooksC1 -> BooksC1 : save(acquiredBook)
+    BooksC1 -> BooksC1 : deleteTempBook()
+    BooksC1 -> MB : publish(acquiredBook)
+    deactivate BooksC1
+        MB -> BooksC2 : notify(acquiredBook)
+        activate BooksC2
+        BooksC2 -> BooksC2 : save(acquiredBook)
+        deactivate BooksC2
+                MB -> AcquisitionsC1 : notify(acquiredBook)
+                activate AcquisitionsC1
+
+                AcquisitionsC1 -> AcquisitionsC1 : save(acquiredBook)
+                deactivate AcquisitionsC1
+                        MB -> AcquisitionsC2 : notify(acquiredBook)
+                        deactivate MB
+                        activate AcquisitionsC2
+                        AcquisitionsC2 -> AcquisitionsC2 : save(acquiredBook)
+                        deactivate AcquisitionsC2
+
+@enduml

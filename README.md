@@ -27,9 +27,21 @@ This project is a distributed version of a Library Management System (LMS) re-en
     - Multiple service instances sharing same database
     - External database monitoring
 
+### 1.3 Saga Pattern Implementation
+- The system employs the Saga Pattern to coordinate long-running transactions across multiple microservices, ensuring data consistency in distributed environments. This pattern is particularly useful for scenarios involving multiple steps or inter-service dependencies.
+- The Saga pattern was implemented for the following user stories:
+  - As a librarian ,The ability to create a Book, Author, and Genre in a single process. This involves at least two services and ensures consistency across them through the Saga pattern.
+  - As a reader, The ability to suggest the acquisition of a new Book, which requires coordination between services like the AcquisitionService.
+  - Upon returning a Book, the ability for a reader to recommend it positively or negatively, which involves services like RecommendationService
+
+- The Saga Pattern manages distributed transactions in our microservices system using event-driven choreography.
+- Each service performs its tasks independently, publishing events like notifyTempBook and notifyAcquisition.
+- Compensation mechanisms handle errors, such as deleting temporary states (deleteTempBook) if an acquisition fails. State checks (e.g., checkExistence) ensure idempotency, avoiding duplication. The system maintains consistency and scalability by processing events in sequence and leveraging message queues like RabbitMQ.
+
 #### Bootstrap Design Choices
 
 - Instead of using dedicated bootstrap services to initialize data, required data is directly embedded into the bootstrap logic of the services, simplifying setup.
+- An alternative solution to enable the synchronization of instances started after a delay would involve creating a dedicated queue. This queue would listen for newly started services, and once these services are up, they would send a message requesting all the data needed for synchronization. One of the existing services would then receive the request and respond by sending the required data.
 
 ## 2. Architecture
 
@@ -89,7 +101,6 @@ This project is a distributed version of a Library Management System (LMS) re-en
     - We decided to load the necessary initial data directly during the bootstrap phase of services, rather than creating dedicated bootstrap services that use RabbitMQ to send data.
 4. Handling Media Files (Images, etc.)
    - We initially decided to send media files (e.g., profile images) through RabbitMQ, although we acknowledge that it would be more efficient to send only the file paths instead of the actual files., as well as, only saving the desired path to the file instead of saving it in the databases, due to the unnecessary bloat that it causes.
-
 ### 4. Project Structure
 ```
 SIDIS-LMS/
@@ -102,6 +113,7 @@ SIDIS-LMS/
 ├── LendingServiceQuery/         # Query (read) operations for Lending service
 ├── ReaderServiceCommand/        # Command (write) operations for Reader service
 ├── ReaderServiceQuery/          # Query (read) operations for Reader service
+├── RecommendationServiceCommand/# Command (write) operations for Recommendation service
 ├── db/                          # Databases for services
 │   ├── Auth/
 │   ├── Book/
@@ -241,6 +253,18 @@ Each service has two instances configured in IntelliJ IDEA with specific VM run 
     -Dspring.datasource.url=jdbc:h2:tcp://localhost:9041/readercommanddb2
    ```
 
+#### Recommendation Service
+1. RecommendationCommand1
+   ```
+    -Dserver.port=9060
+    -Dspring.datasource.url=jdbc:h2:tcp://localhost:9065/recommendationcommanddb1
+   ```
+2. RecommendationCommand2
+   ```
+    -Dserver.port=9061
+    -Dspring.datasource.url=jdbc:h2:tcp://localhost:9066/recommendationcommanddb2
+   ```
+
 ### 7. RabbitMQ Setup
 
 - We are using RabbitMQ as a message broker for communication between microservices. The RabbitMQ instance is running as a Docker container with the following command:
@@ -273,29 +297,32 @@ Each service has two instances configured in IntelliJ IDEA with specific VM run 
 
 ```bash
 # Auth Service Databases
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9005 -web -webPort 9006 -baseDir ./db/Auth/querydb1
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9007 -web -webPort 9008 -baseDir ./db/Auth/querydb2
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9009 -web -webPort 9010 -baseDir ./db/Auth/commanddb1
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9011 -web -webPort 9012 -baseDir ./db/Auth/commanddb2
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9005 -baseDir ./db/Auth/authquerydb1
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9006 -baseDir ./db/Auth/authquerydb2
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9007 -baseDir ./db/Auth/authcommanddb1
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9008 -baseDir ./db/Auth/authcommanddb2
 
 # Book Service Databases
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9015 -web -webPort 9016 -baseDir ./db/Book/querydb1
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9017 -web -webPort 9018 -baseDir ./db/Book/querydb2
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9019 -web -webPort 9020 -baseDir ./db/Book/commanddb1
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9021 -web -webPort 9022 -baseDir ./db/Book/commanddb2
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9015 -baseDir ./db/Book/bookquerydb1
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9016 -baseDir ./db/Book/bookquerydb2
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9017 -baseDir ./db/Book/bookcommanddb1
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9018 -baseDir ./db/Book/bookcommanddb2
 
 # Lending Service Databases
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9025 -web -webPort 9026 -baseDir ./db/Lending/querydb1
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9027 -web -webPort 9028 -baseDir ./db/Lending/querydb2
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9029 -web -webPort 9030 -baseDir ./db/Lending/commanddb1
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9031 -web -webPort 9032 -baseDir ./db/Lending/commanddb2
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9025 -baseDir ./db/Lending/lendingquerydb1
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9026 -baseDir ./db/Lending/lendingquerydb2
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9027 -baseDir ./db/Lending/lendingcommanddb1
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9028 -baseDir ./db/Lending/lendingcommanddb2
 
 # Reader Service Databases
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9035 -web -webPort 9036 -baseDir ./db/Reader/querydb1
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9037 -web -webPort 9038 -baseDir ./db/Reader/querydb2
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9039 -web -webPort 9040 -baseDir ./db/Reader/commanddb1
-java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9041 -web -webPort 9042 -baseDir ./db/Reader/commanddb2
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9035 -baseDir ./db/Reader/readerquerydb1
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9036 -baseDir ./db/Reader/readerquerydb2
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9037 -baseDir ./db/Reader/readercommanddb1
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9038 -baseDir ./db/Reader/readercommanddb2
 
+# Recommendation Service Databases
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9065 -baseDir ./db/Recommendation/recommendationcommanddb1
+java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9066 -baseDir ./db/Recommendation/recommendationcommanddb2
 ```
 
 ### 9. Future Improvements
@@ -307,4 +334,5 @@ java -cp h2*.jar org.h2.tools.Server -tcp -tcpPort 9041 -web -webPort 9042 -base
     - As mentioned earlier, sending media files (like images) through RabbitMQ is not optimal. A better approach would be to send only the file paths instead of the actual files. This would reduce network load and storage requirements. Additionally, we should consider saving only the path to the media file in the database rather than storing the file itself, to avoid unnecessary bloat and improve system efficiency.
 4. Full Model vs. Minimal Data
     - While the decision was made to save the full model of data (e.g., the full Book model) rather than just the minimal required data, this could lead to database bloat in the future. A future improvement would be to rethink this strategy by storing only the relevant information needed by each service or instance, which would optimize database performance and reduce redundant storage across the system.
-
+5. Add possibility of running new instances at any time with respective db.
+6. Add Bootstrap initialization for new instances.
