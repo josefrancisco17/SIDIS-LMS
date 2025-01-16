@@ -1,0 +1,17 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+participant "//«system»//\nlms:LMS" as LMS
+
+note left of LMS
+    Librarian is authenticated
+end note
+
+[o-> LMS: POST /api/books/createBAG {:book, :author, :genre}
+activate LMS
+    LMS -> LMS : validate()
+    LMS -> LMS : create()
+[<-- LMS: 202
+deactivate LMS
+
+@enduml

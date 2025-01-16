@@ -117,6 +117,10 @@ public class LendingServiceImpl implements LendingService {
             throw new NotFoundException("[ERROR] Lending not found");
         }
 
+        if (resource.getRecommend() == null) {
+            throw new NotFoundException("[ERROR] Please provide a recommendation");
+        }
+
         returnedLending = lending.get();
 
         if (returnedLending.isReturned()) {
