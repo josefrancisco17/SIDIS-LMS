@@ -1,0 +1,74 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+participant "//«component»//\nBookC1:BookServiceCommand" as BookServiceC1
+participant "//«component»//\nBookC2:BookServiceCommand" as BookServiceC2
+participant "//«component»//\nAuthorC1:AuthorServiceCommand" as AuthorServiceC1
+participant "//«component»//\nAuthorC2:AuthorServiceCommand" as AuthorServiceC2
+participant "//«component»//\nMB:MessageBroker" as MB
+
+note left BookServiceC1
+    Librarian is authenticated and initiates the creation of BAG (Book, Author, Genre)
+end note
+
+[o-> BookServiceC1: POST /api/books/createBAG\n{:book, :author, :genre}
+    activate BookServiceC1
+    BookServiceC1 -> BookServiceC1 : validate()
+    BookServiceC1 -> BookServiceC1 : saveTempBAG()
+    BookServiceC1 -> MB : publish(tempBAG, headers: serverPort)
+    activate MB
+[<-- BookServiceC1: 202
+    deactivate BookServiceC1
+
+note over MB : Only one instance consumes the message, because they are in the same queue
+
+    MB -> AuthorServiceC1 : notify(tempBAG, headers: serverPort)
+    activate AuthorServiceC1
+    AuthorServiceC1 -> AuthorServiceC1 : createAuthor()
+    AuthorServiceC1 -> AuthorServiceC1 : save()
+    AuthorServiceC1 -> MB : publish(authorCreated, headers: serverPort)
+    note over MB :  if authorService checkExistence. if BookServiceCommand checkPort
+    deactivate AuthorServiceC1
+        MB -> AuthorServiceC1 : notify(authorCreated)
+        activate AuthorServiceC1
+        AuthorServiceC1 -> AuthorServiceC1 : checkExistence()
+        note over AuthorServiceC1 :  author already exists,\nprocess aborted
+        deactivate AuthorServiceC1
+
+        MB -> AuthorServiceC2 : notify(authorCreated)
+        activate AuthorServiceC2
+        AuthorServiceC2 -> AuthorServiceC2 : checkExistence()
+        AuthorServiceC2 -> AuthorServiceC2 : save()
+        deactivate AuthorServiceC2
+
+    MB -> BookServiceC2 : notify(authorCreated)
+    note over BookServiceC2 :  serverPort doesn't match,\nprocess aborted
+    activate BookServiceC2
+    destroy BookServiceC2
+
+
+    MB -> BookServiceC1 : notify(authorCreated)
+    activate BookServiceC1
+    BookServiceC1 -> BookServiceC1 : save(returned_BAG)
+    BookServiceC1 -> BookServiceC1 : deleteTempBAG()
+    BookServiceC1 -> MB : publish(returned_BAG)
+    deactivate BookServiceC1
+        MB -> BookServiceC2 : notify(returned_BAG)
+        activate BookServiceC2
+        BookServiceC2 -> BookServiceC2 : save(returned_BAG)
+        deactivate BookServiceC2
+                MB -> AuthorServiceC1 : notify(returned_BAG)
+                activate AuthorServiceC1
+
+                AuthorServiceC1 -> AuthorServiceC1:save(returned_BAG)
+                deactivate AuthorServiceC1
+                        MB -> AuthorServiceC2 : notify(returned_BAG)
+                        deactivate MB
+                        activate AuthorServiceC2
+                        AuthorServiceC2 -> AuthorServiceC2:save(returned_BAG)
+                        deactivate AuthorServiceC2
+
+
+
+
+@enduml

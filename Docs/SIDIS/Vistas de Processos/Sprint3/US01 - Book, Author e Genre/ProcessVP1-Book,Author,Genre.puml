@@ -1,23 +1,17 @@
 @startuml
 'https://plantuml.com/sequence-diagram
 
-participant "//«component»//\nBookC1:BookServiceCommand" as BookServiceC1
-participant "//«component»//\nBookC2:BookServiceCommand" as BookServiceC2
-participant "//«component»//\nAuthorC1:AuthorServiceCommand" as AuthorServiceC1
-participant "//«component»//\nAuthorC2:AuthorServiceCommand" as AuthorServiceC2
-participant "//«component»//\nMB:MessageBroker" as MB
+participant "//«system»//\nlms:LMS" as LMS
 
-note left BookServiceC1
-    Librarian is authenticated and initiates the creation of BAG (Book, Author, Genre)
+note left of LMS
+    Librarian is authenticated
 end note
 
-[o-> BookServiceC1: POST /api/books/createBAG\n{:book, :author, :genre}
-    activate BookServiceC1
-    BookServiceC1 -> BookServiceC1 : validate()
-    BookServiceC1 -> BookServiceC1 : saveTempBAG()
-    BookServiceC1 -> MB : publish(tempBAG, headers: serverPort)
-    activate MB
-[<-- BookServiceC1: 201 Created
-    deactivate BookServiceC1
+[o-> LMS: POST /api/books/createBAG {:book, :author, :genre}
+activate LMS
+    LMS -> LMS : validate()
+    LMS -> LMS : create()
+[<-- LMS: 202
+deactivate LMS
 
-note over MB : Only one instance consumes the message, because they are in the same queue
+@enduml
